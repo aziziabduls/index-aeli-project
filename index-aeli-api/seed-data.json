@@ -1,0 +1,3119 @@
+{
+  "destinations": [
+    {
+      "id": "bali",
+      "name": "Bali",
+      "slug": "bali",
+      "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80",
+      "description": "The legendary Island of the Gods, famous for its forested volcanic mountains, iconic rice paddies, beaches, and coral reefs.",
+      "attractionCount": 5,
+      "quickFacts": {
+        "capital": "Denpasar",
+        "population": "4.3 Million",
+        "language": "Balinese & Indonesian",
+        "timezone": "GMT+8 (WITA)"
+      },
+      "weather": {
+        "temperature": "28°C",
+        "condition": "Sunny & Tropical"
+      },
+      "bestTimeToVisit": "April to October (Dry Season)",
+      "gallery": [
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1604999333679-b86d54738315?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "jakarta",
+      "name": "Jakarta",
+      "slug": "jakarta",
+      "image": "https://images.unsplash.com/photo-1555899434-94d1368aa7af?w=500&q=80",
+      "description": "The dynamic, sprawling capital of Indonesia. A fascinating melting pot of modern skyscrapers, historic colonial quarters, and rich cultural heritage.",
+      "attractionCount": 3,
+      "quickFacts": {
+        "capital": "Jakarta",
+        "population": "10.5 Million",
+        "language": "Indonesian (Betawi)",
+        "timezone": "GMT+7 (WIB)"
+      },
+      "weather": {
+        "temperature": "31°C",
+        "condition": "Partly Cloudy"
+      },
+      "bestTimeToVisit": "June to September",
+      "gallery": [
+        "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "yogyakarta",
+      "name": "Yogyakarta",
+      "slug": "yogyakarta",
+      "image": "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=1200&q=80",
+      "description": "The soul of Java, renowned as a center for classical Javanese fine art and culture, from batik and ballet to traditional shadow puppetry.",
+      "attractionCount": 4,
+      "quickFacts": {
+        "capital": "Yogyakarta",
+        "population": "3.8 Million",
+        "language": "Javanese & Indonesian",
+        "timezone": "GMT+7 (WIB)"
+      },
+      "weather": {
+        "temperature": "27°C",
+        "condition": "Tropical Warm"
+      },
+      "bestTimeToVisit": "May to October",
+      "gallery": [
+        "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1604999333679-b86d54738315?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "bandung",
+      "name": "Bandung",
+      "slug": "bandung",
+      "image": "https://images.unsplash.com/photo-1611638281871-1063d3e76e1f?q=80&w=2266&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "description": "Nicknamed the Paris of Java, Bandung is situated on a highland plateau, offering a cooler climate, volcanoes, tea plantations, and art deco architecture.",
+      "attractionCount": 3,
+      "quickFacts": {
+        "capital": "Bandung",
+        "population": "2.5 Million",
+        "language": "Sundanese & Indonesian",
+        "timezone": "GMT+7 (WIB)"
+      },
+      "weather": {
+        "temperature": "23°C",
+        "condition": "Cool & Humid"
+      },
+      "bestTimeToVisit": "May to September",
+      "gallery": [
+        "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1579294819770-5b1285074b62?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1620127252536-03bdfcf6d5c3?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "lombok",
+      "name": "Lombok",
+      "slug": "lombok",
+      "image": "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=1200&q=80",
+      "description": "An unspoiled paradise east of Bali, known for its pristine white-sand beaches, crystal clear waters, Gili islands, and majestic Mount Rinjani.",
+      "attractionCount": 3,
+      "quickFacts": {
+        "capital": "Mataram",
+        "population": "3.5 Million",
+        "language": "Sasak & Indonesian",
+        "timezone": "GMT+8 (WITA)"
+      },
+      "weather": {
+        "temperature": "29°C",
+        "condition": "Tropical Breeze"
+      },
+      "bestTimeToVisit": "May to October",
+      "gallery": [
+        "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1582298538104-fc2c095a436c?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "labuan-bajo",
+      "name": "Labuan Bajo",
+      "slug": "labuan-bajo",
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80",
+      "description": "The gateway to Komodo National Park. A breathtaking fishing town surrounded by dramatic hills, exotic pink beaches, and legendary giant dragons.",
+      "attractionCount": 4,
+      "quickFacts": {
+        "capital": "Labuan Bajo",
+        "population": "250,000",
+        "language": "Manggarai & Indonesian",
+        "timezone": "GMT+8 (WITA)"
+      },
+      "weather": {
+        "temperature": "30°C",
+        "condition": "Sunny"
+      },
+      "bestTimeToVisit": "April to November",
+      "gallery": [
+        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "surabaya",
+      "name": "Surabaya",
+      "slug": "surabaya",
+      "image": "https://images.unsplash.com/photo-1566176553949-872b2a73e04e?q=80&w=985&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "description": "The City of Heroes. East Java's industrial heart and second largest metropolis, combining modern harbor terminals, colonial architecture, and dynamic culinary scenes.",
+      "attractionCount": 3,
+      "quickFacts": {
+        "capital": "Surabaya",
+        "population": "3.1 Million",
+        "language": "Javanese & Indonesian",
+        "timezone": "GMT+7 (WIB)"
+      },
+      "weather": {
+        "temperature": "32°C",
+        "condition": "Hot & Humid"
+      },
+      "bestTimeToVisit": "July to October",
+      "gallery": [
+        "https://images.unsplash.com/photo-1601999109332-542b18dbec57?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1589979482837-e74f2e145060?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1611637576109-b6f76185ec9b?auto=format&fit=crop&w=800&q=80"
+      ]
+    }
+  ],
+  "attractions": [
+    {
+      "id": "tanah-lot",
+      "name": "Tanah Lot Temple",
+      "slug": "tanah-lot",
+      "destinationId": "bali",
+      "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+      "description": "An iconic ancient Hindu pilgrimage temple perched on a unique rock formation off the coast of Bali, famous for spectacular sunset views.",
+      "location": "Tabanan, Bali",
+      "rating": 4.8,
+      "history": "Built in the 16th century by the legendary priest Nirartha. Tanah Lot temple is a critical part of Balinese spiritual sea mythology, guarded by venomous sea snakes.",
+      "openingHours": "06:00 AM - 07:00 PM",
+      "facilities": [
+        "Parking Lot",
+        "Souvenir Shops",
+        "Washrooms",
+        "Restaurants",
+        "Guides"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "ubud-monkey-forest",
+      "name": "Ubud Monkey Forest",
+      "slug": "ubud-monkey-forest",
+      "destinationId": "bali",
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+      "description": "A sanctuary and natural habitat of the Balinese long-tailed macaque, located in the cool highlands of Ubud.",
+      "location": "Ubud, Bali",
+      "rating": 4.7,
+      "history": "Also known as the Sacred Monkey Forest Sanctuary, this site is dedicated to conservation, spiritual devotion, and scientific research in accordance with the Tri Hita Karana philosophy.",
+      "openingHours": "09:00 AM - 06:00 PM",
+      "facilities": [
+        "Visitor Center",
+        "Restrooms",
+        "Information Desk",
+        "First Aid",
+        "Free Parking"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1604999333679-b86d54738315?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "uluwatu-temple",
+      "name": "Uluwatu Cliff Temple",
+      "slug": "uluwatu-temple",
+      "destinationId": "bali",
+      "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+      "description": "Perched on a steep cliff 70 meters above the roaring Indian Ocean, this temple hosts the daily Kecak fire dance at sunset.",
+      "location": "Pecatu, South Kuta, Bali",
+      "rating": 4.9,
+      "history": "Constructed originally in the 11th century, it is dedicated to Sang Hyang Widhi Wasa in his manifestation as Rudra, protecting Bali from evil spirits.",
+      "openingHours": "07:00 AM - 07:00 PM",
+      "facilities": [
+        "Kecak Dance Stage",
+        "Traditional Sarong Rental",
+        "Walking Trails",
+        "Parking",
+        "Washrooms"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "tegalalang",
+      "name": "Tegalalang Rice Terraces",
+      "slug": "tegalalang",
+      "destinationId": "bali",
+      "image": "https://images.unsplash.com/photo-1604999333679-b86d54738315?auto=format&fit=crop&w=800&q=80",
+      "description": "A beautiful terraced hillside showing the traditional Balinese cooperative irrigation system called Subak.",
+      "location": "Tegalalang, Ubud, Bali",
+      "rating": 4.6,
+      "history": "Dating back to the 8th century, these valleys are cultivated by local farmers who maintain subak, Bali's UNESCO-recognized communal water system.",
+      "openingHours": "08:00 AM - 06:00 PM",
+      "facilities": [
+        "Cafes",
+        "Swing Points",
+        "Photo Spots",
+        "Walkways",
+        "Local Guides"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1604999333679-b86d54738315?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "nusa-penida",
+      "name": "Nusa Penida Kelingking Beach",
+      "slug": "nusa-penida",
+      "destinationId": "bali",
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+      "description": "A famous cliff formation resembling a T-Rex overlooking a crystal clear turquoise bay and pristine white sand.",
+      "location": "Nusa Penida, Bali",
+      "rating": 4.9,
+      "history": "A secluded island southeast of Bali main island, Nusa Penida remained untouched for centuries, preserving its dramatic limestone cliffs and rich marine biodiversity.",
+      "openingHours": "24 Hours (Best in Daylight)",
+      "facilities": [
+        "Local food stalls (Warungs)",
+        "Restrooms",
+        "Ferry Harbor Access",
+        "Viewing Deck"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "monas",
+      "name": "National Monument (Monas)",
+      "slug": "monas",
+      "destinationId": "jakarta",
+      "image": "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80",
+      "description": "A 132-meter tower in the center of Merdeka Square, symbolizing the struggle for Indonesian Independence.",
+      "location": "Central Jakarta",
+      "rating": 4.5,
+      "history": "Commissioned by President Sukarno and opened in 1975, the flame at the top is covered with 35 kg of gold foil, representing independence spirit.",
+      "openingHours": "08:00 AM - 04:00 PM",
+      "facilities": [
+        "Museum of National History",
+        "Observation Deck",
+        "Electric Trains",
+        "Parks",
+        "Food Courts"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "kota-tua",
+      "name": "Old Batavia (Kota Tua)",
+      "slug": "kota-tua",
+      "destinationId": "jakarta",
+      "image": "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=800&q=80",
+      "description": "The historic core of Jakarta, boasting 17th-century Dutch colonial buildings centered around Fatahillah Square.",
+      "location": "West Jakarta",
+      "rating": 4.4,
+      "history": "Established by the Dutch East India Company (VOC) in 1619 as Batavia, it was the administrative headquarters of the colonial Dutch Empire in Asia.",
+      "openingHours": "24 Hours (Museums close at 03:00 PM)",
+      "facilities": [
+        "Bicycle Rental",
+        "Jakarta History Museum",
+        "Cafe Batavia",
+        "Street Performers",
+        "Train Station"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "taman-mini",
+      "name": "Taman Mini Indonesia Indah",
+      "slug": "taman-mini",
+      "destinationId": "jakarta",
+      "image": "https://images.unsplash.com/photo-1620127252536-03bdfcf6d5c3?auto=format&fit=crop&w=800&q=80",
+      "description": "A culture-based recreational area showcasing pavilions representing the traditional homes of all 38 Indonesian provinces.",
+      "location": "East Jakarta",
+      "rating": 4.6,
+      "history": "Conceived by former First Lady Tien Suharto and opened in 1975 to foster national pride, identity, and unity through cultural representations.",
+      "openingHours": "06:00 AM - 08:00 PM",
+      "facilities": [
+        "Cable Car",
+        "IMAX Theater",
+        "Museums",
+        "Traditional Houses",
+        "Bicycle Tracks"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1620127252536-03bdfcf6d5c3?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "borobudur",
+      "name": "Borobudur Temple",
+      "slug": "borobudur",
+      "destinationId": "yogyakarta",
+      "image": "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80",
+      "description": "The world's largest Buddhist temple, a UNESCO World Heritage Site featuring 9 stacked platforms and 72 open-work stupas.",
+      "location": "Magelang (near Yogyakarta)",
+      "rating": 5,
+      "history": "Built during the Sailendra Dynasty in the 9th century, Borobudur lay hidden for centuries under volcanic ash and jungle growth before being rediscovered in 1814.",
+      "openingHours": "06:30 AM - 04:30 PM",
+      "facilities": [
+        "Visitor Center",
+        "Audioguides",
+        "Shuttle Trains",
+        "Souvenir Stalls",
+        "Museums",
+        "Wheelchair Access"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1579294819770-5b1285074b62?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "prambanan",
+      "name": "Prambanan Temple",
+      "slug": "prambanan",
+      "destinationId": "yogyakarta",
+      "image": "https://images.unsplash.com/photo-1604999333679-b86d54738315?auto=format&fit=crop&w=800&q=80",
+      "description": "A magnificent 10th-century Hindu temple compound dedicated to the Trimurti (Creator Brahma, Preserver Vishnu, and Destroyer Shiva).",
+      "location": "Sleman, Yogyakarta",
+      "rating": 4.9,
+      "history": "The largest Hindu temple site in Indonesia, built by the Sanjaya Dynasty. Its tall towering spires represent Mount Meru, the holy abode of Hindu gods.",
+      "openingHours": "06:30 AM - 05:00 PM",
+      "facilities": [
+        "Ramayana Ballet Stage",
+        "Souvenir Center",
+        "Park Area",
+        "Information Center",
+        "Restrooms"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1604999333679-b86d54738315?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "keraton-yogyakarta",
+      "name": "Yogyakarta Palace (Keraton)",
+      "slug": "keraton-yogyakarta",
+      "destinationId": "yogyakarta",
+      "image": "https://images.unsplash.com/photo-1579294819770-5b1285074b62?auto=format&fit=crop&w=800&q=80",
+      "description": "The grand palace complex of the Sultan of Yogyakarta, serving as a living museum of Javanese royal culture.",
+      "location": "City Center, Yogyakarta",
+      "rating": 4.6,
+      "history": "Built by Sultan Hamengkubuwono I in 1755, the palace displays exquisite Javanese architecture, court ornaments, and is still the current residence of the Sultan.",
+      "openingHours": "08:30 AM - 01:30 PM",
+      "facilities": [
+        "Exhibition Rooms",
+        "Local Guides",
+        "Cultural Shows",
+        "Museum Store",
+        "Toilets"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1579294819770-5b1285074b62?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "malioboro",
+      "name": "Malioboro Street",
+      "slug": "malioboro",
+      "destinationId": "yogyakarta",
+      "image": "https://images.unsplash.com/photo-1582298538104-fc2c095a436c?auto=format&fit=crop&w=800&q=80",
+      "description": "A famous 24-hour shopping street filled with street vendors selling batik, traditional crafts, street food, and horse cart rides.",
+      "location": "City Center, Yogyakarta",
+      "rating": 4.5,
+      "history": "Established in the colonial era, the street has served as Yogyakarta's commercial heart for over 250 years, linking the Sultan's palace and Mount Merapi.",
+      "openingHours": "24 Hours",
+      "facilities": [
+        "Benches",
+        "Batik Stores",
+        "Food Stalls",
+        "Parking buildings",
+        "Pedestrian Walkway"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1582298538104-fc2c095a436c?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "tangkoeban-perahoe",
+      "name": "Tangkuban Perahu Volcano",
+      "slug": "tangkoeban-perahoe",
+      "destinationId": "bandung",
+      "image": "https://images.unsplash.com/photo-1579294819770-5b1285074b62?auto=format&fit=crop&w=800&q=80",
+      "description": "An active volcano north of Bandung, offering crater treks and geothermal hot springs to boil eggs in sulfur pools.",
+      "location": "Lembang, West Java",
+      "rating": 4.5,
+      "history": "Derived from the Sundanese legend of Sangkuriang, who kicked a giant boat upside down in a fit of rage, which then turned into this boat-shaped mountain.",
+      "openingHours": "08:00 AM - 05:00 PM",
+      "facilities": [
+        "Crater Walkway",
+        "Local Stalls",
+        "Volcano Guides",
+        "Restrooms",
+        "Parking Lot"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1579294819770-5b1285074b62?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "kawah-putih",
+      "name": "Kawah Putih (White Crater)",
+      "slug": "kawah-putih",
+      "destinationId": "bandung",
+      "image": "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80",
+      "description": "A striking sulfurous crater lake with surreal white-green waters surrounded by skeleton trees, sitting in high mountain mist.",
+      "location": "Ciwidey, West Java",
+      "rating": 4.7,
+      "history": "Formed after Mount Patuha erupted in the 10th century. Discovered by German botanist Dr. Franz Wilhelm Junghuhn in 1837, who investigated the eerie birdless lake.",
+      "openingHours": "07:00 AM - 05:00 PM",
+      "facilities": [
+        "Shuttle Service (Ontang-Anting)",
+        "Viewing Platforms",
+        "Suspension Bridge",
+        "Photography Service"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "dusun-bambu",
+      "name": "Dusun Bambu Family Leisure Park",
+      "slug": "dusun-bambu",
+      "destinationId": "bandung",
+      "image": "https://images.unsplash.com/photo-1620127252536-03bdfcf6d5c3?auto=format&fit=crop&w=800&q=80",
+      "description": "An eco-tourism park combining Sundanese culture, lush lakeside restaurants, glamping sites, and bamboo gardens.",
+      "location": "Lembang, Bandung",
+      "rating": 4.6,
+      "history": "Designed to preserve Sundanese cultural identity, local bamboo species, and create a family-friendly oasis that blends modern design and nature.",
+      "openingHours": "09:00 AM - 08:00 PM",
+      "facilities": [
+        "Lakeside Cottages",
+        "Bamboo Playground",
+        "Restaurants",
+        "Garden Center",
+        "Clean Restrooms"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1620127252536-03bdfcf6d5c3?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "gili-islands",
+      "name": "The Gili Islands",
+      "slug": "gili-islands",
+      "destinationId": "lombok",
+      "image": "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80",
+      "description": "Three small islands—Gili Trawangan, Gili Meno, and Gili Air—known for sandy beaches, coral reefs, sea turtles, and no motorized vehicles.",
+      "location": "North Lombok Regency",
+      "rating": 4.9,
+      "history": "Once used as a base for coconut plantations and a stopover for sailors, the Gilis have grown into an international eco-tourism hotspot.",
+      "openingHours": "24 Hours (Boat schedules vary)",
+      "facilities": [
+        "Bicycle Rental",
+        "Diving Schools",
+        "Beachfront Resorts",
+        "Boat Charters",
+        "Dini and Sunset bars"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "rinjani-volcano",
+      "name": "Mount Rinjani",
+      "slug": "rinjani-volcano",
+      "destinationId": "lombok",
+      "image": "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=800&q=80",
+      "description": "The second highest active volcano in Indonesia, offering challenging treks to the summit and the caldera lake Segara Anak.",
+      "location": "Sembalun / Senaru, Lombok",
+      "rating": 4.8,
+      "history": "A sacred mountain for both local Sasak people and Balinese Hindus. The caldera lake contains a new active volcanic cone named Gunung Baru Jari.",
+      "openingHours": "Trek booking: 07:00 AM - 05:00 PM (National Park)",
+      "facilities": [
+        "Campsites",
+        "Porter Services",
+        "Registration Offices",
+        "Rescue Posts",
+        "Hiking Trails"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "sendang-gile",
+      "name": "Sendang Gile & Tiu Kelep Waterfalls",
+      "slug": "sendang-gile",
+      "destinationId": "lombok",
+      "image": "https://images.unsplash.com/photo-1582298538104-fc2c095a436c?auto=format&fit=crop&w=800&q=80",
+      "description": "Lush tropical twin waterfalls hidden deep inside Mount Rinjani National Park, flowing with refreshing spring waters.",
+      "location": "Senaru, North Lombok",
+      "rating": 4.7,
+      "history": "According to Sasak folklore, bathing under Tiu Kelep waterfall cures illnesses and makes you look younger, fed directly from Mount Rinjani's crater lake.",
+      "openingHours": "08:00 AM - 05:00 PM",
+      "facilities": [
+        "Jungle Paths",
+        "Changing Rooms",
+        "Bridges",
+        "Entrance Ticket Booth",
+        "Local Guides"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1582298538104-fc2c095a436c?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "komodo-island",
+      "name": "Komodo Island National Park",
+      "slug": "komodo-island",
+      "destinationId": "labuan-bajo",
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
+      "description": "The native habitat of the Komodo Dragon, the largest living lizard species, set amidst dry savannah volcanic hills.",
+      "location": "Komodo District, West Manggarai",
+      "rating": 5,
+      "history": "Established in 1980 to protect the unique Komodo Dragon. It was designated a UNESCO World Heritage site and a New7Wonders of Nature.",
+      "openingHours": "07:00 AM - 05:00 PM",
+      "facilities": [
+        "Ranger Center",
+        "Nature Trails",
+        "First Aid Station",
+        "Restrooms",
+        "Souvenir Area"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "padar-island",
+      "name": "Padar Island Viewpoint",
+      "slug": "padar-island",
+      "destinationId": "labuan-bajo",
+      "image": "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80",
+      "description": "A legendary viewpoint on Padar Island displaying three distinct crescent bays of white, pink, and black sand beaches.",
+      "location": "Komodo National Park, Flores",
+      "rating": 4.9,
+      "history": "An uninhabited rugged volcanic island that offers one of the most photographed viewpoints in Southeast Asia after a 815-step wooden staircase climb.",
+      "openingHours": "06:00 AM - 05:00 PM (Best at Sunrise)",
+      "facilities": [
+        "Wooden Steps",
+        "Ferry jetty",
+        "Small Ranger Post",
+        "Security guards"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "pink-beach",
+      "name": "Komodo Pink Beach",
+      "slug": "pink-beach",
+      "destinationId": "labuan-bajo",
+      "image": "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80",
+      "description": "One of only seven pink sand beaches in the world, colored by tiny microscopic animals called Foraminifera.",
+      "location": "Komodo Island, Flores",
+      "rating": 4.8,
+      "history": "A striking pink shore created by red coral fragments mixing with white calcium carbonate sand, surrounded by thriving coral gardens.",
+      "openingHours": "24 Hours",
+      "facilities": [
+        "Coral Snorkeling Reef",
+        "Local boat anchorage",
+        "Small coconut stalls"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "cunca-wami",
+      "name": "Cunca Wami Canyon Waterfall",
+      "slug": "cunca-wami",
+      "destinationId": "labuan-bajo",
+      "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+      "description": "A deep forest canyon waterfall featuring clear blue swimming pools and exciting rock jumping ledges.",
+      "location": "Mbeliling Forest, Labuan Bajo",
+      "rating": 4.6,
+      "history": "Discovered in rural Flores highlands, this canyon served as a natural pool for local Manggarai villagers for generations before opening to eco-tourism.",
+      "openingHours": "08:00 AM - 04:30 PM",
+      "facilities": [
+        "Forest Trails",
+        "Locker services",
+        "Trained lifeguards",
+        "Snack vendor"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "house-of-sampoerna",
+      "name": "House of Sampoerna",
+      "slug": "house-of-sampoerna",
+      "destinationId": "surabaya",
+      "image": "https://images.unsplash.com/photo-1601999109332-542b18dbec57?auto=format&fit=crop&w=800&q=80",
+      "description": "A grand Dutch colonial style museum showing the history of Indonesia's famous clove cigarette (Kretek) brand.",
+      "location": "North Surabaya, East Java",
+      "rating": 4.6,
+      "history": "Built in 1862 as an orphanage, it was bought in 1932 by Liem Seeng Tee and turned into Sampoerna's first commercial hand-rolling production facility.",
+      "openingHours": "09:00 AM - 06:00 PM",
+      "facilities": [
+        "Historical Gallery",
+        "Live Hand-Rolling Floor",
+        "Cafe",
+        "Souvenir shop",
+        "Art Gallery"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1601999109332-542b18dbec57?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "suramadu-bridge",
+      "name": "Suramadu National Bridge",
+      "slug": "suramadu-bridge",
+      "destinationId": "surabaya",
+      "image": "https://images.unsplash.com/photo-1589979482837-e74f2e145060?auto=format&fit=crop&w=800&q=80",
+      "description": "A massive 5.4-kilometer bridge connecting Surabaya on Java island to Madura island, illuminated brilliantly at night.",
+      "location": "Kenjeran, Surabaya",
+      "rating": 4.5,
+      "history": "Completed in 2009, it is the longest bridge in Indonesia, serving as a vital trade link and a testament to modern national infrastructure.",
+      "openingHours": "24 Hours",
+      "facilities": [
+        "Photopoints",
+        "Bicycle lanes",
+        "Maduran seafood stalls nearby"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1589979482837-e74f2e145060?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "sub-monument",
+      "name": "Submarine Monument (Monkasel)",
+      "slug": "sub-monument",
+      "destinationId": "surabaya",
+      "image": "https://images.unsplash.com/photo-1611637576109-b6f76185ec9b?auto=format&fit=crop&w=800&q=80",
+      "description": "A real Russian submarine (KRI Pasopati 410) converted into a museum on the banks of the Kalimas river.",
+      "location": "Genteng, Surabaya",
+      "rating": 4.4,
+      "history": "A Whiskey-class submarine launched in Vladivostok in 1952, it was active in the Indonesian Navy until 1989, participating in the historic West Irian campaign.",
+      "openingHours": "08:00 AM - 09:00 PM",
+      "facilities": [
+        "Guided Submarine Tour",
+        "Video Room",
+        "Riverside Cafe",
+        "Playground",
+        "Souvenir Area"
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1611637576109-b6f76185ec9b?auto=format&fit=crop&w=800&q=80"
+      ]
+    }
+  ],
+  "tours": [
+    {
+      "id": "bali-sunset-temple-tour",
+      "name": "Tanah Lot Sunset & Cultural Temple Tour",
+      "slug": "bali-sunset-temple-tour",
+      "destinationId": "bali",
+      "attractionId": "tanah-lot",
+      "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+      "description": "Witness the iconic sea temple Tanah Lot at golden hour, learn Balinese mythologies, and experience traditional cleansing rituals.",
+      "duration": "6 Hours",
+      "price": 735000,
+      "rating": 4.8,
+      "reviewsCount": 312,
+      "category": "Cultural",
+      "highlights": [
+        "Private hotel pickup",
+        "Skip-the-line entrance tickets",
+        "Expert Balinese historian guide",
+        "Sunset photo spots"
+      ],
+      "included": [
+        "Air-conditioned transport",
+        "Entrance fees",
+        "Local mineral water",
+        "Sarong rental"
+      ],
+      "excluded": [
+        "Dinner costs",
+        "Personal expenses",
+        "Guide tips"
+      ],
+      "meetingPoint": "Hotel Lobby pickup (Kuta/Seminyak/Ubud/Nusa Dua)",
+      "itinerary": [
+        {
+          "title": "1:30 PM - Hotel Pickup",
+          "activities": [
+            "Meet private driver",
+            "Drive to Tabanan through scenic rice views"
+          ]
+        },
+        {
+          "title": "3:00 PM - Royal Family Temple",
+          "activities": [
+            "Visit Taman Ayun, Royal Family Temple",
+            "Stroll through water garden moat"
+          ]
+        },
+        {
+          "title": "5:00 PM - Tanah Lot Coastline",
+          "activities": [
+            "Arrive at Tanah Lot ocean cliffs",
+            "Explore historical sea shrines",
+            "Holy water cleansing option"
+          ]
+        },
+        {
+          "title": "6:00 PM - Sunset & Kecak Dance",
+          "activities": [
+            "Enjoy dramatic sunset views",
+            "Kecak dance performance",
+            "Return to hotel"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "ubud-arts-monkey-forest",
+      "name": "Ubud Art Guild & Sacred Monkey Forest Safari",
+      "slug": "ubud-arts-monkey-forest",
+      "destinationId": "bali",
+      "attractionId": "ubud-monkey-forest",
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+      "description": "Explore Ubud's famous woodcarving villages, walk the sacred monkey forest, swing over rice terraces, and visit local craft markets.",
+      "duration": "8 Hours",
+      "price": 585000,
+      "rating": 4.7,
+      "reviewsCount": 185,
+      "category": "Nature",
+      "highlights": [
+        "Interact with macaque monkeys",
+        "Scenic jungle swings",
+        "Batik and woodcarving workshops",
+        "Organic plantation lunch"
+      ],
+      "included": [
+        "Private SUV Transport",
+        "All admission tickets",
+        "Local tour driver",
+        "Traditional Indonesian lunch"
+      ],
+      "excluded": [
+        "Jungle swing fee (optional)",
+        "Souvenirs",
+        "Drinks"
+      ],
+      "meetingPoint": "Ubud central hotels or Denpasar meeting point",
+      "itinerary": [
+        {
+          "title": "08:30 AM - Morning Departure",
+          "activities": [
+            "Pickup from accommodation",
+            "Travel to Celuk silver village"
+          ]
+        },
+        {
+          "title": "10:00 AM - Monkey Forest Walk",
+          "activities": [
+            "Walk the nutmeg forest pathways",
+            "Observe monkeys in ancient temples",
+            "Learn ecological balance efforts"
+          ]
+        },
+        {
+          "title": "12:30 PM - Plantation Lunch",
+          "activities": [
+            "Indonesian buffet with views of deep forest valleys",
+            "Herbal coffee tasting"
+          ]
+        },
+        {
+          "title": "03:00 PM - Art Market & Crafts",
+          "activities": [
+            "Shop at Ubud Art Market",
+            "Visit Royal Ubud Palace and batik artists"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "uluwatu-kecak-seafood",
+      "name": "Uluwatu Cliffside Kecak Fire Dance & Jimbaran Seafood Dinner",
+      "slug": "uluwatu-kecak-seafood",
+      "destinationId": "bali",
+      "attractionId": "uluwatu-temple",
+      "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+      "description": "Witness the epic Ramayana fire dance at the edge of the world, followed by a romantic candlelit seafood dinner on Jimbaran Beach.",
+      "duration": "7 Hours",
+      "price": 1185000,
+      "rating": 4.9,
+      "reviewsCount": 428,
+      "category": "Cultural",
+      "highlights": [
+        "Uluwatu Cliff Sunset views",
+        "Folk Kecak dance tickets",
+        "Candlelit dinner on beach sand",
+        "Fresh Jimbaran seafood platter"
+      ],
+      "included": [
+        "Roundtrip hotel shuttle",
+        "Temple admissions",
+        "Kecak Dance seat reservation",
+        "Gourmet seafood dinner"
+      ],
+      "excluded": [
+        "Alcoholic beverages",
+        "Personal tips"
+      ],
+      "meetingPoint": "Hotel pickup across Bali",
+      "itinerary": [
+        {
+          "title": "03:00 PM - Afternoon Pick-up",
+          "activities": [
+            "SUV transit to Uluwatu peninsula"
+          ]
+        },
+        {
+          "title": "04:30 PM - Uluwatu Temple Walk",
+          "activities": [
+            "Stroll along safety walls of the 70m high cliff temple",
+            "Interact with cliff monkeys"
+          ]
+        },
+        {
+          "title": "06:00 PM - Kecak & Fire Dance",
+          "activities": [
+            "Watch the choir of 50 men chanting around the flame",
+            "Observe sunset over the Indian Ocean"
+          ]
+        },
+        {
+          "title": "08:00 PM - Jimbaran Beach Seafood",
+          "activities": [
+            "Arrive at Jimbaran white sand",
+            "Enjoy grilled lobster, prawns, and fish by candlelight"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "tegalalang-bali-swing-nature",
+      "name": "Tegalalang Rice Terrace Trek & Jungle Swing Adventure",
+      "slug": "tegalalang-bali-swing-nature",
+      "destinationId": "bali",
+      "attractionId": "tegalalang",
+      "image": "https://images.unsplash.com/photo-1604999333679-b86d54738315?auto=format&fit=crop&w=800&q=80",
+      "description": "Trek the emerald terraced valley of Tegalalang, learn traditional rice farming techniques, and soar above the jungle canopy on the iconic Bali Swing.",
+      "duration": "5 Hours",
+      "price": 435000,
+      "rating": 4.6,
+      "reviewsCount": 154,
+      "category": "Adventure",
+      "highlights": [
+        "Scenic terrace trekking",
+        "High-adrenaline jungle swing",
+        "Insta-famous photo spots",
+        "Coconut water refreshment"
+      ],
+      "included": [
+        "Entrance fees",
+        "Swing ticket",
+        "Safety harness",
+        "Mineral water",
+        "Local trekking guide"
+      ],
+      "excluded": [
+        "Hotel transport (optional extra)",
+        "Lunch",
+        "Gratuities"
+      ],
+      "meetingPoint": "Tegalalang Visitor Counter main entrance",
+      "itinerary": [
+        {
+          "title": "08:00 AM - Morning Hike",
+          "activities": [
+            "Begin walk into the steep valley",
+            "Learn subak irrigation tunnels",
+            "Interact with local farmers"
+          ]
+        },
+        {
+          "title": "10:00 AM - Bali Swing Experience",
+          "activities": [
+            "Safety briefing and harness fitting",
+            "Fly 20 meters above coconut trees",
+            "Relax in bird nest photo spots"
+          ]
+        },
+        {
+          "title": "12:00 PM - Coconut Break",
+          "activities": [
+            "Fresh young coconut drink at valley edge cafe",
+            "Return hike"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1604999333679-b86d54738315?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "nusa-penida-snorkeling",
+      "name": "Nusa Penida East Coast Snorkeling & Beach Tour",
+      "slug": "nusa-penida-snorkeling",
+      "destinationId": "bali",
+      "attractionId": "nusa-penida",
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+      "description": "Fast boat to Nusa Penida island, visit the dinosaur-shaped Kelingking Cliff, and snorkel with majestic Manta Rays at Manta Point.",
+      "duration": "10 Hours",
+      "price": 1425000,
+      "rating": 4.9,
+      "reviewsCount": 267,
+      "category": "Adventure",
+      "highlights": [
+        "Swim with Manta Rays",
+        "Fast boat roundtrip tickets",
+        "T-rex shape Kelingking Beach viewpoint",
+        "Broken Beach & Angel Billabong"
+      ],
+      "included": [
+        "Fast boat ticket",
+        "Snorkeling equipment",
+        "Boat captain & guide",
+        "Indonesian lunch buffet",
+        "Air-conditioned island car"
+      ],
+      "excluded": [
+        "Manta Ray conservation contribution ($2)",
+        "Personal souvenirs"
+      ],
+      "meetingPoint": "Sanur Harbor Boat Counter",
+      "itinerary": [
+        {
+          "title": "07:00 AM - Sanur Departure",
+          "activities": [
+            "Check-in at Sanur harbor",
+            "Board express catamaran to Nusa Penida"
+          ]
+        },
+        {
+          "title": "08:30 AM - Snorkeling Safari",
+          "activities": [
+            "Board snorkeling boat",
+            "Swim with mantas at Manta Bay",
+            "Snorkel Crystal Bay coral reefs"
+          ]
+        },
+        {
+          "title": "12:30 PM - Beachfront Lunch",
+          "activities": [
+            "Relax and enjoy local fried rice or noodles"
+          ]
+        },
+        {
+          "title": "02:00 PM - Kelingking Cliff Trek",
+          "activities": [
+            "Walk the cliff ridge at Kelingking Beach",
+            "Photo opportunities",
+            "Return to harbor"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "bali-luxury-yacht-cruise",
+      "name": "Nusa Lembongan Luxury Catamaran Day Cruise",
+      "slug": "bali-luxury-yacht-cruise",
+      "destinationId": "bali",
+      "attractionId": "nusa-penida",
+      "image": "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80",
+      "description": "Sail in style on a 64-foot luxury catamaran, enjoy ocean water sports, and relax at a private beach club in Nusa Lembongan.",
+      "duration": "8 Hours",
+      "price": 2385000,
+      "rating": 4.9,
+      "reviewsCount": 94,
+      "category": "Luxury",
+      "highlights": [
+        "Sailing on premium catamaran",
+        "Unlimited banana boat & kayaking",
+        "Beach club pool access",
+        "BBQ lunch buffet"
+      ],
+      "included": [
+        "Hotel transfers",
+        "Sailing cruise",
+        "Snorkeling tour",
+        "BBQ Buffet lunch",
+        "Wine & beer on return sail"
+      ],
+      "excluded": [
+        "Premium spirits",
+        "Spa treatments"
+      ],
+      "meetingPoint": "Benoa Harbor Yacht Terminal",
+      "itinerary": [
+        {
+          "title": "09:00 AM - Benoa Harbor Sail",
+          "activities": [
+            "Welcome cocktail on board",
+            "Set sail for Nusa Lembongan"
+          ]
+        },
+        {
+          "title": "10:30 AM - Snorkeling & Water Sports",
+          "activities": [
+            "Anchor at pontoon",
+            "Snorkeling, banana boat rides, and waterslides"
+          ]
+        },
+        {
+          "title": "01:00 PM - BBQ Beach Lunch",
+          "activities": [
+            "Indonesian-Western barbecue buffet at private Beach Club"
+          ]
+        },
+        {
+          "title": "03:30 PM - Sailing Return",
+          "activities": [
+            "Relax on net decks with sunset music and complimentary drinks"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "bali-spiritual-yoga-retreat",
+      "name": "Ubud Spiritual Cleansing & Yoga Healing Session",
+      "slug": "bali-spiritual-yoga-retreat",
+      "destinationId": "bali",
+      "attractionId": "ubud-monkey-forest",
+      "image": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80",
+      "description": "Immerse in Bali's spiritual heartland. Experience a Holy Water purification ceremony at Tirta Empul and private yoga session in Ubud.",
+      "duration": "6 Hours",
+      "price": 975000,
+      "rating": 4.8,
+      "reviewsCount": 112,
+      "category": "Wellness",
+      "highlights": [
+        "Melukat Water purification ritual",
+        "Private yoga instructor",
+        "Jungle-facing shala session",
+        "Healthy vegan lunch"
+      ],
+      "included": [
+        "All ceremonial offerings & sarongs",
+        "Yoga mat & instructor",
+        "Organic cold-pressed juice",
+        "Transports"
+      ],
+      "excluded": [
+        "Spa tips"
+      ],
+      "meetingPoint": "Ubud central pick up point",
+      "itinerary": [
+        {
+          "title": "07:30 AM - Water Temple Purification",
+          "activities": [
+            "Visit Tirta Empul holy spring temple",
+            "Undergo Melukat ritual guided by priest"
+          ]
+        },
+        {
+          "title": "10:00 AM - Yoga and Sound Healing",
+          "activities": [
+            "Pranayama breathing and gentle vinyasa yoga flow",
+            "Tibetan singing bowl sound bath"
+          ]
+        },
+        {
+          "title": "12:30 PM - Wellness Vegan Lunch",
+          "activities": [
+            "Organic plant-based meal at organic cafe in Ubud"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "jakarta-historical-batavia",
+      "name": "Old Batavia Colonial Walking Tour",
+      "slug": "jakarta-historical-batavia",
+      "destinationId": "jakarta",
+      "attractionId": "kota-tua",
+      "image": "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=800&q=80",
+      "description": "Step back in time to 17th-century colonial Batavia. Explore historic plazas, Dutch canals, and colonial buildings on foot and vintage bicycle.",
+      "duration": "4 Hours",
+      "price": 375000,
+      "rating": 4.6,
+      "reviewsCount": 89,
+      "category": "Cultural",
+      "highlights": [
+        "Fatahillah Square history",
+        "Vintage colonial bicycle ride",
+        "Fascinating Dutch canal walks",
+        "Coffee stop at historic Cafe Batavia"
+      ],
+      "included": [
+        "Local historian guide",
+        "Museum entrance fees",
+        "Bicycle & helmet rental",
+        "Traditional snack platter"
+      ],
+      "excluded": [
+        "Lunch",
+        "Tips"
+      ],
+      "meetingPoint": "Fatahillah Square fountain",
+      "itinerary": [
+        {
+          "title": "08:30 AM - Fatahillah Square Meetup",
+          "activities": [
+            "Historic briefing of VOC administration",
+            "Explore Jakarta History Museum"
+          ]
+        },
+        {
+          "title": "10:00 AM - Ontel Bicycle Ride",
+          "activities": [
+            "Ride vintage colorful bicycles around Sunda Kelapa historic harbor",
+            "See wooden pinisi sailing ships"
+          ]
+        },
+        {
+          "title": "11:30 AM - Cafe Batavia Coffee",
+          "activities": [
+            "Enjoy iced coffee or tea at the famous 1930s colonial Cafe Batavia",
+            "Wrap-up Q&A"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "jakarta-modern-landmark",
+      "name": "Jakarta Modern Skyscrapers & Monas Sightseeing",
+      "slug": "jakarta-modern-landmark",
+      "destinationId": "jakarta",
+      "attractionId": "monas",
+      "image": "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80",
+      "description": "Explore the highlights of modern Jakarta. Visit the National Monument (Monas), Istiqlal Mosque, and Cathedral, and see the futuristic skyline.",
+      "duration": "6 Hours",
+      "price": 525000,
+      "rating": 4.5,
+      "reviewsCount": 76,
+      "category": "Cultural",
+      "highlights": [
+        "Go up Monas observation deck",
+        "Visit Southeast Asia's largest mosque",
+        "See Jakarta Cathedral",
+        "Private air-conditioned transit"
+      ],
+      "included": [
+        "Transport with driver",
+        "All entrance tickets",
+        "Istiqlal mosque tour guide",
+        "Water"
+      ],
+      "excluded": [
+        "Meals"
+      ],
+      "meetingPoint": "Hotel Lobby (Central/South Jakarta)",
+      "itinerary": [
+        {
+          "title": "09:00 AM - National Monument Monas",
+          "activities": [
+            "Visit Independence Museum inside basement",
+            "Lift up to 115m high observation deck for city views"
+          ]
+        },
+        {
+          "title": "11:30 AM - Interfaith Landmark Tour",
+          "activities": [
+            "Guided tour of Istiqlal Mosque",
+            "Walk across street to historic Gothic Jakarta Cathedral"
+          ]
+        },
+        {
+          "title": "01:30 PM - City Drive & Modern Landmarks",
+          "activities": [
+            "Drive through Sudirman-Thamrin financial district",
+            "Return to hotel"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "jakarta-taman-mini-culture",
+      "name": "Taman Mini Indonesia Cultural Heritage Tour",
+      "slug": "jakarta-taman-mini-culture",
+      "destinationId": "jakarta",
+      "attractionId": "taman-mini",
+      "image": "https://images.unsplash.com/photo-1620127252536-03bdfcf6d5c3?auto=format&fit=crop&w=800&q=80",
+      "description": "Experience all of Indonesia in one day. Visit traditional houses of various provinces, ride cable cars, and view beautiful miniature archipelagos.",
+      "duration": "7 Hours",
+      "price": 675000,
+      "rating": 4.7,
+      "reviewsCount": 104,
+      "category": "Cultural",
+      "highlights": [
+        "Explore 38 provincial pavilions",
+        "Ride cable car over miniature Indonesia",
+        "Museum of Indonesia tickets",
+        "Sundanese lunch"
+      ],
+      "included": [
+        "Private vehicle transit",
+        "Entry tickets & cable car ticket",
+        "Provincial guide explanation",
+        "Indonesian lunch"
+      ],
+      "excluded": [
+        "Additional museum tickets (optional)"
+      ],
+      "meetingPoint": "Hotel Lobby (Jakarta areas)",
+      "itinerary": [
+        {
+          "title": "08:30 AM - Transit to TMII",
+          "activities": [
+            "Drive via toll road to East Jakarta"
+          ]
+        },
+        {
+          "title": "09:30 AM - Cable Car & Miniature Lake",
+          "activities": [
+            "Ride aerial cable car",
+            "View the miniature islands of Indonesian archipelago in the central lake"
+          ]
+        },
+        {
+          "title": "11:00 AM - Provincial Houses Exploration",
+          "activities": [
+            "Walk through West Sumatra, Bali, and Papua traditional pavilions",
+            "Observe structural woodcrafts"
+          ]
+        },
+        {
+          "title": "01:00 PM - Sundanese Lunch & Museum visit",
+          "activities": [
+            "Dine at lakeside restaurant",
+            "Visit Indonesia Museum containing rich Royal batik collections",
+            "Return to hotel"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1620127252536-03bdfcf6d5c3?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "jakarta-foodie-street-adventure",
+      "name": "Jakarta Culinary Night Street Food Tour",
+      "slug": "jakarta-foodie-street-adventure",
+      "destinationId": "jakarta",
+      "attractionId": "kota-tua",
+      "image": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80",
+      "description": "Taste your way through Jakarta's legendary street food corners. Sample authentic Satay, Kerak Telor, Martabak, and local coffee.",
+      "duration": "4 Hours",
+      "price": 450000,
+      "rating": 4.8,
+      "reviewsCount": 145,
+      "category": "Cultural",
+      "highlights": [
+        "Eat iconic Betawi Kerak Telor",
+        "Visit lively street markets",
+        "Try sweet chocolate-cheese Martabak",
+        "Travel by local motorized Bajaj"
+      ],
+      "included": [
+        "All food samples (8+ dishes)",
+        "Local culinary guide",
+        "Mineral water",
+        "Bajaj transport during tour"
+      ],
+      "excluded": [
+        "Alcoholic drinks",
+        "Personal medication"
+      ],
+      "meetingPoint": "Menteng Central Park",
+      "itinerary": [
+        {
+          "title": "06:00 PM - Meeting & Bajaj ride",
+          "activities": [
+            "Meet foodie guide",
+            "Board three-wheeled gas-powered Bajaj",
+            "Drive to street food market"
+          ]
+        },
+        {
+          "title": "06:30 PM - Savory Bites",
+          "activities": [
+            "Sample charcoal-grilled chicken satay with rich peanut sauce",
+            "Taste Kerak Telor (spiced egg and coconut pancake)"
+          ]
+        },
+        {
+          "title": "08:30 PM - Sweet Martabak & Coffee",
+          "activities": [
+            "Watch vendors prepare Martabak Manis",
+            "Taste traditional Java coffee",
+            "Conclude tour"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "jakarta-luxury-shopping-vip",
+      "name": "Jakarta Elite Lifestyle & Luxury Shopping Day",
+      "slug": "jakarta-luxury-shopping-vip",
+      "destinationId": "jakarta",
+      "attractionId": "monas",
+      "image": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
+      "description": "Indulge in a VIP shopping spree through Jakarta's premier luxury malls with a personal stylist, followed by fine dining and high tea.",
+      "duration": "8 Hours",
+      "price": 3735000,
+      "rating": 4.9,
+      "reviewsCount": 32,
+      "category": "Luxury",
+      "highlights": [
+        "Personal shopping guide/stylist",
+        "VIP lounge access at Grand Indonesia",
+        "Fine-dining French-Indonesian dinner",
+        "Luxury Mercedes-Benz S-Class transit"
+      ],
+      "included": [
+        "Mercedes limousine service",
+        "Personal shopper assistant",
+        "Premium afternoon high tea",
+        "Multi-course fine dining menu"
+      ],
+      "excluded": [
+        "Shopping purchases",
+        "Alcoholic wines"
+      ],
+      "meetingPoint": "Five-star hotel pickup in Jakarta",
+      "itinerary": [
+        {
+          "title": "10:00 AM - Luxury Limousine Pickup",
+          "activities": [
+            "Meet private concierge",
+            "Transit to Plaza Indonesia luxury wing"
+          ]
+        },
+        {
+          "title": "11:00 AM - Guided Spree & VIP Lounging",
+          "activities": [
+            "Curated shop visits",
+            "Access to exclusive lounge for coffee & relaxation"
+          ]
+        },
+        {
+          "title": "03:00 PM - Premium High Tea",
+          "activities": [
+            "Indulge in pastries and gourmet teas at top salon"
+          ]
+        },
+        {
+          "title": "06:30 PM - Gastronomy Fine Dining",
+          "activities": [
+            "Multi-course tasting dinner at top-rated skyscraper restaurant overlooking Jakarta night lights"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "yogyakarta-borobudur-sunrise",
+      "name": "Borobudur Sunrise & Village Cycling Tour",
+      "slug": "yogyakarta-borobudur-sunrise",
+      "destinationId": "yogyakarta",
+      "attractionId": "borobudur",
+      "image": "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80",
+      "description": "Witness the sunrise over Borobudur from Punthuk Setumbu hill, explore the temple structure, and cycle through rustic rice villages.",
+      "duration": "9 Hours",
+      "price": 1275000,
+      "rating": 5,
+      "reviewsCount": 567,
+      "category": "Cultural",
+      "highlights": [
+        "Breathtaking sunrise viewpoint",
+        "Guided climb of Borobudur temple",
+        "Bicycle ride through local Javanese villages",
+        "Traditional Javanese breakfast"
+      ],
+      "included": [
+        "AC minivan transfers",
+        "All entry tickets",
+        "Javanese bicycle rental",
+        "Guided temple tour",
+        "Buffet breakfast"
+      ],
+      "excluded": [
+        "Climb-up temple special ticket ($25 supplement, must book in advance)",
+        "Lunch",
+        "Tips"
+      ],
+      "meetingPoint": "Hotel lobby (Yogyakarta city center) at 03:30 AM",
+      "itinerary": [
+        {
+          "title": "03:30 AM - Early Morning Pickup",
+          "activities": [
+            "Drive through Javanese countryside under stars"
+          ]
+        },
+        {
+          "title": "04:45 AM - Sunrise Punthuk Setumbu",
+          "activities": [
+            "Walk up hill deck",
+            "Watch sun rise behind Mount Merapi, illuminating mist around Borobudur temple"
+          ]
+        },
+        {
+          "title": "06:30 AM - Borobudur Exploration",
+          "activities": [
+            "Tour the massive stupa platforms",
+            "Inspect relief carvings of Buddha life"
+          ]
+        },
+        {
+          "title": "09:00 AM - Rural Village Cycling",
+          "activities": [
+            "Ride vintage bicycles through rural houses",
+            "Visit local tofu makers and clay pottery craftsmen",
+            "Enjoy traditional lunch and return"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1579294819770-5b1285074b62?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "yogyakarta-prambanan-sunset-ballet",
+      "name": "Prambanan Hindu Temple & Ramayana Ballet Show",
+      "slug": "yogyakarta-prambanan-sunset-ballet",
+      "destinationId": "yogyakarta",
+      "attractionId": "prambanan",
+      "image": "https://images.unsplash.com/photo-1604999333679-b86d54738315?auto=format&fit=crop&w=800&q=80",
+      "description": "Explore the high towers of Prambanan at sunset, followed by a buffet dinner and the legendary Ramayana dance performance with the illuminated temple as a backdrop.",
+      "duration": "8 Hours",
+      "price": 1035000,
+      "rating": 4.9,
+      "reviewsCount": 294,
+      "category": "Cultural",
+      "highlights": [
+        "Explore Prambanan temple compound",
+        "Sunset photos of high stone spires",
+        "Premium seats for Ramayana Ballet",
+        "Open-air buffet dinner"
+      ],
+      "included": [
+        "Hotel pickups",
+        "All entry fees",
+        "VIP theater ticket",
+        "Javanese buffet dinner"
+      ],
+      "excluded": [
+        "Personal beverages",
+        "Guide gratuities"
+      ],
+      "meetingPoint": "Yogyakarta hotels",
+      "itinerary": [
+        {
+          "title": "01:30 PM - Afternoon Pickup",
+          "activities": [
+            "Drive to Prambanan plains east of Yogyakarta"
+          ]
+        },
+        {
+          "title": "02:30 PM - Candi Sewu & Prambanan tour",
+          "activities": [
+            "Explore neighboring Buddhist Sewu temple",
+            "Walk central Shiva temple at Prambanan",
+            "Learn mythological prince Bandung Bondowoso legend"
+          ]
+        },
+        {
+          "title": "05:30 PM - Sunset & Dinner",
+          "activities": [
+            "Photograph spires against orange sky",
+            "Dine at Prambanan Garden Restaurant overlooking floodlit temples"
+          ]
+        },
+        {
+          "title": "07:30 PM - Ramayana Ballet Performance",
+          "activities": [
+            "Watch performance of 200 dancers depicting Prince Rama rescuing Princess Shinta",
+            "Return to hotel"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1604999333679-b86d54738315?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "yogyakarta-heritage-palace",
+      "name": "Yogyakarta Royal Palace, Water Castle & Batik Workshop",
+      "slug": "yogyakarta-heritage-palace",
+      "destinationId": "yogyakarta",
+      "attractionId": "keraton-yogyakarta",
+      "image": "https://images.unsplash.com/photo-1579294819770-5b1285074b62?auto=format&fit=crop&w=800&q=80",
+      "description": "Explore the Sultan's palace (Keraton), walk the underground tunnels of Taman Sari Water Castle, and paint your own traditional batik cloth.",
+      "duration": "6 Hours",
+      "price": 585000,
+      "rating": 4.7,
+      "reviewsCount": 167,
+      "category": "Cultural",
+      "highlights": [
+        "Guided Royal Palace tour",
+        "Taman Sari underground pool tunnels",
+        "Make-your-own-batik class",
+        "Traditional horse cart ride (Andong)"
+      ],
+      "included": [
+        "Entrance fees",
+        "Batik master class & materials",
+        "Local museum guide",
+        "Traditional Javanese lunch"
+      ],
+      "excluded": [
+        "Drinks",
+        "Tips"
+      ],
+      "meetingPoint": "Keraton Main Gate clock tower",
+      "itinerary": [
+        {
+          "title": "08:30 AM - Sultan Palace Tour",
+          "activities": [
+            "Explore historical royal quarters",
+            "Observe court relics, antique weapons, and royal gifts"
+          ]
+        },
+        {
+          "title": "10:30 AM - Taman Sari Water Castle",
+          "activities": [
+            "Walk private royal bathing pools",
+            "Walk the underground mosques and escape tunnels"
+          ]
+        },
+        {
+          "title": "12:00 PM - Batik Workshop & Lunch",
+          "activities": [
+            "Paint wax patterns (malam) on cloth using copper pen (canting)",
+            "Eat local Gudeg (jackfruit stew) for lunch",
+            "Take home your batik masterpiece"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1579294819770-5b1285074b62?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "yogyakarta-merapi-jeep-adventure",
+      "name": "Mount Merapi Volcano Lava Jeep Safari",
+      "slug": "yogyakarta-merapi-jeep-adventure",
+      "destinationId": "yogyakarta",
+      "attractionId": "borobudur",
+      "image": "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80",
+      "description": "Ride an open-top 4x4 vintage jeep through volcanic ash paths of active Mount Merapi. Visit underground bunkers and lava museum ruins.",
+      "duration": "5 Hours",
+      "price": 675000,
+      "rating": 4.8,
+      "reviewsCount": 228,
+      "category": "Adventure",
+      "highlights": [
+        "Vintage open 4x4 Jeep ride",
+        "Explore volcano lava paths",
+        "Visit Kaliadem underground bunker",
+        "Volcano ruins museum entry"
+      ],
+      "included": [
+        "Roundtrip hotel transport",
+        "Private 4x4 Jeep with driver",
+        "Safety helmet",
+        "All park fees",
+        "Bottled water"
+      ],
+      "excluded": [
+        "Personal masks",
+        "Lunch"
+      ],
+      "meetingPoint": "Yogyakarta hotels pickup",
+      "itinerary": [
+        {
+          "title": "07:30 AM - Drive to Merapi slope",
+          "activities": [
+            "Travel north to Kaliurang jeep basecamp"
+          ]
+        },
+        {
+          "title": "08:30 AM - 4x4 Jeep Exploration",
+          "activities": [
+            "Board open-air vintage Willys Jeep",
+            "Drive through rocky trails left by 2010 eruption lava flow"
+          ]
+        },
+        {
+          "title": "09:30 AM - Underground Bunker & Ruins",
+          "activities": [
+            "Visit bunker where volcanic ash trapped survivors",
+            "Explore Alien Rock shape",
+            "See ruined houses museum showing melted items"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "yogyakarta-cave-tubing-pindul",
+      "name": "Pindul Cave River Tubing & Jomblang Cave Descent",
+      "slug": "yogyakarta-cave-tubing-pindul",
+      "destinationId": "yogyakarta",
+      "attractionId": "malioboro",
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+      "description": "Descend 60 meters into vertical Jomblang Cave to see the breathtaking \"Light of Heaven\" sunbeams, followed by tube floating in Pindul cave.",
+      "duration": "9 Hours",
+      "price": 1650000,
+      "rating": 4.9,
+      "reviewsCount": 145,
+      "category": "Adventure",
+      "highlights": [
+        "Rappel down into Jomblang cave",
+        "Witness the celestial \"Light of Heaven\"",
+        "Float on inner tubes through cave rivers",
+        "Local traditional lunch"
+      ],
+      "included": [
+        "Private vehicle transit",
+        "Caving equipment & instructors",
+        "Rappelling crew",
+        "Tube rental & life jacket",
+        "Indonesian lunch box"
+      ],
+      "excluded": [
+        "Gratuities"
+      ],
+      "meetingPoint": "Hotel Lobby pickup at 06:30 AM",
+      "itinerary": [
+        {
+          "title": "06:30 AM - Departure to Gunung Kidul",
+          "activities": [
+            "Drive through limestone hills"
+          ]
+        },
+        {
+          "title": "08:00 AM - Jomblang Cave Descent",
+          "activities": [
+            "Equip harnesses and boots",
+            "Lowered by ropes 60m down into ancient sinkhole forest",
+            "Walk dark muddy tunnels to view light beams"
+          ]
+        },
+        {
+          "title": "12:30 PM - Lunch & River Tubing",
+          "activities": [
+            "Eat local boxed lunch",
+            "Float on inner tubes along cave river under bats and stalactites"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "yogyakarta-royal-palace-luxury-royal-dinner",
+      "name": "Yogyakarta VIP Royal Palace Tour & Exclusive Sultan Dinner",
+      "slug": "yogyakarta-royal-palace-luxury-royal-dinner",
+      "destinationId": "yogyakarta",
+      "attractionId": "keraton-yogyakarta",
+      "image": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80",
+      "description": "Gain exclusive after-hours access to royal palace wings not open to public, followed by a luxury banquet dinner inside the palace grounds serving secret Sultan recipes.",
+      "duration": "5 Hours",
+      "price": 2985000,
+      "rating": 4.9,
+      "reviewsCount": 18,
+      "category": "Luxury",
+      "highlights": [
+        "VIP royal palace access",
+        "Gamelan musical welcome",
+        "Sultan-cuisine banquet dinner",
+        "Exclusive palace souvenir gift"
+      ],
+      "included": [
+        "Hotel limousine transfer",
+        "Royal palace permit fees",
+        "Private royal guide",
+        "Multi-course banquet meal",
+        "Cultural dance show"
+      ],
+      "excluded": [
+        "Tips"
+      ],
+      "meetingPoint": "Five-star hotel pickup in Yogyakarta",
+      "itinerary": [
+        {
+          "title": "05:00 PM - Palace Limousine Transfer",
+          "activities": [
+            "Board private executive vehicle to Keraton"
+          ]
+        },
+        {
+          "title": "05:30 PM - VIP After-Hours Tour",
+          "activities": [
+            "Guided tour of royal chambers and private archives",
+            "Gamelan musical performance welcome"
+          ]
+        },
+        {
+          "title": "07:00 PM - Royal Banquet Feast",
+          "activities": [
+            "Dine inside historical royal pavilion",
+            "Sample traditional slow-cooked beef and desserts reserved for royal families"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "bandung-volcano-lembang",
+      "name": "Tangkuban Perahu Volcano & Hot Springs Day Tour",
+      "slug": "bandung-volcano-lembang",
+      "destinationId": "bandung",
+      "attractionId": "tangkoeban-perahoe",
+      "image": "https://images.unsplash.com/photo-1579294819770-5b1285074b62?auto=format&fit=crop&w=800&q=80",
+      "description": "Peer into the giant smoking crater of Tangkuban Perahu, bathe in Ciater sulfurous hot springs, and visit local civet coffee plantations.",
+      "duration": "8 Hours",
+      "price": 825000,
+      "rating": 4.5,
+      "reviewsCount": 198,
+      "category": "Nature",
+      "highlights": [
+        "Walk Tangkuban Perahu crater edge",
+        "Bathe in Ciater volcanic mineral pools",
+        "Civet coffee Luwak tasting session",
+        "Visit strawberry farms"
+      ],
+      "included": [
+        "Minivan transport",
+        "All park admissions & hot spring entry",
+        "Local guide driver",
+        "Sundanese lunch platter"
+      ],
+      "excluded": [
+        "Volcano guide tip",
+        "Strawberry picking costs"
+      ],
+      "meetingPoint": "Bandung hotels",
+      "itinerary": [
+        {
+          "title": "08:00 AM - Lembang Mountain Drive",
+          "activities": [
+            "Travel north to Tangkuban Perahu slope"
+          ]
+        },
+        {
+          "title": "09:30 AM - Active Crater Walk",
+          "activities": [
+            "Explore Ratu Crater, see sulfuric smoke plumes",
+            "Learn legend of Sangkuriang"
+          ]
+        },
+        {
+          "title": "12:00 PM - Volcanic Hot Springs",
+          "activities": [
+            "Soak in warm sulfur streams of Ciater springs",
+            "Luwak coffee tasting and traditional lunch"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1579294819770-5b1285074b62?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "bandung-kawah-putih-tea-lake",
+      "name": "Ciwidey Kawah Putih Crater Lake & Tea Estate Tour",
+      "slug": "bandung-kawah-putih-tea-lake",
+      "destinationId": "bandung",
+      "attractionId": "kawah-putih",
+      "image": "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80",
+      "description": "Explore the surreal turquoise waters of Kawah Putih, stroll through Rancabali tea fields on suspended bridges, and dine in lakeside bamboo cottages.",
+      "duration": "9 Hours",
+      "price": 735000,
+      "rating": 4.7,
+      "reviewsCount": 142,
+      "category": "Nature",
+      "highlights": [
+        "Surreal volcanic green lake views",
+        "Walk Rancabali tea estate bridges",
+        "Dine at Phinisi Boat Restaurant",
+        "Private transport from Bandung"
+      ],
+      "included": [
+        "Transport with driver",
+        "Kawah Putih tickets & shuttle",
+        "Tea estate access",
+        "Lakeside lunch"
+      ],
+      "excluded": [
+        "Suspension bridge ticket supplement ($2)"
+      ],
+      "meetingPoint": "Bandung central hotels",
+      "itinerary": [
+        {
+          "title": "07:30 AM - Ciwidey Drive",
+          "activities": [
+            "Travel south past strawberry farms and pine forests"
+          ]
+        },
+        {
+          "title": "09:30 AM - Kawah Putih Exploration",
+          "activities": [
+            "Board Ontang-Anting shuttle to crater summit",
+            "Walk shoreline of sulfur green lake"
+          ]
+        },
+        {
+          "title": "12:00 PM - Rancabali Tea Fields",
+          "activities": [
+            "Walk wooden bridge pathways through lush green tea valleys",
+            "BBQ lunch at Phinisi Lakeside Restaurant"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "bandung-eco-dusun-bambu",
+      "name": "Dusun Bambu Eco Cultural Leisure Experience",
+      "slug": "bandung-eco-dusun-bambu",
+      "destinationId": "bandung",
+      "attractionId": "dusun-bambu",
+      "image": "https://images.unsplash.com/photo-1620127252536-03bdfcf6d5c3?auto=format&fit=crop&w=800&q=80",
+      "description": "Spend a relaxing day in Dusun Bambu. Enjoy traditional Sundanese culinary treats, paddle wooden boats around a pristine lake, and walk bamboo forests.",
+      "duration": "6 Hours",
+      "price": 525000,
+      "rating": 4.6,
+      "reviewsCount": 88,
+      "category": "Cultural",
+      "highlights": [
+        "Scenic lakeside dining cottages",
+        "Traditional Sundanese live music",
+        "Row wooden boats on lake",
+        "Eco-friendly bamboo walks"
+      ],
+      "included": [
+        "All admission tickets",
+        "Lakeside cottage table reservation",
+        "Wooden boat ride ticket",
+        "Lunch credit voucher"
+      ],
+      "excluded": [
+        "Shopping purchases",
+        "Hotel pickup (optional supplement)"
+      ],
+      "meetingPoint": "Dusun Bambu Main Ticketing Gate",
+      "itinerary": [
+        {
+          "title": "10:00 AM - Dusun Bambu Arrival",
+          "activities": [
+            "Board floral shuttle car into park",
+            "Walk lavender gardens and bamboo pathways"
+          ]
+        },
+        {
+          "title": "11:00 AM - Lakeside Boating",
+          "activities": [
+            "Row wooden boats on central lake past floating huts",
+            "Feed ornamental koi fish"
+          ]
+        },
+        {
+          "title": "12:30 PM - Sundanese Feast",
+          "activities": [
+            "Dine inside bamboo nest huts (Lutung Kasarung) serving grilled chicken and spiced rice"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1620127252536-03bdfcf6d5c3?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "bandung-shopping-factory-outlets",
+      "name": "Bandung Heritage Outlets & Fashion Spree",
+      "slug": "bandung-shopping-factory-outlets",
+      "destinationId": "bandung",
+      "attractionId": "dusun-bambu",
+      "image": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
+      "description": "Hunt for bargains in Bandung's world-famous factory outlets. Shop along Jalan Riau and Dago, and visit design concept stores.",
+      "duration": "7 Hours",
+      "price": 375000,
+      "rating": 4.4,
+      "reviewsCount": 65,
+      "category": "Luxury",
+      "highlights": [
+        "Visit top Riau factory outlets",
+        "Shop premium local fashion brands",
+        "Dine at vintage Dutch colonial cafes",
+        "Private driver during shopping"
+      ],
+      "included": [
+        "Private car with driver",
+        "Parking fees",
+        "Mineral water",
+        "Discount coupons"
+      ],
+      "excluded": [
+        "Shopping purchases",
+        "Meals"
+      ],
+      "meetingPoint": "Bandung central hotels",
+      "itinerary": [
+        {
+          "title": "10:00 AM - Outlet Shopping Spree",
+          "activities": [
+            "Visit top outlets: Rumah Mode and Heritage",
+            "Bargain hunt designer labels"
+          ]
+        },
+        {
+          "title": "01:00 PM - Colonial Lunch",
+          "activities": [
+            "Dine at colonial mansion cafe serving Dutch-Indo fusion food"
+          ]
+        },
+        {
+          "title": "03:00 PM - Creative Concept Stores",
+          "activities": [
+            "Explore local indie boutiques and ceramic studios",
+            "Return to hotel"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "bandung-private-tea-spa-retreat",
+      "name": "Lembang Luxury Tea Estate & Volcanic Spa Ritual",
+      "slug": "bandung-private-tea-spa-retreat",
+      "destinationId": "bandung",
+      "attractionId": "tangkoeban-perahoe",
+      "image": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80",
+      "description": "Immerse in pure highland relaxation. Enjoy a private walk through rolling tea fields followed by a volcanic clay body scrub and thermal massage.",
+      "duration": "6 Hours",
+      "price": 2025000,
+      "rating": 4.8,
+      "reviewsCount": 42,
+      "category": "Wellness",
+      "highlights": [
+        "Private tea master walk",
+        "Volcanic clay body scrub",
+        "Highland mineral pool soak",
+        "Private massage suite"
+      ],
+      "included": [
+        "Private Mercedes-Benz shuttle",
+        "Tea estate permit & guide",
+        "120-minute spa package",
+        "Traditional herbal tea & snacks"
+      ],
+      "excluded": [
+        "Meals",
+        "Tips"
+      ],
+      "meetingPoint": "Bandung luxury hotel lobby",
+      "itinerary": [
+        {
+          "title": "08:30 AM - Highland Transit",
+          "activities": [
+            "Sleek luxury car ride into mist-covered Lembang mountains"
+          ]
+        },
+        {
+          "title": "09:30 AM - Tea Estate Serenity",
+          "activities": [
+            "Private stroll through private tea rows",
+            "Learn traditional tea harvesting"
+          ]
+        },
+        {
+          "title": "11:00 AM - Volcanic Spa Ritual",
+          "activities": [
+            "Enjoy thermal volcanic mud wrap and Swedish hot-stone massage overlooking lush valleys"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "lombok-gili-snorkeling-boat",
+      "name": "Gili Islands 3-Island Private Snorkeling Boat Tour",
+      "slug": "lombok-gili-snorkeling-boat",
+      "destinationId": "lombok",
+      "attractionId": "gili-islands",
+      "image": "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80",
+      "description": "Board a private glass-bottom boat to snorkel the Gili Islands. Visit the underwater human statues at Gili Meno and swim with wild turtles at Gili Trawangan.",
+      "duration": "8 Hours",
+      "price": 975000,
+      "rating": 4.9,
+      "reviewsCount": 312,
+      "category": "Adventure",
+      "highlights": [
+        "Private glass-bottom boat",
+        "Snorkel Gili Meno underwater statues",
+        "Swim with green sea turtles",
+        "Beach exploration at Gili Air"
+      ],
+      "included": [
+        "Private boat charter",
+        "All snorkeling gear & life jackets",
+        "Underwater GoPro photo files",
+        "Pickups from Lombok mainland",
+        "Local boat captain & guide"
+      ],
+      "excluded": [
+        "Lunch expenses at Gili beach restaurant"
+      ],
+      "meetingPoint": "Teluk Nare Harbor / Senggigi hotel lobby",
+      "itinerary": [
+        {
+          "title": "08:30 AM - Harbor Departure",
+          "activities": [
+            "Board private glass-bottom boat at Teluk Nare"
+          ]
+        },
+        {
+          "title": "09:30 AM - Gili Meno Statues",
+          "activities": [
+            "Snorkel Nest, the famous ring of 48 life-size human statues underwater"
+          ]
+        },
+        {
+          "title": "11:30 AM - Gili Trawangan Turtle Reef",
+          "activities": [
+            "Snorkel coral reefs, observe giant green sea turtles feeding"
+          ]
+        },
+        {
+          "title": "01:00 PM - Beach Lunch Gili Air",
+          "activities": [
+            "Dine beachfront, explore Gili Air on foot or horse cart",
+            "Return to Lombok mainland"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "lombok-rinjani-2day-trek",
+      "name": "Mount Rinjani Caldera & Crater Rim 2-Day Trek",
+      "slug": "lombok-rinjani-2day-trek",
+      "destinationId": "lombok",
+      "attractionId": "rinjani-volcano",
+      "image": "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=800&q=80",
+      "description": "Challenging 2-day trek to Mount Rinjani Senaru Crater Rim. Watch the sunset over Bali's Mt. Agung and camp above the clouds next to Segara Anak lake.",
+      "duration": "2 Days",
+      "price": 2775000,
+      "rating": 4.8,
+      "reviewsCount": 174,
+      "category": "Adventure",
+      "highlights": [
+        "Camp at Senaru Crater Rim (2641m)",
+        "Sunset views over clouds and Bali",
+        "Porters carry all tents and food",
+        "Hearty meals prepared by campfire"
+      ],
+      "included": [
+        "National Park entry permits & insurance",
+        "Local mountain guide & porters",
+        "Camping equipment (tent, sleeping bags, mattress)",
+        "5 campfire meals",
+        "Water",
+        "Minivan transfers"
+      ],
+      "excluded": [
+        "Trekking shoes and jackets",
+        "Tipping guide & porters ($15 recommendation)"
+      ],
+      "meetingPoint": "Rinjani National Park Office, Senaru at 07:00 AM",
+      "itinerary": [
+        {
+          "title": "Day 1: Senaru Village to Crater Rim",
+          "activities": [
+            "Register at park office",
+            "Hike through rainforest shadow trails (5-6 hours)",
+            "Set up camp at Senaru Crater Rim",
+            "Dinner with sunset views over crater lake"
+          ]
+        },
+        {
+          "title": "Day 2: Rim Sunrise & Descent",
+          "activities": [
+            "Watch spectacular sunrise over Mt. Rinjani peak",
+            "Breakfast",
+            "Descend Senaru trail back to village (4-5 hours)",
+            "Transfer back to hotel"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "lombok-twin-waterfalls-jungle",
+      "name": "Sendang Gile & Tiu Kelep Waterfall Rainforest Hike",
+      "slug": "lombok-twin-waterfalls-jungle",
+      "destinationId": "lombok",
+      "attractionId": "sendang-gile",
+      "image": "https://images.unsplash.com/photo-1582298538104-fc2c095a436c?auto=format&fit=crop&w=800&q=80",
+      "description": "Walk through dense tropical rainforest on the slopes of Mount Rinjani. Cross suspension bridges and swim in the cooling pools of Tiu Kelep waterfall.",
+      "duration": "6 Hours",
+      "price": 585000,
+      "rating": 4.7,
+      "reviewsCount": 115,
+      "category": "Nature",
+      "highlights": [
+        "Hike lush jungle paths",
+        "Walk under water bridge tunnels",
+        "Swim under Tiu Kelep waterfall",
+        "Monkey spotting in canopy"
+      ],
+      "included": [
+        "Local forest guide",
+        "All entrance tickets",
+        "Indonesian lunch box",
+        "Minivan transfer from Senggigi"
+      ],
+      "excluded": [
+        "Tips"
+      ],
+      "meetingPoint": "Senaru tourist information gate",
+      "itinerary": [
+        {
+          "title": "08:30 AM - Drive to Senaru Hills",
+          "activities": [
+            "Scenic road trip along Senggigi coastline cliffs"
+          ]
+        },
+        {
+          "title": "10:00 AM - Sendang Gile waterfall",
+          "activities": [
+            "Walk down stairs to see the first twin-tiered waterfall",
+            "Enjoy misty air"
+          ]
+        },
+        {
+          "title": "11:00 AM - Tiu Kelep Rainforest Hike",
+          "activities": [
+            "Cross shallow mountain stream and irrigation tunnels",
+            "Arrive at the hidden pool of Tiu Kelep waterfall",
+            "Swim in refreshing mountain water",
+            "Lunch and return"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1582298538104-fc2c095a436c?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "lombok-culture-kuta-beach",
+      "name": "Sade Sasak Village & South Lombok Beach Tour",
+      "slug": "lombok-culture-kuta-beach",
+      "destinationId": "lombok",
+      "attractionId": "gili-islands",
+      "image": "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80",
+      "description": "Explore the ancestral thatch-roof homes of Sade Sasak tribe, learn traditional hand-weaving (tenun), and visit Kuta Lombok beaches.",
+      "duration": "7 Hours",
+      "price": 525000,
+      "rating": 4.6,
+      "reviewsCount": 96,
+      "category": "Cultural",
+      "highlights": [
+        "Explore historical Sasak village",
+        "Hand-weaving batik demonstration",
+        "Visit white-sand Tanjung Aan Beach",
+        "See modern Mandalika GP Circuit"
+      ],
+      "included": [
+        "Transport with driver",
+        "Local village guide",
+        "Entrance tickets",
+        "Lunch"
+      ],
+      "excluded": [
+        "Shopping purchases"
+      ],
+      "meetingPoint": "Lombok Airport / hotel pickup",
+      "itinerary": [
+        {
+          "title": "09:00 AM - Sade Sasak Village",
+          "activities": [
+            "Tour the clay-dung floors, bamboo walls, and thatch roofs",
+            "Observe tribal weaving crafts"
+          ]
+        },
+        {
+          "title": "11:30 AM - Tanjung Aan Beach & lunch",
+          "activities": [
+            "Relax on fine white sand, climb Merese Hill for panoramic views",
+            "Enjoy grilled local seafood lunch"
+          ]
+        },
+        {
+          "title": "02:30 PM - Mandalika Circuit photo",
+          "activities": [
+            "Photo session outside MotoGP street circuit",
+            "Return to hotel"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "lombok-luxury-gili-sailing",
+      "name": "Exclusive Gili Air Sunset Sailing Charter",
+      "slug": "lombok-luxury-gili-sailing",
+      "destinationId": "lombok",
+      "attractionId": "gili-islands",
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+      "description": "Charter a private luxury yacht for an unforgettable sunset sail around Gili Trawangan, Meno, and Air, with gourmet catering on board.",
+      "duration": "5 Hours",
+      "price": 2835000,
+      "rating": 4.9,
+      "reviewsCount": 28,
+      "category": "Luxury",
+      "highlights": [
+        "Private yacht charter",
+        "Champagne toast at sunset",
+        "Snorkeling with sea turtles",
+        "Gourmet seafood platter on board"
+      ],
+      "included": [
+        "Private yacht, captain & crew",
+        "Gourmet appetizers and fresh seafood",
+        "1 bottle of French Champagne",
+        "Snorkeling masks",
+        "Hotel pickup"
+      ],
+      "excluded": [
+        "Extra bottles of spirits"
+      ],
+      "meetingPoint": "Senggigi Yacht Marina",
+      "itinerary": [
+        {
+          "title": "02:00 PM - Board Luxury Yacht",
+          "activities": [
+            "Welcome aboard, safety briefing, set sail to Gili islands"
+          ]
+        },
+        {
+          "title": "03:30 PM - Swim & Snorkel",
+          "activities": [
+            "Anchor at private reef spot, snorkel with sea turtles"
+          ]
+        },
+        {
+          "title": "05:30 PM - Golden Hour Sailing",
+          "activities": [
+            "Watch sun sink behind Mt. Agung, pop Champagne, enjoy gourmet dinner on deck"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "lombok-surf-camp-kuta",
+      "name": "Kuta Lombok Beginners Surf Camp & Coaching",
+      "slug": "lombok-surf-camp-kuta",
+      "destinationId": "lombok",
+      "attractionId": "gili-islands",
+      "image": "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=800&q=80",
+      "description": "Learn to ride the tropical waves of Lombok with certified instructors. Perfect for absolute beginners at gentle Selong Belanak beach.",
+      "duration": "4 Hours",
+      "price": 735000,
+      "rating": 4.7,
+      "reviewsCount": 54,
+      "category": "Adventure",
+      "highlights": [
+        "1-on-1 surf instruction",
+        "Gentle beginner waves",
+        "Surfboard rental included",
+        "Action photos of your ride"
+      ],
+      "included": [
+        "Surfboard and rash guard",
+        "Certified instructor",
+        "Mineral water",
+        "Beach lounge chairs",
+        "Roundtrip transport"
+      ],
+      "excluded": [
+        "Lunch",
+        "Sunscreen"
+      ],
+      "meetingPoint": "Selong Belanak Surf Shack",
+      "itinerary": [
+        {
+          "title": "08:30 AM - Beach Warm-up",
+          "activities": [
+            "Dry-land safety briefing, paddling and pop-up drills"
+          ]
+        },
+        {
+          "title": "09:30 AM - First Water Session",
+          "activities": [
+            "Instructors assist you in shallow waters, catching first white-water waves"
+          ]
+        },
+        {
+          "title": "11:00 AM - Video Analysis & Break",
+          "activities": [
+            "Short rest, hydration, tips for balance"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "komodo-dragon-speedboat",
+      "name": "Komodo Island Speedboat 1-Day VIP Tour",
+      "slug": "komodo-dragon-speedboat",
+      "destinationId": "labuan-bajo",
+      "attractionId": "komodo-island",
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
+      "description": "Fast speedboat charter to Komodo Island, Padar viewpoint, and Pink Beach. Trek with national park rangers and snorkel with manta rays.",
+      "duration": "10 Hours",
+      "price": 1875000,
+      "rating": 5,
+      "reviewsCount": 412,
+      "category": "Adventure",
+      "highlights": [
+        "VIP shared speedboat",
+        "Hike Padar island viewpoint",
+        "Trek with Komodo dragon rangers",
+        "Relax on Pink Beach sand",
+        "Snorkel with manta rays"
+      ],
+      "included": [
+        "Speedboat cruise",
+        "English tour host",
+        "Snorkeling equipment",
+        "Bento lunch box & fresh fruits",
+        "Labuan Bajo hotel transfers"
+      ],
+      "excluded": [
+        "Komodo National Park entrance fees ($30/person cash cash, paid at park ranger station)"
+      ],
+      "meetingPoint": "Labuan Bajo Public Harbor Gate",
+      "itinerary": [
+        {
+          "title": "06:00 AM - Speedboat Boarding",
+          "activities": [
+            "Meet crew at harbor, speed towards Padar island"
+          ]
+        },
+        {
+          "title": "07:30 AM - Padar Summit Hike",
+          "activities": [
+            "Climb stairs to Padar viewpoint to see three colored beaches"
+          ]
+        },
+        {
+          "title": "09:30 AM - Komodo Ranger Trek",
+          "activities": [
+            "Arrive at Loh Liang, hike dry forest with rangers, spot giant Komodo dragons"
+          ]
+        },
+        {
+          "title": "12:00 PM - Pink Beach Shore",
+          "activities": [
+            "Swim in warm waters, relax on pink sand shore, eat lunch"
+          ]
+        },
+        {
+          "title": "02:00 PM - Manta Point Swim",
+          "activities": [
+            "Snorkel with giant manta rays, then return to Bajo"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "labuan-bajo-luxury-phinisi",
+      "name": "Komodo National Park Luxury Phinisi 3-Day Liveaboard",
+      "slug": "labuan-bajo-luxury-phinisi",
+      "destinationId": "labuan-bajo",
+      "attractionId": "komodo-island",
+      "image": "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80",
+      "description": "Experience an ultra-luxury private cruise on a magnificent traditional wooden Phinisi yacht. Stay in state rooms, enjoy gourmet dining, and explore Komodo.",
+      "duration": "3 Days",
+      "price": 9750000,
+      "rating": 5,
+      "reviewsCount": 38,
+      "category": "Luxury",
+      "highlights": [
+        "Sailing on premium wooden Phinisi",
+        "Stay in air-conditioned state cabins",
+        "Private dining with personal chef",
+        "Island beach excursions"
+      ],
+      "included": [
+        "VIP airport pickup",
+        "3 days accommodation on yacht",
+        "All chef meals and beverages",
+        "Private snorkeling boat & guide",
+        "All national park entry tickets & ranger fees"
+      ],
+      "excluded": [
+        "Alcoholic wines & spirits",
+        "Massage treatments"
+      ],
+      "meetingPoint": "Labuan Bajo Yacht Club Harbour",
+      "itinerary": [
+        {
+          "title": "Day 1: Sail to Padar Island",
+          "activities": [
+            "Board Phinisi yacht, welcome drinks & cabin check-in",
+            "Sail to Padar island, climb viewpoint for sunset",
+            "Candlelit dinner on deck under stars"
+          ]
+        },
+        {
+          "title": "Day 2: Komodo Dragons & Pink Beach",
+          "activities": [
+            "Early morning trek to spot Komodo Dragons",
+            "Swim and picnic on Pink Beach",
+            "Manta Ray snorkeling session"
+          ]
+        },
+        {
+          "title": "Day 3: Kalong Flying Foxes & Departure",
+          "activities": [
+            "Sail to Kalong island, watch thousands of flying foxes fly at sunrise",
+            "Breakfast, sail back to Bajo, airport transfer"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "labuan-bajo-cunca-wami-canyon",
+      "name": "Cunca Wami Canyon Waterfall Rainforest Hike",
+      "slug": "labuan-bajo-cunca-wami-canyon",
+      "destinationId": "labuan-bajo",
+      "attractionId": "cunca-wami",
+      "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+      "description": "Hike through Mbeliling mountain rainforest, scramble down sandstone canyon cliffs, and swim in the blue-green natural pools of Cunca Wami.",
+      "duration": "6 Hours",
+      "price": 675000,
+      "rating": 4.6,
+      "reviewsCount": 54,
+      "category": "Adventure",
+      "highlights": [
+        "Trek Flores rainforest hills",
+        "Sandstone canyon climbing",
+        "Swim in deep forest springs",
+        "Indonesian lunch at local village"
+      ],
+      "included": [
+        "Transport from hotel",
+        "Forest park entry tickets",
+        "Jungle guide",
+        "Lunch box",
+        "Mineral water"
+      ],
+      "excluded": [
+        "Tips"
+      ],
+      "meetingPoint": "Labuan Bajo hotel pickup",
+      "itinerary": [
+        {
+          "title": "08:00 AM - Forest Drive",
+          "activities": [
+            "Drive up winding roads into Mbeliling mountains"
+          ]
+        },
+        {
+          "title": "09:00 AM - Jungle Trek",
+          "activities": [
+            "Hike dense forest paths past giant ferns and orchids"
+          ]
+        },
+        {
+          "title": "10:30 AM - Canyon swimming",
+          "activities": [
+            "Arrive at canyon entrance, climb down to natural pools",
+            "Swim, try rock jumping, eat lunch box"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "labuan-bajo-padar-island-sunrise",
+      "name": "Padar Island Private Sunrise & Pink Beach Cruise",
+      "slug": "labuan-bajo-padar-island-sunrise",
+      "destinationId": "labuan-bajo",
+      "attractionId": "padar-island",
+      "image": "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80",
+      "description": "Catch a private boat at 4:30 AM to climb Padar Island for an unforgettable sunrise view. Followed by a relaxing morning on Pink Beach.",
+      "duration": "7 Hours",
+      "price": 1485000,
+      "rating": 4.9,
+      "reviewsCount": 84,
+      "category": "Nature",
+      "highlights": [
+        "Private boat cruise",
+        "Unforgettable sunrise on Padar summit",
+        "Secluded morning on Pink Beach",
+        "Gourmet breakfast box"
+      ],
+      "included": [
+        "Private boat charter",
+        "All entry fees",
+        "Breakfast box with hot coffee/tea",
+        "English speaking host"
+      ],
+      "excluded": [
+        "National Park fees ($30)"
+      ],
+      "meetingPoint": "Labuan Bajo Marina harbor at 04:15 AM",
+      "itinerary": [
+        {
+          "title": "04:30 AM - Private Departure",
+          "activities": [
+            "Board private speed cruise, sail under starry skies"
+          ]
+        },
+        {
+          "title": "05:30 AM - Padar Summit climb",
+          "activities": [
+            "Climb wooden staircase, watch horizon turn red-orange, illuminating the volcanic bays"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1530948990335-1eb93cbe6430?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "labuan-bajo-pink-beach-romantic-picnic",
+      "name": "Pink Beach Private Sunset & Seafood BBQ Picnic",
+      "slug": "labuan-bajo-pink-beach-romantic-picnic",
+      "destinationId": "labuan-bajo",
+      "attractionId": "pink-beach",
+      "image": "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80",
+      "description": "Sail to a secluded stretch of Pink Beach for a private, romantic sunset picnic. Feast on fresh lobster and red snapper grilled over coconut husks by your personal butler.",
+      "duration": "6 Hours",
+      "price": 2625000,
+      "rating": 4.9,
+      "reviewsCount": 22,
+      "category": "Luxury",
+      "highlights": [
+        "Private beach setup",
+        "Personal butler and chef",
+        "Grilled lobster feast",
+        "Sunset sail from Komodo"
+      ],
+      "included": [
+        "Speedboat transfer",
+        "Luxury beach mat & tent setup",
+        "Full BBQ seafood dinner",
+        "Chilled white wine bottle",
+        "All permits"
+      ],
+      "excluded": [
+        "Tips"
+      ],
+      "meetingPoint": "Labuan Bajo hotel lobby",
+      "itinerary": [
+        {
+          "title": "02:30 PM - Cruise to Pink Beach",
+          "activities": [
+            "Enjoy speedboat ride past scenic volcanic islands"
+          ]
+        },
+        {
+          "title": "04:00 PM - Beach Relaxation & Snorkel",
+          "activities": [
+            "Enjoy private canopy setup, snorkel the reef"
+          ]
+        },
+        {
+          "title": "06:00 PM - Sunset BBQ Feast",
+          "activities": [
+            "Watch sunset paint the shore pink, enjoy lobster and fish grilled live on the beach"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "labuan-bajo-diving-manta-point",
+      "name": "Scuba Diving Day Trip - Manta Point & Castle Rock",
+      "slug": "labuan-bajo-diving-manta-point",
+      "destinationId": "labuan-bajo",
+      "attractionId": "komodo-island",
+      "image": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80",
+      "description": "For certified divers. Explore Komodo's world-famous high-current dive sites. Drift past mantas at Manta Point and see sharks at Castle Rock.",
+      "duration": "8 Hours",
+      "price": 1800000,
+      "rating": 4.9,
+      "reviewsCount": 62,
+      "category": "Adventure",
+      "highlights": [
+        "2 drift dives in Komodo",
+        "High chance of Manta Ray sightings",
+        "Professional PADI Divemaster guides",
+        "Custom dive catamaran boat"
+      ],
+      "included": [
+        "2 tanks and weights",
+        "Full dive gear rental",
+        "Certified Divemaster (max 1:4 ratio)",
+        "Lunch and snacks on board"
+      ],
+      "excluded": [
+        "National Park dive permit fee ($35)"
+      ],
+      "meetingPoint": "Labuan Bajo Dive Center",
+      "itinerary": [
+        {
+          "title": "07:30 AM - Gear Check & Sail",
+          "activities": [
+            "Briefing, load gear onto custom dive boat, sail to national park"
+          ]
+        },
+        {
+          "title": "09:30 AM - Dive 1: Manta Point",
+          "activities": [
+            "Drift dive along 15m deep cleaning station, spot feeding mantas"
+          ]
+        },
+        {
+          "title": "12:00 PM - Buffet Lunch on Boat",
+          "activities": [
+            "Relax on sun deck, log dives"
+          ]
+        },
+        {
+          "title": "01:30 PM - Dive 2: Castle Rock",
+          "activities": [
+            "Deep sea mount dive, watch grey reef sharks, giant trevally, and schooling barracudas"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "surabaya-historical-sightseeing",
+      "name": "Surabaya Heritage Colonial & Museum Tour",
+      "slug": "surabaya-historical-sightseeing",
+      "destinationId": "surabaya",
+      "attractionId": "house-of-sampoerna",
+      "image": "https://images.unsplash.com/photo-1601999109332-542b18dbec57?auto=format&fit=crop&w=800&q=80",
+      "description": "Explore the heritage of East Java's capital. Visit House of Sampoerna, see the submarine monument, and learn history at the Heroes Monument.",
+      "duration": "6 Hours",
+      "price": 435000,
+      "rating": 4.5,
+      "reviewsCount": 54,
+      "category": "Cultural",
+      "highlights": [
+        "Watch live clove cigarette rolling",
+        "Tour inside KRI Pasopati Submarine",
+        "Visit historic Heroes Monument",
+        "Air-conditioned transport"
+      ],
+      "included": [
+        "Transport with driver",
+        "All museum entry fees",
+        "Local tour guide",
+        "Traditional East Javanese lunch (Rujak Cingur)"
+      ],
+      "excluded": [
+        "Personal tips"
+      ],
+      "meetingPoint": "Surabaya hotels pickup",
+      "itinerary": [
+        {
+          "title": "09:00 AM - House of Sampoerna",
+          "activities": [
+            "Explore colonial architecture, view the tobacco museum, watch workers roll 300 cigarettes per hour"
+          ]
+        },
+        {
+          "title": "11:30 AM - Submarine Monument",
+          "activities": [
+            "Enter the authentic Russian Whiskey-class submarine, tour the torpedo and engine rooms"
+          ]
+        },
+        {
+          "title": "01:00 PM - Local Lunch & Heroes Monument",
+          "activities": [
+            "Eat authentic Surabaya peanut salad",
+            "Visit the war museum under the giant monuments spire"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1601999109332-542b18dbec57?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "surabaya-suramadu-madura-culture",
+      "name": "Suramadu Bridge & Madura Island Day Tour",
+      "slug": "surabaya-suramadu-madura-culture",
+      "destinationId": "surabaya",
+      "attractionId": "suramadu-bridge",
+      "image": "https://images.unsplash.com/photo-1589979482837-e74f2e145060?auto=format&fit=crop&w=800&q=80",
+      "description": "Cross the magnificent Suramadu National Bridge to Madura Island. Visit traditional batik centers, see limestone cliffs of Bukit Jaddih, and sample famous duck satay.",
+      "duration": "8 Hours",
+      "price": 735000,
+      "rating": 4.6,
+      "reviewsCount": 78,
+      "category": "Cultural",
+      "highlights": [
+        "Cross Indonesia's longest bridge",
+        "See white limestone cliffs of Jaddih",
+        "Visit Bangkalan traditional batik village",
+        "Feast on authentic Madura Duck Satay"
+      ],
+      "included": [
+        "Private car & bridge tolls",
+        "Entrance fees",
+        "Traditional lunch platter",
+        "English guide driver"
+      ],
+      "excluded": [
+        "Gratuities"
+      ],
+      "meetingPoint": "Surabaya hotels lobby",
+      "itinerary": [
+        {
+          "title": "08:00 AM - Cross Suramadu Bridge",
+          "activities": [
+            "Scenic bridge drive over Madura strait"
+          ]
+        },
+        {
+          "title": "09:30 AM - Bukit Jaddih Cliffs",
+          "activities": [
+            "Explore giant white limestone mining cliffs and blue swimming pools"
+          ]
+        },
+        {
+          "title": "12:00 PM - Maduran Duck Lunch",
+          "activities": [
+            "Dine on Bebek Sinjay, famous spicy fried duck with mango salad"
+          ]
+        },
+        {
+          "title": "02:00 PM - Tresna Art Batik",
+          "activities": [
+            "Visit traditional weaving house, see historical Maduran design methods"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1589979482837-e74f2e145060?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "surabaya-bromo-midnight-sunrise",
+      "name": "Mount Bromo Volcano Sunrise Midnight Tour",
+      "slug": "surabaya-bromo-midnight-sunrise",
+      "destinationId": "surabaya",
+      "attractionId": "suramadu-bridge",
+      "image": "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80",
+      "description": "Depart Surabaya at midnight to witness the sunrise over the volcanic landscape of Mount Bromo. Climb the crater rim and ride 4x4 jeeps across the sea of sand.",
+      "duration": "12 Hours",
+      "price": 1650000,
+      "rating": 4.9,
+      "reviewsCount": 345,
+      "category": "Adventure",
+      "highlights": [
+        "Midnight departure from Surabaya",
+        "Bromo sunrise view from Penanjakan",
+        "Climb volcanic active crater steps",
+        "Cross the Sea of Sand in 4x4 Jeep"
+      ],
+      "included": [
+        "Private SUV transfer from Surabaya",
+        "Shared 4x4 Jeep in Bromo",
+        "National park entrance fees",
+        "Warm breakfast",
+        "Local Bromo guide"
+      ],
+      "excluded": [
+        "Horse ride on Sea of Sand ($10, optional)",
+        "Personal winter jackets"
+      ],
+      "meetingPoint": "Surabaya hotels/airport pickup at 11:30 PM",
+      "itinerary": [
+        {
+          "title": "11:30 PM - Depart Surabaya",
+          "activities": [
+            "Midnight drive south to Probolinggo village"
+          ]
+        },
+        {
+          "title": "02:30 AM - Board 4x4 Jeep",
+          "activities": [
+            "Switch to 4x4 Jeep, drive up Mount Penanjakan through dark forest"
+          ]
+        },
+        {
+          "title": "04:30 AM - Bromo Sunrise Show",
+          "activities": [
+            "Watch sun illuminate Mount Bromo crater and Mount Semeru volcano against mist clouds"
+          ]
+        },
+        {
+          "title": "06:30 AM - Sea of Sand & Crater hike",
+          "activities": [
+            "Drive Jeep down to Sea of Sand",
+            "Walk or ride horse to volcano base, climb 250 steps to active smoking crater rim"
+          ]
+        },
+        {
+          "title": "09:00 AM - Breakfast & return",
+          "activities": [
+            "Enjoy hot breakfast at local lodge, drive back to Surabaya"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "surabaya-foodie-culinary-tour",
+      "name": "Surabaya Legendary Night Food Crawl",
+      "slug": "surabaya-foodie-culinary-tour",
+      "destinationId": "surabaya",
+      "attractionId": "house-of-sampoerna",
+      "image": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80",
+      "description": "Taste Surabaya's best night markets. Try rich black beef soup (Rawon), savory tofu omelets (Tahu Tek), and sweet pancakes.",
+      "duration": "4 Hours",
+      "price": 375000,
+      "rating": 4.7,
+      "reviewsCount": 68,
+      "category": "Cultural",
+      "highlights": [
+        "Try legendary Rawon black soup",
+        "Taste authentic street food stalls",
+        "Sample local ginger drinks (Wedang)",
+        "Experienced food guide"
+      ],
+      "included": [
+        "All food & drink tastings (7+ items)",
+        "Local culinary guide",
+        "Minivan transfers between spots"
+      ],
+      "excluded": [
+        "Gratuities"
+      ],
+      "meetingPoint": "Surabaya Town Square",
+      "itinerary": [
+        {
+          "title": "06:00 PM - Rawon Setan start",
+          "activities": [
+            "Sample the famous \"Satanic\" midnight black beef soup flavored with black nuts (keluak)"
+          ]
+        },
+        {
+          "title": "07:30 PM - Tahu Tek stall",
+          "activities": [
+            "Watch vendor slice tofu and potatoes with scissors, served with rich sweet shrimp-paste peanut sauce"
+          ]
+        },
+        {
+          "title": "09:00 PM - Traditional Ginger Tea",
+          "activities": [
+            "Dine at roadside table, drink warm herbal ginger teas, return to hotel"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "surabaya-private-yacht-madura-strait",
+      "name": "Private Yacht Charter - Madura Strait Sunset Cruise",
+      "slug": "surabaya-private-yacht-madura-strait",
+      "destinationId": "surabaya",
+      "attractionId": "suramadu-bridge",
+      "image": "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80",
+      "description": "Charter a luxury private yacht to cruise the Madura Strait. Pass beneath the illuminated Suramadu Bridge at sunset and enjoy a gourmet sushi dinner.",
+      "duration": "4 Hours",
+      "price": 4485000,
+      "rating": 4.9,
+      "reviewsCount": 12,
+      "category": "Luxury",
+      "highlights": [
+        "Private yacht charter",
+        "Sail under Suramadu Bridge at sunset",
+        "Gourmet Japanese-Indonesian fusion dinner",
+        "Chilled mocktails and wine"
+      ],
+      "included": [
+        "Yacht rental, captain & crew",
+        "Gourmet dinner & drinks",
+        "All harbor permits",
+        "Limousine pickup"
+      ],
+      "excluded": [
+        "Tips"
+      ],
+      "meetingPoint": "Surabaya Tanjung Perak Yacht Club",
+      "itinerary": [
+        {
+          "title": "04:00 PM - Board Luxury Yacht",
+          "activities": [
+            "Welcome drinks, check-in, set sail along Surabaya harbor"
+          ]
+        },
+        {
+          "title": "05:30 PM - Suramadu Sunset Sail",
+          "activities": [
+            "Position yacht under the bridge as sunset colors the sky and bridge lights turn on",
+            "Enjoy gourmet dinner"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": "surabaya-golf-luxury-day",
+      "name": "Surabaya VIP Golf Championship Course Day",
+      "slug": "surabaya-golf-luxury-day",
+      "destinationId": "surabaya",
+      "attractionId": "sub-monument",
+      "image": "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?auto=format&fit=crop&w=800&q=80",
+      "description": "Play 18 holes at Ciputra Golf Club, East Java's largest championship golf course, with VIP service, caddy, and premium club rental.",
+      "duration": "6 Hours",
+      "price": 2235000,
+      "rating": 4.7,
+      "reviewsCount": 24,
+      "category": "Luxury",
+      "highlights": [
+        "Play at 18-hole championship course",
+        "VIP private cart and premium caddy service",
+        "Access to exclusive Clubhouse locker & restaurant",
+        "High-end Taylormade club sets"
+      ],
+      "included": [
+        "18-hole green fees",
+        "Private buggy/cart",
+        "Professional caddy service",
+        "Taylormade club set rental",
+        "Executive lunch at clubhouse"
+      ],
+      "excluded": [
+        "Caddy tips ($15 recommendation)"
+      ],
+      "meetingPoint": "Ciputra Golf Club Pro Shop",
+      "itinerary": [
+        {
+          "title": "06:30 AM - Registration & Warm-up",
+          "activities": [
+            "Check-in at pro shop, pick up rental clubs, warm-up at driving range"
+          ]
+        },
+        {
+          "title": "07:00 AM - Tee Off 18 Holes",
+          "activities": [
+            "Play 18 holes through scenic hills and lakes courses, caddy assisting yardages"
+          ]
+        },
+        {
+          "title": "11:30 AM - VIP Club Lunch",
+          "activities": [
+            "Shower, relax, enjoy gourmet lunch at members restaurant"
+          ]
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?auto=format&fit=crop&w=800&q=80"
+      ]
+    }
+  ]
+}

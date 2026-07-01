@@ -1,0 +1,8 @@
+.git
+.DS_Store
+**/node_modules
+**/.next
+**/dist
+**/uploads
+index-aeli-api/extract.ts
+*.log

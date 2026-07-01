@@ -1,0 +1,112 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: index-aeli-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: index_aeli_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d index_aeli_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    container_name: index-aeli-api-gateway
+    restart: always
+    ports:
+      - "7009:7009"
+    environment:
+      PORT: 7009
+      NODE_ENV: production
+      JWT_SECRET: supersecretjwtkey123!
+      DATABASE_URL: postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable
+      IDENTITY_SERVICE_URL: http://identity-service:7010
+      CONTENT_SERVICE_URL: http://content-service:7011
+      PROGRAM_SERVICE_URL: http://program-service:7012
+      MEDIA_SERVICE_URL: http://media-service:7013
+    depends_on:
+      db:
+        condition: service_healthy
+
+  identity-service:
+    build:
+      context: .
+      dockerfile: services/identity-service/Dockerfile
+    container_name: index-aeli-identity-service
+    restart: always
+    ports:
+      - "7010:7010"
+    environment:
+      PORT: 7010
+      NODE_ENV: production
+      DATABASE_URL: postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable
+      JWT_SECRET: supersecretjwtkey123!
+    depends_on:
+      db:
+        condition: service_healthy
+
+  content-service:
+    build:
+      context: .
+      dockerfile: services/content-service/Dockerfile
+    container_name: index-aeli-content-service
+    restart: always
+    ports:
+      - "7011:7011"
+    environment:
+      PORT: 7011
+      NODE_ENV: production
+      DATABASE_URL: postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable
+    depends_on:
+      db:
+        condition: service_healthy
+
+  program-service:
+    build:
+      context: .
+      dockerfile: services/program-service/Dockerfile
+    container_name: index-aeli-program-service
+    restart: always
+    ports:
+      - "7012:7012"
+    environment:
+      PORT: 7012
+      NODE_ENV: production
+      DATABASE_URL: postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable
+      CONTENT_SERVICE_URL: http://content-service:7011
+    depends_on:
+      db:
+        condition: service_healthy
+
+  media-service:
+    build:
+      context: .
+      dockerfile: services/media-service/Dockerfile
+    container_name: index-aeli-media-service
+    restart: always
+    ports:
+      - "7013:7013"
+    environment:
+      PORT: 7013
+      NODE_ENV: production
+      DATABASE_URL: postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable
+      GATEWAY_URL: http://localhost:7009
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - media-uploads:/app/uploads
+
+volumes:
+  pgdata:
+  media-uploads:

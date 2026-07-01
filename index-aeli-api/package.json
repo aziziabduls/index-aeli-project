@@ -1,0 +1,17 @@
+{
+  "name": "index-aeli-api",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "services/*"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "dev": "concurrently \"npm run dev -w api-gateway\" \"npm run dev -w identity-service\" \"npm run dev -w content-service\" \"npm run dev -w program-service\" \"npm run dev -w media-service\"",
+    "build": "npm run build --workspaces",
+    "start": "npm run start --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
