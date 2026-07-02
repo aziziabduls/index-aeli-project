@@ -97,13 +97,7 @@ docker compose up --build -d
 
 ---
 
-## 5. Seed Accounts (Default Credentials)
-
-Upon schema initialization, the following administrative test users are seeded:
-- **Super Admin**: `superadmin@indexaeli.com` / `superadminpassword` (can manage user accounts & roles)
-- **Admin**: `admin@indexaeli.com` / `adminpassword` (can edit and publish all content)
-- **Content Editor**: `editor@indexaeli.com` / `editorpassword` (can edit content, submit for review)
-- **Viewer**: `viewer@indexaeli.com` / `viewerpassword` (read-only CMS viewer)
+## 5. Seed Accounts
 
 ---
 
