@@ -30,6 +30,7 @@ const animations: Record<string, Variants> = {
 };
 
 interface AnimatedContainerProps {
+  key?: React.Key;
   children: React.ReactNode;
   animation?: keyof typeof animations;
   delay?: number;

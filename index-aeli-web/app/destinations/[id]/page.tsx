@@ -1,32 +1,43 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import {
-  Compass, MapPin, Calendar, Star, CloudSun, Clock, Info,
-  ArrowLeft, ArrowRight, Image as ImageIcon, Map
-} from 'lucide-react';
-import { getDestinationById, getAttractions } from '@/lib/api';
-import { Destination, Attraction } from '@/types';
-import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { buttonVariants } from '@/components/ui/button';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { getAttractions, getDestinationById } from '@/lib/api';
+import { Attraction, Destination } from '@/types';
+import {
+  ArrowLeft, ArrowRight,
+  Calendar,
+  CloudSun,
+  Compass,
+  Image as ImageIcon,
+  Info,
+  MapPin,
+  Star
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params?: Promise<{ id: string }> | { id: string };
 }
 
 export default function DestinationDetail({ params }: PageProps) {
-  const resolvedParams = use(params);
-  const destId = resolvedParams.id;
+  const routeParams = useParams();
+  const destId = (routeParams?.id as string) || (params && typeof params === 'object' && 'id' in params ? (params as any).id : '');
 
   const [destination, setDestination] = useState<Destination | null>(null);
   const [destAttractions, setDestAttractions] = useState<Attraction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!destId) {
+      setIsLoading(false);
+      return;
+    }
+
     async function loadData() {
       try {
         const [dest, attrs] = await Promise.all([
@@ -34,7 +45,7 @@ export default function DestinationDetail({ params }: PageProps) {
           getAttractions(destId)
         ]);
         setDestination(dest);
-        setDestAttractions(attrs);
+        setDestAttractions(attrs || []);
       } catch (error) {
         console.error('Failed to fetch destination data', error);
       } finally {
@@ -53,8 +64,29 @@ export default function DestinationDetail({ params }: PageProps) {
   }
 
   if (!destination) {
-    return notFound();
+    return (
+      <div className="w-full min-h-screen bg-luxury-bg flex flex-col items-center justify-center p-6 text-center">
+        <Compass className="w-16 h-16 text-zinc-300 mb-4 animate-bounce" />
+        <h1 className="font-display font-bold text-2xl text-primary-dark mb-2">Destination Not Found</h1>
+        <p className="text-zinc-500 text-sm max-w-md mb-6">
+          The destination you are looking for does not exist or may have been removed.
+        </p>
+        <Link
+          href="/destinations"
+          className={buttonVariants({
+            variant: "default",
+            className: "rounded-full px-6 flex items-center gap-2"
+          })}
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Destinations</span>
+        </Link>
+      </div>
+    );
   }
+
+  const galleryList = (Array.isArray(destination.gallery) ? destination.gallery : []).filter(Boolean);
+  const heroImage = destination.image || 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1200&q=80';
 
   return (
     <div className="w-full relative overflow-hidden bg-luxury-bg min-h-screen pb-20">
@@ -63,8 +95,8 @@ export default function DestinationDetail({ params }: PageProps) {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <Image
-            src={destination.image}
-            alt={destination.name}
+            src={heroImage}
+            alt={destination.name || 'Destination'}
             fill
             priority
             className="object-cover"
@@ -117,8 +149,10 @@ export default function DestinationDetail({ params }: PageProps) {
               </div>
               <div className="space-y-1">
                 <h3 className="text-zinc-400 font-semibold text-xs uppercase tracking-wider">Current Weather</h3>
-                <div className="font-display font-bold text-2xl text-primary-dark">{destination.weather.temperature}</div>
-                <p className="text-zinc-500 text-sm">{destination.weather.condition}</p>
+                <div className="font-display font-bold text-2xl text-primary-dark">
+                  {destination.weather?.temperature || '28°C'}
+                </div>
+                <p className="text-zinc-500 text-sm">{destination.weather?.condition || 'Tropical'}</p>
               </div>
             </div>
 
@@ -129,7 +163,9 @@ export default function DestinationDetail({ params }: PageProps) {
               </div>
               <div className="space-y-1">
                 <h3 className="text-zinc-400 font-semibold text-xs uppercase tracking-wider">Best Time to Visit</h3>
-                <div className="font-display font-bold text-lg text-primary-dark">{destination.bestTimeToVisit}</div>
+                <div className="font-display font-bold text-lg text-primary-dark">
+                  {destination.bestTimeToVisit || 'All year round'}
+                </div>
                 <p className="text-zinc-500 text-xs font-light">Ideal months for sightseeing</p>
               </div>
             </div>
@@ -145,10 +181,10 @@ export default function DestinationDetail({ params }: PageProps) {
             </h3>
             <ul className="space-y-6 text-sm">
               {[
-                { label: 'Regional Capital', value: destination.quickFacts.capital },
-                { label: 'Estimated Population', value: destination.quickFacts.population },
-                { label: 'Spoken Languages', value: destination.quickFacts.language },
-                { label: 'Timezone', value: destination.quickFacts.timezone }
+                { label: 'Regional Capital', value: destination.quickFacts?.capital || '—' },
+                { label: 'Estimated Population', value: destination.quickFacts?.population || '—' },
+                { label: 'Spoken Languages', value: destination.quickFacts?.language || 'Indonesian' },
+                { label: 'Timezone', value: destination.quickFacts?.timezone || 'WIB (GMT+7)' }
               ].map((fact) => (
                 <li key={fact.label} className="border-b border-white/10 pb-4 last:border-0 last:pb-0">
                   <span className="text-zinc-400 block text-xs uppercase tracking-wider mb-1">{fact.label}</span>
@@ -161,37 +197,40 @@ export default function DestinationDetail({ params }: PageProps) {
       </section>
 
       {/* 3. PHOTO GALLERY */}
-      <section className="bg-white py-16 border-y border-zinc-100">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
-          <h2 className="font-display font-bold text-2xl md:text-3xl text-primary-dark mb-8 flex items-center gap-2">
-            <ImageIcon className="w-6 h-6 text-primary" /> Photo Gallery
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {(destination.gallery ?? []).map((img, idx) => (
-              <AnimatedContainer
-                key={idx}
-                animation="scaleIn"
-                delay={idx * 0.05}
-                className={`relative overflow-hidden rounded-[20px] shadow-sm hover:shadow-md transition-all group ${idx === 0 ? 'col-span-2 row-span-2 aspect-[4/3] md:aspect-auto' : 'aspect-square'
-                  }`}
-              >
-                <Image
-                  src={img}
-                  alt={`${destination.name} scenery ${idx + 1}`}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              </AnimatedContainer>
-            ))}
+      {galleryList.length > 0 && (
+        <section className="bg-white py-16 border-y border-zinc-100">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <h2 className="font-display font-bold text-2xl md:text-3xl text-primary-dark mb-8 flex items-center gap-2">
+              <ImageIcon className="w-6 h-6 text-primary" /> Photo Gallery
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {galleryList.map((img, idx) => (
+                <AnimatedContainer
+                  key={idx}
+                  animation="scaleIn"
+                  delay={idx * 0.05}
+                  className={`relative overflow-hidden rounded-[20px] shadow-sm hover:shadow-md transition-all group ${idx === 0 ? 'col-span-2 row-span-2 aspect-[4/3] md:aspect-auto' : 'aspect-square'
+                    }`}
+                >
+                  <Image
+                    src={img}
+                    alt={`${destination.name} scenery ${idx + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </AnimatedContainer>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 4. MAP PLACEHOLDER */}
       <section className="max-w-7xl mx-auto px-6 md:px-8 py-16">
         <h2 className="font-display font-bold text-2xl md:text-3xl text-primary-dark mb-6 flex items-center gap-2">
-          <Map className="w-6 h-6 text-primary" /> Destination Map
+          {/* <Map className="w-6 h-6 text-primary" /> */}
+          Destination Map
         </h2>
         <div className="relative aspect-[21/9] w-full rounded-[24px] overflow-hidden border border-zinc-200 shadow-luxury">
           {/* Map Image Placeholder */}
@@ -217,10 +256,10 @@ export default function DestinationDetail({ params }: PageProps) {
       {/* 5. POPULAR ATTRACTIONS */}
       <section className="max-w-7xl mx-auto px-6 md:px-8 py-8">
         <h2 className="font-display font-bold text-2xl md:text-3xl text-primary-dark mb-8">
-          Popular Attractions in {destination.name}
+          Popular Experience in {destination.name}
         </h2>
 
-        {destAttractions.length > 0 ? (
+        {destAttractions && destAttractions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {destAttractions.map((attr, idx) => (
               <AnimatedContainer
@@ -238,7 +277,6 @@ export default function DestinationDetail({ params }: PageProps) {
                       <MapPin className="w-3.5 h-3.5" /> {attr.location}
                     </span>
                     <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent/10 text-accent text-xs font-extrabold">
-                      {/* <Star className="w-3.5 h-3.5 fill-accent" /> {attr.rating} */}
                       <Star className="w-3.5 h-3.5 text-green-500 fill-green-500" />
                       <span className="text-green-500 font-extrabold">
                         {attr.rating}

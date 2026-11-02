@@ -1,11 +1,30 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Compass, Send, Mail, Phone, MapPin } from 'lucide-react';
+import { Send, Mail, Phone, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DEFAULT_APP_CONFIG, getAppConfig } from '@/lib/api';
+import type { AppConfig } from '@/types';
 
 export function Footer() {
+  const [footerConfig, setFooterConfig] = useState<AppConfig['footer']>(
+    DEFAULT_APP_CONFIG.footer
+  );
+
+  useEffect(() => {
+    getAppConfig()
+      .then((cfg) => {
+        if (cfg?.footer) {
+          setFooterConfig(cfg.footer);
+        }
+      })
+      .catch(() => {
+        // Fallback to default footer config
+      });
+  }, []);
+
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     alert('Thank you for subscribing to our newsletter!');
@@ -54,26 +73,17 @@ export function Footer() {
         {/* About Brand */}
         <div className="space-y-5">
           <div className="flex items-center gap-2">
-            {/* <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-white shadow-sm">
-              <Compass className="w-5 h-5 text-primary" />
-            </div> */}
-            {/* <div className='bg-white rounded-full p-1 item-center'>
-              <img src="/logo-aeli.png" alt="logo" width={40} height={40} />
-            </div> */}
-            <div className='backdrop-blur-sm rounded-[8px] p-1 item-center'>
+            <div className="backdrop-blur-sm rounded-[8px] p-1 item-center">
               <img src="/logo_index.png" alt="logo" width={100} height={100} />
             </div>
-            {/* <span className="font-display font-bold text-xl tracking-tight text-white leading-none">
-              INDEX<span className=" font-extrabold">-AELI</span>
-            </span> */}
-            <span className={`font-display font-bold text-lg md:text-xl tracking-tight leading-none transition-colors duration-300`}>
+            <span className="font-display font-bold text-lg md:text-xl tracking-tight leading-none transition-colors duration-300">
               INDEX
-              <span className='font-display font-medium text-sm md:text-md tracking-tight'>by</span>
-              <span className='text-white font-extrabold'>AELI</span>
+              <span className="font-display font-medium text-sm md:text-md tracking-tight">by</span>
+              <span className="text-white font-extrabold">AELI</span>
             </span>
           </div>
           <p className="text-sm text-zinc-400 leading-relaxed">
-            INDEX-AELI is Indonesia's premier tourism landing platform. We connect worldwide travelers with curated premium program and unforgettable tropical attractions across the Indonesian archipelago.
+            {footerConfig.brand_description}
           </p>
           <div className="flex items-center gap-4">
             <a href="#" className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary hover:text-white transition-all text-zinc-300" aria-label="Instagram">
@@ -103,21 +113,13 @@ export function Footer() {
         <div>
           <h4 className="font-display font-semibold text-white text-base mb-6">Quick Navigation</h4>
           <ul className="space-y-3.5 text-sm">
-            <li>
-              <Link href="/#destinations" className="hover:text-primary-light transition-colors">Popular Destinations</Link>
-            </li>
-            <li>
-              <Link href="/#attractions" className="hover:text-primary-light transition-colors">Top Attractions</Link>
-            </li>
-            <li>
-              <Link href="/#program" className="hover:text-primary-light transition-colors">Curated Programs</Link>
-            </li>
-            <li>
-              <Link href="/#about" className="hover:text-primary-light transition-colors">About INDEX-AELI</Link>
-            </li>
-            <li>
-              <Link href="/booking" className="hover:text-primary-light transition-colors">Secure Booking</Link>
-            </li>
+            {footerConfig.quick_links.map((item, idx) => (
+              <li key={`${item.label}-${idx}`}>
+                <Link href={item.url || '#'} className="hover:text-primary-light transition-colors">
+                  {item.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -125,21 +127,13 @@ export function Footer() {
         <div>
           <h4 className="font-display font-semibold text-white text-base mb-6">Support & Trust</h4>
           <ul className="space-y-3.5 text-sm">
-            <li>
-              <a href="#" className="hover:text-primary-light transition-colors">Help Center / FAQ</a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-primary-light transition-colors">Safety Guidelines</a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-primary-light transition-colors">Terms of Service</a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-primary-light transition-colors">Privacy Policy</a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-primary-light transition-colors">Refund & Cancellation Policy</a>
-            </li>
+            {footerConfig.support_links.map((item, idx) => (
+              <li key={`${item.label}-${idx}`}>
+                <Link href={item.url || '#'} className="hover:text-primary-light transition-colors">
+                  {item.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -148,15 +142,15 @@ export function Footer() {
           <h4 className="font-display font-semibold text-white text-base mb-6">Headquarters</h4>
           <div className="flex items-start gap-3 text-sm">
             <MapPin className="w-4.5 h-4.5 text-primary-light flex-shrink-0 mt-0.5" />
-            <span>Kuningan Cyber, Block C2-12, South Jakarta, Indonesia</span>
+            <span>{footerConfig.address}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Phone className="w-4.5 h-4.5 text-primary-light flex-shrink-0" />
-            <span>+62 (21) 8000-AELI</span>
+            <span>{footerConfig.phone}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Mail className="w-4.5 h-4.5 text-primary-light flex-shrink-0" />
-            <span>explore@index-aeli.id</span>
+            <span>{footerConfig.email}</span>
           </div>
         </div>
       </div>
@@ -164,7 +158,7 @@ export function Footer() {
       {/* Copyright Bar */}
       <div className="bg-primary-dark/85 py-6 border-t border-primary/10 text-xs">
         <div className="max-w-7xl mx-auto px-6 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-white-100">
-          <p>© {new Date().getFullYear()} INDEX-AELI Indonesia. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {footerConfig.copyright_text}</p>
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-zinc-400 transition-colors">Terms</a>
             <a href="#" className="hover:text-zinc-400 transition-colors">Privacy</a>

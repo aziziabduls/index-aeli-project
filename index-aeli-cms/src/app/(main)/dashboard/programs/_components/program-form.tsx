@@ -4,10 +4,11 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { ArrowDown, ArrowUp, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Calendar as CalendarIcon, CheckCircle2, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { Input } from "@/components/ui/input";
@@ -46,8 +47,12 @@ interface ProgramFormProps {
     price_unit: string | null;
     price_note: string | null;
     duration_label: string;
-    max_guest_min: number | null;
-    max_guest_max: number | null;
+    max_guest_min?: number | null;
+    max_guest_max?: number | null;
+    min_quota?: number | null;
+    max_quota?: number | null;
+    date_availability?: string | null;
+    available_dates?: string[] | null;
     meeting_point: string | null;
     status: string;
     itinerary?: ItineraryItem[];
@@ -63,9 +68,40 @@ interface ProgramFormProps {
   categories: { id?: string; name: string }[];
 }
 
+const TAB_CONFIG = [
+  { key: "details", label: "Details" },
+  { key: "pricing", label: "Pricing" },
+  { key: "itinerary", label: "Itinerary" },
+  { key: "rundown", label: "Rundown" },
+  { key: "inc-exc", label: "Include/Exclude" },
+  { key: "media", label: "Media" },
+] as const;
+
+type TabKey = (typeof TAB_CONFIG)[number]["key"];
+
 export function ProgramForm({ initialData, providers, destinations, attractions, categories }: ProgramFormProps) {
   const router = useRouter();
   const isEdit = !!initialData?.id;
+
+  // Active Tab state for navigation
+  const [activeTab, setActiveTab] = useState<TabKey>("details");
+  const currentTabIndex = TAB_CONFIG.findIndex((t) => t.key === activeTab);
+
+  const handlePrevTab = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    if (currentTabIndex > 0) {
+      setActiveTab(TAB_CONFIG[currentTabIndex - 1].key);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleNextTab = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    if (currentTabIndex < TAB_CONFIG.length - 1) {
+      setActiveTab(TAB_CONFIG[currentTabIndex + 1].key);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Form State
   let defaultProviderId = "";
@@ -133,13 +169,32 @@ export function ProgramForm({ initialData, providers, destinations, attractions,
   const [priceUnit, setPriceUnit] = useState(initialData ? (initialData.price_unit ?? "per pax") : "per pax");
   const [priceNote, setPriceNote] = useState(initialData ? (initialData.price_note ?? "") : "");
 
-  // Capacity & Location
-  const [maxGuestMin, setMaxGuestMin] = useState<number | "">(
-    initialData?.max_guest_min !== null && initialData?.max_guest_min !== undefined ? initialData.max_guest_min : "",
+  // Quota & Capacity
+  const initialMinQuota = initialData?.min_quota ?? initialData?.max_guest_min;
+  const initialMaxQuota = initialData?.max_quota ?? initialData?.max_guest_max;
+  const [minQuota, setMinQuota] = useState<number | "">(
+    initialMinQuota !== null && initialMinQuota !== undefined ? Number(initialMinQuota) : "",
   );
-  const [maxGuestMax, setMaxGuestMax] = useState<number | "">(
-    initialData?.max_guest_max !== null && initialData?.max_guest_max !== undefined ? initialData.max_guest_max : "",
+  const [maxQuota, setMaxQuota] = useState<number | "">(
+    initialMaxQuota !== null && initialMaxQuota !== undefined ? Number(initialMaxQuota) : "",
   );
+  const [dateAvailability, setDateAvailability] = useState<string>(
+    initialData?.date_availability ?? "all_days",
+  );
+  const [availableDates, setAvailableDates] = useState<Date[]>(() => {
+    if (initialData?.available_dates && Array.isArray(initialData.available_dates)) {
+      return initialData.available_dates
+        .map((d: string) => {
+          const parts = d.split("-").map(Number);
+          if (parts.length === 3) {
+            return new Date(parts[0], parts[1] - 1, parts[2]);
+          }
+          return new Date(d);
+        })
+        .filter((d: Date) => !isNaN(d.getTime()));
+    }
+    return [];
+  });
   const [meetingPoint, setMeetingPoint] = useState(initialData ? (initialData.meeting_point ?? "") : "");
   const [status, setStatus] = useState(initialData ? initialData.status : "draft");
 
@@ -238,6 +293,17 @@ export function ProgramForm({ initialData, providers, destinations, attractions,
     if (!shortDescription.trim()) return toast.error("Short Description is required");
     if (!durationLabel.trim()) return toast.error("Duration is required");
 
+    // Quota validation
+    if (minQuota !== "" && Number(minQuota) < 1) {
+      return toast.error("Minimum quota must be at least 1 guest");
+    }
+    if (maxQuota !== "" && Number(maxQuota) < 1) {
+      return toast.error("Maximum quota must be at least 1 guest");
+    }
+    if (minQuota !== "" && maxQuota !== "" && Number(minQuota) > Number(maxQuota)) {
+      return toast.error("Minimum quota cannot be greater than maximum quota");
+    }
+
     // Price validation: either price_note is filled or price_min is set
     if (!priceNote.trim() && (priceMin === "" || priceMin === null)) {
       return toast.error("Please enter either a Minimum Price or a Price Note (e.g. 'By quotation')");
@@ -248,10 +314,18 @@ export function ProgramForm({ initialData, providers, destinations, attractions,
       return toast.error("Included and Excluded items cannot be empty. Please remove empty items.");
     }
 
+    // Specific dates validation
+    if (dateAvailability === "specific_dates" && availableDates.length === 0) {
+      return toast.error("Please select at least one available date in the calendar");
+    }
+
     setLoading(true);
     try {
       const token = getClientCookie("session_token");
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7009";
+
+      const parsedMinQuota = minQuota === "" ? null : Number(minQuota);
+      const parsedMaxQuota = maxQuota === "" ? null : Number(maxQuota);
 
       const payload = {
         id: isEdit ? undefined : formId,
@@ -272,8 +346,23 @@ export function ProgramForm({ initialData, providers, destinations, attractions,
         price_unit: priceUnit || null,
         price_note: priceNote || null,
         duration_label: durationLabel,
-        max_guest_min: maxGuestMin === "" ? null : Number(maxGuestMin),
-        max_guest_max: maxGuestMax === "" ? null : Number(maxGuestMax),
+        min_quota: parsedMinQuota,
+        max_quota: parsedMaxQuota,
+        max_guest_min: parsedMinQuota,
+        max_guest_max: parsedMaxQuota,
+        date_availability: dateAvailability,
+        available_dates:
+          dateAvailability === "specific_dates"
+            ? availableDates
+                .slice()
+                .sort((a, b) => a.getTime() - b.getTime())
+                .map((d) => {
+                  const y = d.getFullYear();
+                  const m = String(d.getMonth() + 1).padStart(2, "0");
+                  const day = String(d.getDate()).padStart(2, "0");
+                  return `${y}-${m}-${day}`;
+                })
+            : [],
         meeting_point: meetingPoint || null,
         status,
         itinerary,
@@ -340,7 +429,7 @@ export function ProgramForm({ initialData, providers, destinations, attractions,
         </div>
       </div>
 
-      <Tabs defaultValue="details" className="w-full">
+      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as TabKey)} className="w-full">
         <TabsList className="mb-4 grid w-full max-w-3xl grid-cols-6">
           <TabsTrigger value="details">Details</TabsTrigger>
           <TabsTrigger value="pricing">Pricing</TabsTrigger>
@@ -505,25 +594,44 @@ export function ProgramForm({ initialData, providers, destinations, attractions,
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 <div className="flex flex-col gap-2">
-                  <span className="font-medium text-sm">Min Guest Capacity</span>
+                  <span className="font-medium text-sm">Min Quota (Guests)</span>
                   <Input
                     type="number"
-                    value={maxGuestMin}
-                    onChange={(e) => setMaxGuestMin(e.target.value === "" ? "" : Number(e.target.value))}
-                    placeholder="e.g. 10"
+                    min="1"
+                    value={minQuota}
+                    onChange={(e) => setMinQuota(e.target.value === "" ? "" : Number(e.target.value))}
+                    placeholder="e.g. 5"
                   />
+                  <span className="text-[11px] text-muted-foreground">Minimum participants required</span>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <span className="font-medium text-sm">Max Guest Capacity</span>
+                  <span className="font-medium text-sm">Max Quota (Guests)</span>
                   <Input
                     type="number"
-                    value={maxGuestMax}
-                    onChange={(e) => setMaxGuestMax(e.target.value === "" ? "" : Number(e.target.value))}
-                    placeholder="e.g. 100"
+                    min="1"
+                    value={maxQuota}
+                    onChange={(e) => setMaxQuota(e.target.value === "" ? "" : Number(e.target.value))}
+                    placeholder="e.g. 50"
                   />
+                  <span className="text-[11px] text-muted-foreground">Maximum group capacity</span>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <span className="font-medium text-sm">Date Availability</span>
+                  <select
+                    value={dateAvailability}
+                    onChange={(e) => setDateAvailability(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  >
+                    <option value="all_days">All Dates (Everyday)</option>
+                    <option value="weekdays">Only Weekdays (Mon - Fri)</option>
+                    <option value="weekends">Only Weekends (Sat - Sun)</option>
+                    <option value="specific_dates">Specific Dates (Calendar)</option>
+                  </select>
+                  <span className="text-[11px] text-muted-foreground">Booking schedule rule</span>
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -538,8 +646,95 @@ export function ProgramForm({ initialData, providers, destinations, attractions,
                     <option value="published">Published</option>
                     <option value="archived">Archived</option>
                   </select>
+                  <span className="text-[11px] text-muted-foreground">Publication status</span>
                 </div>
               </div>
+
+              {dateAvailability === "specific_dates" && (
+                <div className="rounded-xl border border-border bg-card p-4 space-y-4 shadow-sm animate-in fade-in-50">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-border/50 pb-3">
+                    <div>
+                      <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                        <CalendarIcon className="size-4 text-primary" /> Specific Available Dates Calendar
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Click dates on the calendar to select or unselect available tour days.
+                      </p>
+                    </div>
+                    {availableDates.length > 0 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setAvailableDates([])}
+                        className="text-xs text-destructive hover:text-destructive h-8 px-2.5"
+                      >
+                        Clear All Dates ({availableDates.length})
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col md:flex-row gap-6 items-start">
+                    <div className="p-1 rounded-lg border bg-background shadow-xs">
+                      <Calendar
+                        mode="multiple"
+                        selected={availableDates}
+                        onSelect={(dates) => setAvailableDates(dates ?? [])}
+                        className="rounded-lg"
+                      />
+                    </div>
+
+                    <div className="flex-1 w-full space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                          <CheckCircle2 className="size-3.5 text-emerald-600" /> Selected Dates Checklist ({availableDates.length})
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {availableDates.length === 0 ? "No dates selected yet" : `${availableDates.length} date(s) active`}
+                        </span>
+                      </div>
+
+                      {availableDates.length === 0 ? (
+                        <div className="p-6 rounded-lg border border-dashed text-center text-xs text-muted-foreground">
+                          Click dates on the calendar to checklist available booking days.
+                        </div>
+                      ) : (
+                        <div className="max-h-64 overflow-y-auto space-y-1.5 pr-1">
+                          {availableDates
+                            .slice()
+                            .sort((a, b) => a.getTime() - b.getTime())
+                            .map((date, idx) => (
+                              <div
+                                key={date.toISOString() || idx}
+                                className="flex items-center justify-between px-3 py-1.5 rounded-lg border bg-muted/40 text-xs text-foreground hover:border-primary/50 transition-colors"
+                              >
+                                <span className="font-medium flex items-center gap-2">
+                                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                                  {date.toLocaleDateString("en-US", {
+                                    weekday: "short",
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  })}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setAvailableDates(availableDates.filter((d) => d.getTime() !== date.getTime()))
+                                  }
+                                  className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                                  title="Remove date"
+                                >
+                                  <Trash2 className="size-3" />
+                                </button>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col gap-2">
                 <span className="font-medium text-sm">Meeting Point</span>
@@ -926,6 +1121,44 @@ export function ProgramForm({ initialData, providers, destinations, attractions,
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* PREVIOUS & NEXT STEP BUTTONS UNDER THE FORM */}
+        <div className="mt-8 flex items-center justify-between border-t border-border pt-4">
+          <Button
+            key="btn-prev-tab"
+            type="button"
+            variant="outline"
+            onClick={handlePrevTab}
+            disabled={currentTabIndex === 0 || loading}
+          >
+            <ArrowLeft className="mr-2 size-4" />
+            Previous
+            {currentTabIndex > 0 ? `: ${TAB_CONFIG[currentTabIndex - 1].label}` : ""}
+          </Button>
+
+          <div className="flex items-center gap-3">
+            <Button
+              key="btn-next-tab"
+              type="button"
+              variant="outline"
+              onClick={handleNextTab}
+              disabled={currentTabIndex === TAB_CONFIG.length - 1 || loading}
+            >
+              <span>
+                Next
+                {currentTabIndex < TAB_CONFIG.length - 1
+                  ? `: ${TAB_CONFIG[currentTabIndex + 1].label}`
+                  : ""}
+              </span>
+              <ArrowRight className="ml-2 size-4" />
+            </Button>
+
+            <Button key="btn-save-program" type="submit" disabled={loading}>
+              <Save className="mr-2 size-4" />
+              {loading ? "Saving..." : "Save Program"}
+            </Button>
+          </div>
+        </div>
       </Tabs>
     </form>
   );

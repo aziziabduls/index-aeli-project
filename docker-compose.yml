@@ -4,15 +4,15 @@ services:
     container_name: index-aeli-postgres-global
     restart: always
     environment:
-      POSTGRES_DB: index_aeli_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-index_aeli_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata-global:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d index_aeli_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-index_aeli_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -24,12 +24,12 @@ services:
     container_name: index-aeli-api-gateway-global
     restart: always
     ports:
-      - "7009:7009"
+      - "${GATEWAY_PORT:-7009}:7009"
     environment:
       PORT: 7009
       NODE_ENV: production
-      JWT_SECRET: supersecretjwtkey123!
-      DATABASE_URL: postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:-supersecretjwtkey123!}
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable}
       IDENTITY_SERVICE_URL: http://identity-service:7010
       CONTENT_SERVICE_URL: http://content-service:7011
       PROGRAM_SERVICE_URL: http://program-service:7012
@@ -45,12 +45,12 @@ services:
     container_name: index-aeli-identity-service-global
     restart: always
     ports:
-      - "7010:7010"
+      - "${IDENTITY_PORT:-7010}:7010"
     environment:
       PORT: 7010
       NODE_ENV: production
-      DATABASE_URL: postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable
-      JWT_SECRET: supersecretjwtkey123!
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable}
+      JWT_SECRET: ${JWT_SECRET:-supersecretjwtkey123!}
     depends_on:
       db:
         condition: service_healthy
@@ -62,11 +62,11 @@ services:
     container_name: index-aeli-content-service-global
     restart: always
     ports:
-      - "7011:7011"
+      - "${CONTENT_PORT:-7011}:7011"
     environment:
       PORT: 7011
       NODE_ENV: production
-      DATABASE_URL: postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable}
     depends_on:
       db:
         condition: service_healthy
@@ -78,11 +78,11 @@ services:
     container_name: index-aeli-program-service-global
     restart: always
     ports:
-      - "7012:7012"
+      - "${PROGRAM_PORT:-7012}:7012"
     environment:
       PORT: 7012
       NODE_ENV: production
-      DATABASE_URL: postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable}
       CONTENT_SERVICE_URL: http://content-service:7011
     depends_on:
       db:
@@ -95,11 +95,11 @@ services:
     container_name: index-aeli-media-service-global
     restart: always
     ports:
-      - "7013:7013"
+      - "${MEDIA_PORT:-7013}:7013"
     environment:
       PORT: 7013
       NODE_ENV: production
-      DATABASE_URL: postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/index_aeli_db?sslmode=disable}
       GATEWAY_URL: http://api-gateway:7009
     depends_on:
       db:
@@ -111,15 +111,17 @@ services:
     build:
       context: ./index-aeli-cms
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:7009}
     container_name: index-aeli-cms-global
     restart: always
     ports:
-      - "7008:7008"
+      - "${CMS_PORT:-7008}:7008"
     environment:
       PORT: 7008
       NODE_ENV: production
-      NEXT_PUBLIC_API_URL: http://localhost:7009
-      INTERNAL_API_URL: http://api-gateway:7009
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:7009}
+      INTERNAL_API_URL: ${INTERNAL_API_URL:-http://api-gateway:7009}
     depends_on:
       - api-gateway
 
@@ -127,15 +129,19 @@ services:
     build:
       context: ./index-aeli-web
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:7009}
+        NEXT_PUBLIC_TAX_PERCENT: ${NEXT_PUBLIC_TAX_PERCENT:-10}
     container_name: index-aeli-web-global
     restart: always
     ports:
-      - "7007:7007"
+      - "${WEB_PORT:-7007}:7007"
     environment:
       PORT: 7007
       NODE_ENV: production
-      NEXT_PUBLIC_API_URL: http://localhost:7009
-      INTERNAL_API_URL: http://api-gateway:7009
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:7009}
+      INTERNAL_API_URL: ${INTERNAL_API_URL:-http://api-gateway:7009}
+      NEXT_PUBLIC_TAX_PERCENT: ${NEXT_PUBLIC_TAX_PERCENT:-10}
     depends_on:
       - api-gateway
 

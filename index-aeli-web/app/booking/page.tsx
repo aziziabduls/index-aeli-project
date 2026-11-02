@@ -1,25 +1,38 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Compass, Calendar, Users, User, Mail, Phone, MessageSquare,
-  ArrowLeft, ArrowRight, Star, ShieldCheck, CheckCircle2, Ticket, Printer,
-  CreditCard, Landmark, QrCode, Lock, Check, Copy
-} from 'lucide-react';
-import { getPrograms } from '@/lib/api';
-import { Program } from '@/types';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getAppConfig, getPrograms } from '@/lib/api';
 import { useCurrency } from '@/lib/CurrencyContext';
+import { Program } from '@/types';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  ArrowLeft, ArrowRight,
+  Calendar,
+  Check,
+  CheckCircle2,
+  Compass,
+  Copy,
+  CreditCard, Landmark,
+  Lock,
+  Mail,
+  MessageSquare,
+  Phone,
+  Printer,
+  QrCode,
+  ShieldCheck,
+  Star,
+  Ticket,
+  User,
+  Users
+} from 'lucide-react';
+import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 
 // Inner component using useSearchParams
 function BookingFormContent() {
@@ -30,6 +43,9 @@ function BookingFormContent() {
 
   const [programsData, setProgramsData] = useState<Program[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [configuredTaxPercent, setConfiguredTaxPercent] = useState<number>(
+    Number(process.env.NEXT_PUBLIC_TAX_PERCENT ?? 10)
+  );
 
   // Selected program state
   const [selectedTourId, setSelectedTourId] = useState(tourIdParam || '');
@@ -37,10 +53,13 @@ function BookingFormContent() {
   useEffect(() => {
     async function loadPrograms() {
       try {
-        const data = await getPrograms();
+        const [data, appConfig] = await Promise.all([getPrograms(), getAppConfig()]);
         setProgramsData(data);
-        if (!selectedTourId && !tourIdParam && data.length > 0) {
-          setSelectedTourId(data[0].id);
+        if (appConfig && typeof appConfig.tax_percent === 'number' && !isNaN(appConfig.tax_percent)) {
+          setConfiguredTaxPercent(appConfig.tax_percent);
+        }
+        if (tourIdParam) {
+          setSelectedTourId(tourIdParam);
         }
       } catch (err) {
         console.error('Failed to load programs', err);
@@ -93,15 +112,138 @@ function BookingFormContent() {
     }
   }, [fullName, cardName]);
 
+  const minAllowedGuests = selectedTour?.minQuota ?? selectedTour?.maxGuestMin ?? 1;
+  const maxAllowedGuests = selectedTour?.maxQuota ?? selectedTour?.maxGuestMax ?? 50;
+
+  // Date availability resolution helper
+  const getDateAvailabilityInfo = (availability?: string) => {
+    const normalized = (availability || 'all_days').toLowerCase();
+    if (normalized === 'weekends' || normalized === 'only weekend' || normalized === 'weekend') {
+      return {
+        type: 'weekends' as const,
+        label: 'Only Weekend',
+        fullLabel: 'Only Weekend (Sat - Sun)',
+        badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
+        description: 'Available on Saturdays and Sundays only',
+      };
+    }
+    if (normalized === 'weekdays' || normalized === 'only weekday' || normalized === 'weekday') {
+      return {
+        type: 'weekdays' as const,
+        label: 'Only Weekday',
+        fullLabel: 'Only Weekday (Mon - Fri)',
+        badgeColor: 'bg-sky-50 text-sky-700 border-sky-200',
+        description: 'Available from Monday to Friday only',
+      };
+    }
+    if (normalized === 'specific_dates' || normalized === 'custom' || normalized === 'specific') {
+      const datesCount = selectedTour?.availableDates?.length || 0;
+      return {
+        type: 'specific_dates' as const,
+        label: datesCount > 0 ? `Specific Dates (${datesCount})` : 'Specific Dates',
+        fullLabel: datesCount > 0 ? `Specific Dates (${datesCount} Available)` : 'Specific Dates Only',
+        badgeColor: 'bg-violet-50 text-violet-700 border-violet-200',
+        description: datesCount > 0
+          ? `Available on ${datesCount} specific date(s) marked in calendar`
+          : 'Available on specifically scheduled dates only',
+      };
+    }
+    return {
+      type: 'all_days' as const,
+      label: 'All Dates',
+      fullLabel: 'All Dates (Everyday)',
+      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      description: 'Available on all days of the week',
+    };
+  };
+
+  const availabilityInfo = getDateAvailabilityInfo(selectedTour?.dateAvailability);
+
+  const isDateDisabled = (date: Date) => {
+    // Disable past dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date < today) return true;
+
+    const availType = availabilityInfo.type;
+    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+    const isWeekend = day === 0 || day === 6;
+
+    if (availType === 'weekends') {
+      return !isWeekend;
+    }
+    if (availType === 'weekdays') {
+      return isWeekend;
+    }
+    if (availType === 'specific_dates') {
+      const allowed = selectedTour?.availableDates || [];
+      if (allowed.length === 0) return true;
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${d}`;
+      return !allowed.includes(dateStr);
+    }
+    return false;
+  };
+
+  // Auto clamp guests count and re-check travel date when selected tour changes
+  useEffect(() => {
+    if (selectedTour) {
+      const minQ = selectedTour.minQuota ?? selectedTour.maxGuestMin;
+      const maxQ = selectedTour.maxQuota ?? selectedTour.maxGuestMax;
+      if (minQ && guestsCount < minQ) {
+        setGuestsCount(minQ);
+      } else if (maxQ && guestsCount > maxQ) {
+        setGuestsCount(maxQ);
+      }
+
+      if (travelDate) {
+        const d = new Date(travelDate);
+        if (isDateDisabled(d)) {
+          setTravelDate('');
+        }
+      }
+    }
+  }, [selectedTour]);
+
   // Pricing calculations
+  const taxPercent = configuredTaxPercent;
+  const taxRate = isNaN(taxPercent) ? 0.1 : taxPercent / 100;
   const basePrice = selectedTour ? selectedTour.price * guestsCount : 0;
-  const taxAndFees = Math.round(basePrice * 0.1); // 10% tax/fees
+  const taxAndFees = Math.round(basePrice * taxRate);
   const totalCost = basePrice + taxAndFees;
 
   const validateStep1 = () => {
     const newErrors: Record<string, string> = {};
-    if (!travelDate) newErrors.travelDate = 'Travel date is required';
+    if (!travelDate) {
+      newErrors.travelDate = 'Travel date is required';
+    } else {
+      const pickedDate = new Date(travelDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (pickedDate < today) {
+        newErrors.travelDate = 'Travel date cannot be in the past';
+      } else if (isDateDisabled(pickedDate)) {
+        if (availabilityInfo.type === 'weekends') {
+          newErrors.travelDate = 'This experience is only available on weekends (Saturday - Sunday)';
+        } else if (availabilityInfo.type === 'weekdays') {
+          newErrors.travelDate = 'This experience is only available on weekdays (Monday - Friday)';
+        } else if (availabilityInfo.type === 'specific_dates') {
+          newErrors.travelDate = 'This experience is only available on specifically scheduled dates';
+        } else {
+          newErrors.travelDate = 'Selected date is not available for this experience';
+        }
+      }
+    }
+
     if (!fullName.trim()) newErrors.fullName = 'Full name is required';
+
+    if (guestsCount < minAllowedGuests) {
+      newErrors.guests = `Minimum quota for this tour is ${minAllowedGuests} guest(s)`;
+    } else if (guestsCount > maxAllowedGuests) {
+      newErrors.guests = `Maximum quota for this tour is ${maxAllowedGuests} guest(s)`;
+    }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
@@ -287,13 +429,18 @@ function BookingFormContent() {
                     {/* Program Selection */}
                     <div className="flex flex-col text-left">
                       <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5 mb-2">
-                        <Compass className="w-4 h-4 text-primary" /> Select Attraction Experience *
+                        <Compass className="w-4 h-4 text-primary" />
+                        Select Attraction Experience *
                       </label>
                       <Select
                         value={selectedTourId}
                         onValueChange={(val) => setSelectedTourId(val || '')}
+                        disabled={Boolean(selectedTourId)}
                       >
-                        <SelectTrigger className="w-full h-12 px-4 rounded-xl border border-zinc-200 bg-zinc-50 font-semibold focus:outline-none focus:border-primary focus:bg-white text-zinc-800 text-sm transition-all flex items-center justify-between shadow-none hover:bg-zinc-100/50">
+                        <SelectTrigger
+                          disabled={Boolean(selectedTourId)}
+                          className="w-full h-12 px-4 rounded-xl border border-zinc-200 bg-zinc-50 font-semibold focus:outline-none focus:border-primary focus:bg-white text-zinc-800 text-sm transition-all flex items-center justify-between shadow-none hover:bg-zinc-100/50 disabled:bg-zinc-100 disabled:text-zinc-600 disabled:cursor-not-allowed disabled:opacity-80"
+                        >
                           <SelectValue placeholder="Select an experience">
                             {selectedTourId
                               ? (programsData.find(t => t.id === selectedTourId)?.name || 'Select an experience')
@@ -311,9 +458,16 @@ function BookingFormContent() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       {/* Travel Date */}
                       <div className="flex flex-col text-left">
-                        <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5 mb-2">
-                          <Calendar className="w-4 h-4 text-primary" /> Travel Date *
-                        </label>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5">
+                            <Calendar className="w-4 h-4 text-primary" /> Travel Date *
+                          </label>
+                          {selectedTour && (
+                            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${availabilityInfo.badgeColor}`}>
+                              {availabilityInfo.fullLabel}
+                            </span>
+                          )}
+                        </div>
                         <Popover>
                           <PopoverTrigger className={`w-full h-12 px-4 rounded-xl border flex items-center justify-between text-sm transition-all text-left bg-zinc-50 border-zinc-200 focus:outline-none text-zinc-800 cursor-pointer ${errors.travelDate ? 'border-rose-500 bg-rose-50/10' : ''
                             }`}>
@@ -325,6 +479,7 @@ function BookingFormContent() {
                             <CalendarComponent
                               mode="single"
                               selected={travelDate ? new Date(travelDate) : undefined}
+                              disabled={isDateDisabled}
                               onSelect={(date) => {
                                 if (!date) {
                                   setTravelDate('');
@@ -334,24 +489,41 @@ function BookingFormContent() {
                                 const month = String(date.getMonth() + 1).padStart(2, '0');
                                 const day = String(date.getDate()).padStart(2, '0');
                                 setTravelDate(`${year}-${month}-${day}`);
+                                if (errors.travelDate) {
+                                  setErrors(prev => {
+                                    const next = { ...prev };
+                                    delete next.travelDate;
+                                    return next;
+                                  });
+                                }
                               }}
                             />
                           </PopoverContent>
                         </Popover>
+                        <span className="text-[11px] text-zinc-400 mt-1 font-medium">
+                          {availabilityInfo.description}
+                        </span>
                         {errors.travelDate && (
-                          <span className="text-rose-500 text-xs mt-1.5 font-medium">{errors.travelDate}</span>
+                          <span className="text-rose-500 text-xs mt-1 font-medium">{errors.travelDate}</span>
                         )}
                       </div>
 
                       {/* Number of Guests */}
                       <div className="flex flex-col text-left">
-                        <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5 mb-2">
-                          <Users className="w-4 h-4 text-primary" /> Guests count *
-                        </label>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5">
+                            <Users className="w-4 h-4 text-primary" /> Guests count *
+                          </label>
+                          {(selectedTour?.minQuota || selectedTour?.maxQuota || selectedTour?.maxGuestMin || selectedTour?.maxGuestMax) ? (
+                            <span className="text-[11px] text-zinc-400 font-medium">
+                              Quota: {minAllowedGuests} - {maxAllowedGuests} pax
+                            </span>
+                          ) : null}
+                        </div>
                         <div className="flex h-12 border border-zinc-200 bg-zinc-50 rounded-xl overflow-hidden">
                           <button
                             type="button"
-                            onClick={() => setGuestsCount(prev => Math.max(1, prev - 1))}
+                            onClick={() => setGuestsCount(prev => Math.max(minAllowedGuests, prev - 1))}
                             className="w-12 h-full flex items-center justify-center font-bold text-lg hover:bg-zinc-200/50 cursor-pointer"
                           >
                             -
@@ -361,12 +533,15 @@ function BookingFormContent() {
                           </div>
                           <button
                             type="button"
-                            onClick={() => setGuestsCount(prev => Math.min(10, prev + 1))}
+                            onClick={() => setGuestsCount(prev => Math.min(maxAllowedGuests, prev + 1))}
                             className="w-12 h-full flex items-center justify-center font-bold text-lg hover:bg-zinc-200/50 cursor-pointer"
                           >
                             +
                           </button>
                         </div>
+                        {errors.guests && (
+                          <span className="text-rose-500 text-xs mt-1.5 font-medium">{errors.guests}</span>
+                        )}
                       </div>
                     </div>
 
@@ -783,9 +958,14 @@ function BookingFormContent() {
                     <h4 className="font-display font-bold text-zinc-900 leading-tight">
                       {selectedTour.name}
                     </h4>
-                    <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-zinc-500">
-                      <Star className="w-4 h-4 fill-accent text-accent" />
-                      <span>{selectedTour.rating} ({selectedTour.reviewsCount} reviews)</span>
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500">
+                        <Star className="w-4 h-4 fill-accent text-accent" />
+                        <span>{selectedTour.rating} ({selectedTour.reviewsCount} reviews)</span>
+                      </div>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${availabilityInfo.badgeColor}`}>
+                        {availabilityInfo.label}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -793,6 +973,18 @@ function BookingFormContent() {
 
               {/* Calculator details */}
               <div className="border-t border-zinc-100 pt-6 space-y-4 text-sm">
+                <div className="flex justify-between text-zinc-500">
+                  <span>Schedule</span>
+                  <span className="font-semibold text-zinc-800">{availabilityInfo.label}</span>
+                </div>
+                {travelDate && (
+                  <div className="flex justify-between text-zinc-500">
+                    <span>Travel Date</span>
+                    <span className="font-semibold text-zinc-800">
+                      {new Date(travelDate).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between text-zinc-500">
                   <span>Price per Person</span>
                   <span>{selectedTour && formatPrice(selectedTour.price)}</span>
@@ -806,7 +998,7 @@ function BookingFormContent() {
                   <span className="font-semibold text-zinc-800">{formatPrice(basePrice)}</span>
                 </div>
                 <div className="flex justify-between text-zinc-500">
-                  <span>CHSE Safety Tax & Fees (10%)</span>
+                  <span>CHSE Safety Tax & Fees ({taxPercent}%)</span>
                   <span>{formatPrice(taxAndFees)}</span>
                 </div>
                 <div className="flex justify-between items-baseline pt-4 border-t border-zinc-100">

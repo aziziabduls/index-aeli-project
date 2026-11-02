@@ -1,4 +1,4 @@
-import { Briefcase, Compass, Grid3x3, ListTodo, Lock, type LucideIcon, MapPin, Tags, Users } from "lucide-react";
+import { Briefcase, Compass, Grid3x3, ListTodo, Lock, type LucideIcon, MapPin, Settings, Tags, Users } from "lucide-react";
 
 export type NavBadge = "new" | "soon";
 
@@ -41,7 +41,7 @@ export interface NavGroup {
 export const sidebarItems: NavGroup[] = [
   {
     id: 1,
-    label: "Programs",
+    label: "Dashboard",
     items: [
       {
         id: "default",
@@ -49,25 +49,7 @@ export const sidebarItems: NavGroup[] = [
         url: "/dashboard",
         icon: Grid3x3,
       },
-      {
-        id: "programs",
-        title: "Programs",
-        url: "/dashboard/programs",
-        icon: ListTodo,
-      },
-      {
-        id: "destinations",
-        title: "Destinations",
-        url: "/dashboard/destinations",
-        icon: MapPin,
-      },
-      {
-        id: "attractions",
-        title: "Experience",
-        url: "/dashboard/attractions",
-        icon: Compass,
-      },
-    ],
+    ]
   },
   {
     id: 2,
@@ -89,6 +71,31 @@ export const sidebarItems: NavGroup[] = [
   },
   {
     id: 3,
+    label: "Programs",
+    items: [
+
+      {
+        id: "destinations",
+        title: "Location",
+        url: "/dashboard/destinations",
+        icon: MapPin,
+      },
+      {
+        id: "attractions",
+        title: "Experience",
+        url: "/dashboard/attractions",
+        icon: Compass,
+      },
+      {
+        id: "programs",
+        title: "Programs",
+        url: "/dashboard/programs",
+        icon: ListTodo,
+      },
+    ],
+  },
+  {
+    id: 4,
     label: "User Access",
     items: [
       {
@@ -102,6 +109,18 @@ export const sidebarItems: NavGroup[] = [
         title: "Roles",
         url: "/dashboard/roles",
         icon: Lock,
+      },
+    ],
+  },
+  {
+    id: 5,
+    label: "Configuration",
+    items: [
+      {
+        id: "app-config",
+        title: "App Config",
+        url: "/dashboard/app-config",
+        icon: Settings,
       },
     ],
   },

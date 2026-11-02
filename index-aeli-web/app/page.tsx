@@ -1,16 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getDestinations, getAttractions, getPrograms } from '@/lib/api';
-import { Destination, Attraction, Program } from '@/types';
-import HeroSection from '@/components/home/HeroSection';
-import DestinationsSection from '@/components/home/DestinationsSection';
 import AttractionsSection from '@/components/home/AttractionsSection';
+import DestinationsSection from '@/components/home/DestinationsSection';
+import HeroSection from '@/components/home/HeroSection';
 import ProgramsSection from '@/components/home/ProgramsSection';
 import WhyChooseUsSection from '@/components/home/WhyChooseUsSection';
-import StatsSection from '@/components/home/StatsSection';
-import TestimonialsSection from '@/components/home/TestimonialsSection';
-import CtaSection from '@/components/home/CtaSection';
+import { getAttractions, getDestinations, getPrograms } from '@/lib/api';
+import { Attraction, Destination, Program } from '@/types';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   // Data State
@@ -84,9 +81,9 @@ export default function Home() {
         activeCategory={activeCategory}
       />
       <WhyChooseUsSection />
-      <StatsSection />
-      <TestimonialsSection />
-      <CtaSection />
+      {/* <StatsSection />
+      <TestimonialsSection /> */}
+      {/* <CtaSection /> */}
     </div>
   );
 }

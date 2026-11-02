@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { userController } from '../controllers/user.controller.js';
+import { requireRole } from '../middlewares/auth.middleware.js';
+
+const router = Router();
+
+router.get('/users', requireRole('super_admin', 'admin'), (req, res, next) => userController.getUsers(req, res, next));
+router.get('/roles', requireRole('super_admin', 'admin'), (req, res, next) => userController.getRoles(req, res, next));
+router.post('/users', requireRole('super_admin'), (req, res, next) => userController.createUser(req, res, next));
+router.patch('/users/:id/role', requireRole('super_admin'), (req, res, next) => userController.updateRole(req, res, next));
+
+export default router;
+

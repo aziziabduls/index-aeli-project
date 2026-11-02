@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 COPY services/media-service/package*.json ./services/media-service/
@@ -7,7 +7,7 @@ COPY services/media-service/tsconfig.json ./services/media-service/
 COPY services/media-service/src ./services/media-service/src
 RUN npm run build --workspace=services/media-service
 
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 COPY package*.json ./
 COPY services/media-service/package*.json ./services/media-service/

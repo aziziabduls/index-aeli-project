@@ -99,6 +99,13 @@ docker compose up --build -d
 
 ## 5. Seed Accounts
 
+On initial startup, the `identity-service` automatically seeds a default superadmin user account if no users exist in the database:
+- **Email**: `superadmin@indexaeli.com`
+- **Password**: `superadminpassword`
+- **Role**: `super_admin`
+
+For complete developer and API documentation, see [dev_documentation.md](dev_documentation.md).
+
 ---
 
 ## 6. Contract API Endpoints

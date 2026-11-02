@@ -84,6 +84,14 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
           items: hasAccess ? group.items : [],
         };
       }
+      if (group.id === 5) {
+        const isSuperAdmin =
+          user?.role === "super_admin" || user?.email === "superadmin@indexaeli.com";
+        return {
+          ...group,
+          items: isSuperAdmin ? group.items : [],
+        };
+      }
       return group;
     })
     .filter((group) => group.items.length > 0);

@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCurrency } from '@/lib/CurrencyContext';
+import { Menu } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, Compass } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { MobileNav } from './MobileNav';
-import { useCurrency } from '@/lib/CurrencyContext';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -103,7 +103,7 @@ export function Navbar() {
 
           {/* CTA / Hamburger */}
           <div className="flex items-center gap-4">
-            <button
+            {/* <button
               onClick={() => setCurrency(currency === 'IDR' ? 'USD' : 'IDR')}
               className={`inline-flex items-center justify-center h-10 px-4 font-display font-bold rounded-full transition-all duration-300 hover:scale-105 active:scale-95 text-xs border cursor-pointer ${isScrolled
                 ? 'border-zinc-200 text-zinc-700 hover:bg-zinc-50 bg-white shadow-sm'
@@ -112,10 +112,10 @@ export function Navbar() {
               title="Change Currency"
             >
               <span>{currency === 'IDR' ? '🇮🇩 IDR' : '💵 USD'}</span>
-            </button>
+            </button> */}
 
             <Link
-              href="/booking"
+              href="/programs"
               className={`hidden md:inline-flex items-center justify-center h-10 px-5.5 font-display font-bold rounded-full transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 text-xs shadow-sm ${isScrolled
                 ? 'bg-marketing-btn text-white hover:bg-marketing-btn-hover'
                 : 'bg-white text-zinc-950 hover:bg-zinc-100'

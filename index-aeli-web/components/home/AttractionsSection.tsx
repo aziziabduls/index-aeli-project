@@ -44,41 +44,47 @@ export default function AttractionsSection({ attractions }: AttractionsSectionPr
         </div>
 
         {/* Grid Layout - 3 columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {attractions.slice(0, 6).map((attr, index) => (
-            <AnimatedContainer
-              key={attr.id}
-              animation="fadeInUp"
-              delay={index * 0.1}
-            >
-              <GlassCard
-                imageSrc={attr.image}
-                imageAlt={attr.name}
-                aspectRatio="video"
+        {attractions.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {attractions.slice(0, 6).map((attr, index) => (
+              <AnimatedContainer
+                key={attr.id}
+                animation="fadeInUp"
+                delay={index * 0.1}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5" /> {attr.location}
-                  </span>
-                  <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent/10 text-accent text-xs font-extrabold">
-                    <Star className="w-3.5 h-3.5 text-green-500 fill-green-500" />
-                    <span className="text-green-500 font-extrabold">
-                      {attr.rating}
-                    </span>
-                  </span>
-                </div>
-                <h3 className="font-display font-bold text-xl text-primary-dark mb-2 line-clamp-1">{attr.name}</h3>
-                <p className="text-zinc-600 text-sm leading-relaxed mb-5 line-clamp-2">{attr.description}</p>
-                <Link
-                  href={`/experience/${attr.id}`}
-                  className="inline-flex items-center justify-center w-full h-11 border border-primary/20 hover:border-primary hover:bg-primary/5 text-primary text-sm font-semibold rounded-xl transition-all"
+                <GlassCard
+                  imageSrc={attr.image}
+                  imageAlt={attr.name}
+                  aspectRatio="video"
                 >
-                  View Details & Program
-                </Link>
-              </GlassCard>
-            </AnimatedContainer>
-          ))}
-        </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5" /> {attr.location}
+                    </span>
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent/10 text-accent text-xs font-extrabold">
+                      <Star className="w-3.5 h-3.5 text-green-500 fill-green-500" />
+                      <span className="text-green-500 font-extrabold">
+                        {attr.rating}
+                      </span>
+                    </span>
+                  </div>
+                  <h3 className="font-display font-bold text-xl text-primary-dark mb-2 line-clamp-1">{attr.name}</h3>
+                  <p className="text-zinc-600 text-sm leading-relaxed mb-5 line-clamp-2">{attr.description}</p>
+                  <Link
+                    href={`/experience/${attr.id}`}
+                    className="inline-flex items-center justify-center w-full h-11 border border-primary/20 hover:border-primary hover:bg-primary/5 text-primary text-sm font-semibold rounded-xl transition-all"
+                  >
+                    View Details & Program
+                  </Link>
+                </GlassCard>
+              </AnimatedContainer>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 bg-zinc-50 rounded-3xl border border-zinc-100">
+            <p className="text-zinc-500 text-sm">Belum ada pengalaman / atraksi yang ditambahkan.</p>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,18 +1,26 @@
-import { Destination, Attraction, Program } from '@/types';
+import { Destination, Attraction, Program, AppConfig } from '@/types';
 
-const CONTENT_API_URL = process.env.NEXT_PUBLIC_CONTENT_API_URL || 'http://localhost:7011/api/v1';
-const PROGRAM_API_URL = process.env.NEXT_PUBLIC_PROGRAM_API_URL || 'http://localhost:7012/api/v1';
-const MEDIA_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7009';
+// Resolve Gateway API Base URL depending on Server (Docker internal) or Client (Browser)
+const getBaseApiUrl = (): string => {
+  if (typeof window === 'undefined') {
+    return (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7009') + '/api/v1';
+  }
+  return (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7009') + '/api/v1';
+};
+
+const getMediaBaseUrl = (): string => {
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7009';
+};
+
+// Placeholder image for items without images — prevents Next.js empty src errors
+const PLACEHOLDER_IMG = 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=800&q=60';
 
 // Helper to resolve media URLs
 function getMediaUrl(url: string | null | undefined): string {
   if (!url) return PLACEHOLDER_IMG;
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${MEDIA_API_URL}${url}`;
+  return `${getMediaBaseUrl()}${url.startsWith('/') ? '' : '/'}${url}`;
 }
-
-// Placeholder image for items without images — prevents Next.js empty src errors
-const PLACEHOLDER_IMG = 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=800&q=60';
 
 // Helper to unwrap { success, data } API responses
 async function fetchApi<T>(url: string): Promise<T | null> {
@@ -28,10 +36,27 @@ async function fetchApi<T>(url: string): Promise<T | null> {
 
 // Map snake_case destination from API to camelCase frontend type
 function mapDestination(d: Record<string, unknown>): Destination {
+  if (!d || typeof d !== 'object' || Array.isArray(d)) {
+    return {
+      id: '',
+      name: '',
+      slug: '',
+      image: PLACEHOLDER_IMG,
+      description: '',
+      attractionCount: 0,
+      quickFacts: { capital: '', population: '', language: '', timezone: '' },
+      weather: { temperature: '', condition: '' },
+      bestTimeToVisit: '',
+      gallery: [],
+    };
+  }
+
+  const galleryList = Array.isArray(d.gallery) ? d.gallery : [];
+
   return {
-    id: d.id as string,
-    name: d.name as string,
-    slug: d.slug as string,
+    id: (d.id as string) || '',
+    name: (d.name as string) || '',
+    slug: (d.slug as string) || '',
     image: getMediaUrl(d.image as string),
     description: (d.description ?? d.overview ?? '') as string,
     attractionCount: (d.attraction_count ?? 0) as number,
@@ -46,7 +71,7 @@ function mapDestination(d: Record<string, unknown>): Destination {
       condition: (d.weather_condition ?? '') as string,
     },
     bestTimeToVisit: (d.best_time_to_visit ?? '') as string,
-    gallery: ((d.gallery ?? []) as string[]).map(getMediaUrl),
+    gallery: galleryList.map(getMediaUrl),
   };
 }
 
@@ -99,25 +124,32 @@ function mapProgram(p: Record<string, unknown>): Program {
       };
     }),
     gallery: (p.gallery ?? []) as string[],
+    maxGuestMin: p.max_guest_min !== null && p.max_guest_min !== undefined ? Number(p.max_guest_min) : (p.min_quota !== null && p.min_quota !== undefined ? Number(p.min_quota) : null),
+    maxGuestMax: p.max_guest_max !== null && p.max_guest_max !== undefined ? Number(p.max_guest_max) : (p.max_quota !== null && p.max_quota !== undefined ? Number(p.max_quota) : null),
+    minQuota: p.min_quota !== null && p.min_quota !== undefined ? Number(p.min_quota) : (p.max_guest_min !== null && p.max_guest_min !== undefined ? Number(p.max_guest_min) : null),
+    maxQuota: p.max_quota !== null && p.max_quota !== undefined ? Number(p.max_quota) : (p.max_guest_max !== null && p.max_guest_max !== undefined ? Number(p.max_guest_max) : null),
+    dateAvailability: (p.date_availability as string) || 'all_days',
+    date_availability: (p.date_availability as string) || 'all_days',
+    availableDates: Array.isArray(p.available_dates) ? (p.available_dates as string[]) : [],
+    available_dates: Array.isArray(p.available_dates) ? (p.available_dates as string[]) : [],
   };
 }
 
 export async function getDestinations(): Promise<Destination[]> {
-  const data = await fetchApi<Record<string, unknown>[]>(`${CONTENT_API_URL}/destinations`);
+  const data = await fetchApi<Record<string, unknown>[]>(`${getBaseApiUrl()}/destinations`);
   if (!data) {
-    console.error('Failed to fetch destinations');
     return [];
   }
   return data.map(mapDestination);
 }
 
 export async function getDestinationById(idOrSlug: string): Promise<Destination | null> {
-  // Try direct lookup (works for slugs)
-  const data = await fetchApi<Record<string, unknown>>(`${CONTENT_API_URL}/destinations/${idOrSlug}`);
-  if (data) return mapDestination(data);
+  if (!idOrSlug) return null;
+  const data = await fetchApi<Record<string, unknown>>(`${getBaseApiUrl()}/destinations/${idOrSlug}`);
+  if (data && typeof data === 'object' && !Array.isArray(data) && (data as any).id) {
+    return mapDestination(data);
+  }
 
-  // If it looks like a UUID, the backend only supports slug lookup —
-  // fall back to finding it in the full destinations list
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
   if (isUuid) {
     const all = await getDestinations();
@@ -128,49 +160,235 @@ export async function getDestinationById(idOrSlug: string): Promise<Destination 
 }
 
 export async function getAttractions(destinationId?: string): Promise<Attraction[]> {
-  if (destinationId) {
-    // Resolve the destination to get its slug (API only supports slug-based attraction lookup)
-    const dest = await getDestinationById(destinationId);
-    if (!dest) return [];
-    const data = await fetchApi<Record<string, unknown>[]>(`${CONTENT_API_URL}/destinations/${dest.slug}/attractions`);
-    return data ? data.map(mapAttraction) : [];
-  }
-
-  // No "list all attractions" endpoint exists, so aggregate from all destinations
-  const destinations = await getDestinations();
-  const allAttractions: Attraction[] = [];
-  
-  await Promise.all(
-    destinations.map(async (dest) => {
-      const data = await fetchApi<Record<string, unknown>[]>(
-        `${CONTENT_API_URL}/destinations/${dest.slug}/attractions`
-      );
-      if (data) {
-        allAttractions.push(...data.map(mapAttraction));
-      }
-    })
-  );
-
-  return allAttractions;
+  const apiBase = getBaseApiUrl();
+  const url = destinationId 
+    ? `${apiBase}/attractions?destination_id=${destinationId}`
+    : `${apiBase}/attractions`;
+  const data = await fetchApi<Record<string, unknown>[]>(url);
+  return data ? data.map(mapAttraction) : [];
 }
 
 export async function getAttractionById(id: string): Promise<Attraction | null> {
-  const data = await fetchApi<Record<string, unknown>>(`${CONTENT_API_URL}/attractions/${id}`);
+  const data = await fetchApi<Record<string, unknown>>(`${getBaseApiUrl()}/attractions/${id}`);
   if (!data) return null;
   return mapAttraction(data);
 }
 
 export async function getPrograms(): Promise<Program[]> {
-  const data = await fetchApi<Record<string, unknown>[]>(`${PROGRAM_API_URL}/programs`);
+  const data = await fetchApi<Record<string, unknown>[]>(`${getBaseApiUrl()}/programs`);
   if (!data) {
-    console.error('Failed to fetch programs');
     return [];
   }
   return data.map(mapProgram);
 }
 
 export async function getProgramById(id: string): Promise<Program | null> {
-  const data = await fetchApi<Record<string, unknown>>(`${PROGRAM_API_URL}/programs/${id}`);
+  const data = await fetchApi<Record<string, unknown>>(`${getBaseApiUrl()}/programs/${id}`);
   if (!data) return null;
   return mapProgram(data);
 }
+
+export const DEFAULT_APP_CONFIG: AppConfig = {
+  tax_percent: Number(process.env.NEXT_PUBLIC_TAX_PERCENT ?? 10),
+  credentials: {
+    subtitle: 'Our Credentials',
+    title: 'A World of Wonders Awaits',
+    items: [
+      {
+        icon: 'Map',
+        title: 'Discover Hidden Gems',
+        desc: "Explore Indonesia's untouched corners and secret spots, far from the usual tourist trails.",
+      },
+      {
+        icon: 'Compass',
+        title: 'Explore Unique Experiences',
+        desc: "Authentic adventures curated to showcase Indonesia's rich culture and vibrant nature.",
+      },
+      {
+        icon: 'Users',
+        title: 'Connect Local Cultures',
+        desc: "Support local communities through tourism. We champion homestays, local guides, and community-based enterprises to ensure your trip gives back directly to the people and places you visit. Experience genuine hospitality and preserve Indonesia's cultural heritage together.",
+      },
+      {
+        icon: 'Trees',
+        title: 'Sustain For Better Future',
+        desc: "Protect the environment and support local communities through responsible tourism. We partner with eco-conscious operators, minimize waste, and promote conservation efforts to ensure your journey contributes to a sustainable future for Indonesia's natural treasures.",
+      },
+    ],
+  },
+  contact: {
+    title: 'Get in Touch',
+    description:
+      'Have questions about our programs, destinations, or want to customize your journey? Our team of local experts is ready to help you plan the perfect Indonesian adventure.',
+    address: 'Kuningan Cyber, Block C2-12, South Jakarta, Indonesia',
+    phone: '+62 (21) 8000-AELI',
+    email: 'explore@index-aeli.id',
+    business_hours: {
+      weekday: '09:00 - 18:00 (WIB)',
+      saturday: '10:00 - 15:00 (WIB)',
+      sunday: 'Closed',
+    },
+  },
+  about: {
+    badge: 'Who We Are',
+    title: 'Indonesia Destination-Based Exploration',
+    description_1:
+      "INDEX-AELI is Indonesia's premier tourism landing platform. In partnership with AELI (Asosiasi Experiential Learning Indonesia), we connect worldwide travelers with curated premium programs and unforgettable tropical attractions across the Indonesian archipelago.",
+    description_2:
+      'We believe in tourism that gives back. By working with certified local guides and eco-friendly accommodation partners, we ensure that your luxury journey contributes directly to local economies and environment preservation.',
+    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&fit=crop',
+    vision_title: 'Our Vision',
+    vision_desc:
+      'To be the leading platform for experiential learning and luxury destination tourism in Indonesia, empowering travelers to explore the archipelago authentically, responsibly, and deeply.',
+    mission_title: 'Our Mission',
+    mission_desc:
+      'To design top-tier travel itineraries with local guides, establish high safety compliance benchmarks under CHSE, and promote eco-sustainable tourism values that nourish communities.',
+    values_badge: 'Our values',
+    values_title: 'How We Create Adventures',
+    values: [
+      {
+        icon: 'Map',
+        title: 'Discover Hidden Gems',
+        desc: 'Explore Indonesia’s untouched corners and secret spots, far from the usual tourist trails.',
+      },
+      {
+        icon: 'Compass',
+        title: 'Explore Unique Experiences',
+        desc: 'Authentic adventures curated to showcase Indonesia’s rich culture and vibrant nature.',
+      },
+      {
+        icon: 'Users',
+        title: 'Connect Local Cultures',
+        desc: 'Support local communities through tourism. We champion homestays, local guides, and community-based enterprises.',
+      },
+      {
+        icon: 'Heart',
+        title: 'Sustain For Better Future',
+        desc: 'Protect the environment and support local communities through responsible, eco-conscious tourism.',
+      },
+    ],
+    team_badge: 'The Curators',
+    team_title: 'Meet Our Leadership',
+    team_members: [
+      {
+        name: 'Budi Santoso',
+        role: 'Co-Founder & CEO',
+        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+        bio: 'Budi has over 15 years of tourism management experience across Bali, Komodo, and Raja Ampat.',
+      },
+      {
+        name: 'Dewi Lestari',
+        role: 'Head of Operations',
+        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
+        bio: 'Dewi ensures all itineraries meet CHSE safety regulations and connect directly with local communities.',
+      },
+      {
+        name: 'Agus Pratama',
+        role: 'Local Guide Lead Curator',
+        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
+        bio: 'Agus collaborates with community heads and local guides to deliver authentic experiences.',
+      },
+    ],
+  },
+  footer: {
+    brand_description:
+      "INDEX-AELI is Indonesia's premier tourism landing platform. We connect worldwide travelers with curated premium program and unforgettable tropical attractions across the Indonesian archipelago.",
+    address: 'Kuningan Cyber, Block C2-12, South Jakarta, Indonesia',
+    phone: '+62 (21) 8000-AELI',
+    email: 'explore@index-aeli.id',
+    quick_links: [
+      { label: 'Popular Destinations', url: '/#destinations' },
+      { label: 'Top Attractions', url: '/#attractions' },
+      { label: 'Curated Programs', url: '/#program' },
+      { label: 'About INDEX-AELI', url: '/#about' },
+      { label: 'Secure Booking', url: '/booking' },
+    ],
+    support_links: [
+      { label: 'Help Center / FAQ', url: '#' },
+      { label: 'Safety Guidelines', url: '#' },
+      { label: 'Terms of Service', url: '#' },
+      { label: 'Privacy Policy', url: '#' },
+      { label: 'Refund & Cancellation Policy', url: '#' },
+    ],
+    copyright_text: 'INDEX-AELI Indonesia. All rights reserved.',
+  },
+};
+
+export async function getAppConfig(): Promise<AppConfig> {
+  const data = await fetchApi<Partial<AppConfig>>(`${getBaseApiUrl()}/app-config`);
+  if (!data || typeof data !== 'object') {
+    return DEFAULT_APP_CONFIG;
+  }
+
+  return {
+    tax_percent:
+      typeof data.tax_percent === 'number' && !Number.isNaN(data.tax_percent)
+        ? data.tax_percent
+        : DEFAULT_APP_CONFIG.tax_percent,
+    credentials: {
+      subtitle: data.credentials?.subtitle ?? DEFAULT_APP_CONFIG.credentials.subtitle,
+      title: data.credentials?.title ?? DEFAULT_APP_CONFIG.credentials.title,
+      items:
+        Array.isArray(data.credentials?.items) && data.credentials.items.length > 0
+          ? data.credentials.items
+          : DEFAULT_APP_CONFIG.credentials.items,
+    },
+    contact: {
+      title: data.contact?.title ?? DEFAULT_APP_CONFIG.contact.title,
+      description: data.contact?.description ?? DEFAULT_APP_CONFIG.contact.description,
+      address:
+        data.contact?.address ?? data.footer?.address ?? DEFAULT_APP_CONFIG.contact.address,
+      phone: data.contact?.phone ?? data.footer?.phone ?? DEFAULT_APP_CONFIG.contact.phone,
+      email: data.contact?.email ?? data.footer?.email ?? DEFAULT_APP_CONFIG.contact.email,
+      business_hours: {
+        weekday:
+          data.contact?.business_hours?.weekday ??
+          DEFAULT_APP_CONFIG.contact.business_hours.weekday,
+        saturday:
+          data.contact?.business_hours?.saturday ??
+          DEFAULT_APP_CONFIG.contact.business_hours.saturday,
+        sunday:
+          data.contact?.business_hours?.sunday ??
+          DEFAULT_APP_CONFIG.contact.business_hours.sunday,
+      },
+    },
+    about: {
+      badge: data.about?.badge ?? DEFAULT_APP_CONFIG.about.badge,
+      title: data.about?.title ?? DEFAULT_APP_CONFIG.about.title,
+      description_1: data.about?.description_1 ?? DEFAULT_APP_CONFIG.about.description_1,
+      description_2: data.about?.description_2 ?? DEFAULT_APP_CONFIG.about.description_2,
+      image: data.about?.image ?? DEFAULT_APP_CONFIG.about.image,
+      vision_title: data.about?.vision_title ?? DEFAULT_APP_CONFIG.about.vision_title,
+      vision_desc: data.about?.vision_desc ?? DEFAULT_APP_CONFIG.about.vision_desc,
+      mission_title: data.about?.mission_title ?? DEFAULT_APP_CONFIG.about.mission_title,
+      mission_desc: data.about?.mission_desc ?? DEFAULT_APP_CONFIG.about.mission_desc,
+      values_badge: data.about?.values_badge ?? DEFAULT_APP_CONFIG.about.values_badge,
+      values_title: data.about?.values_title ?? DEFAULT_APP_CONFIG.about.values_title,
+      values:
+        Array.isArray(data.about?.values) && data.about.values.length > 0
+          ? data.about.values
+          : DEFAULT_APP_CONFIG.about.values,
+      team_badge: data.about?.team_badge ?? DEFAULT_APP_CONFIG.about.team_badge,
+      team_title: data.about?.team_title ?? DEFAULT_APP_CONFIG.about.team_title,
+      team_members:
+        Array.isArray(data.about?.team_members) && data.about.team_members.length > 0
+          ? data.about.team_members
+          : DEFAULT_APP_CONFIG.about.team_members,
+    },
+    footer: {
+      brand_description:
+        data.footer?.brand_description ?? DEFAULT_APP_CONFIG.footer.brand_description,
+      address: data.footer?.address ?? DEFAULT_APP_CONFIG.footer.address,
+      phone: data.footer?.phone ?? DEFAULT_APP_CONFIG.footer.phone,
+      email: data.footer?.email ?? DEFAULT_APP_CONFIG.footer.email,
+      quick_links: Array.isArray(data.footer?.quick_links)
+        ? data.footer.quick_links
+        : DEFAULT_APP_CONFIG.footer.quick_links,
+      support_links: Array.isArray(data.footer?.support_links)
+        ? data.footer.support_links
+        : DEFAULT_APP_CONFIG.footer.support_links,
+      copyright_text: data.footer?.copyright_text ?? DEFAULT_APP_CONFIG.footer.copyright_text,
+    },
+  };
+}
+

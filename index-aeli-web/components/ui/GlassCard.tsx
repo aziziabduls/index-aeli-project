@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 interface GlassCardProps {
+  key?: React.Key;
   imageSrc: string;
   imageAlt: string;
   className?: string;

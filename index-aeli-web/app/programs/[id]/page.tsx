@@ -1,23 +1,54 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import {
-  Compass, MapPin, Calendar, Star, Clock, Info, Check, X,
-  ArrowLeft, ArrowRight, ShieldCheck, Map, Users, ChevronDown, ChevronUp
-} from 'lucide-react';
-import { getProgramById, getDestinationById, getAttractionById, getPrograms } from '@/lib/api';
-import { Destination, Attraction, Program } from '@/types';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
-import { motion, AnimatePresence } from 'framer-motion';
 import { buttonVariants } from '@/components/ui/button';
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { getAttractionById, getDestinationById, getProgramById, getPrograms } from '@/lib/api';
 import { useCurrency } from '@/lib/CurrencyContext';
+import { Attraction, Destination, Program } from '@/types';
+import {
+  ArrowRight,
+  Calendar,
+  Check,
+  Clock,
+  Compass, MapPin,
+  ShieldCheck,
+  Star,
+  Users,
+  X
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { use, useEffect, useState } from 'react';
 
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+function formatQuota(min?: number | null, max?: number | null): string {
+  if (min && max) {
+    if (min === max) return `${max} Guests`;
+    return `${min} - ${max} Guests`;
+  }
+  if (max) return `Max ${max} Guests`;
+  if (min) return `Min ${min} Guests`;
+  return 'Flexible Group Size';
+}
+
+function formatDateAvailability(availability?: string, availableDates?: string[]): string {
+  const normalized = (availability || 'all_days').toLowerCase();
+  if (normalized === 'weekends' || normalized === 'only weekend' || normalized === 'weekend') {
+    return 'Weekends Only';
+  }
+  if (normalized === 'weekdays' || normalized === 'only weekday' || normalized === 'weekday') {
+    return 'Weekdays Only';
+  }
+  if (normalized === 'specific_dates' || normalized === 'custom' || normalized === 'specific') {
+    const count = availableDates?.length || 0;
+    return count > 0 ? `${count} Specific Dates` : 'Specific Dates';
+  }
+  return 'Everyday';
 }
 
 export default function TourDetail({ params }: PageProps) {
@@ -158,7 +189,10 @@ export default function TourDetail({ params }: PageProps) {
                 <Clock className="w-4 h-4 text-primary" /> {program.duration}
               </span>
               <span className="flex items-center gap-1.5 text-xs text-zinc-500 font-semibold">
-                <Users className="w-4 h-4 text-primary" /> Max 8 Guests
+                <Users className="w-4 h-4 text-primary" /> {formatQuota(program.minQuota ?? program.maxGuestMin, program.maxQuota ?? program.maxGuestMax)}
+              </span>
+              <span className="flex items-center gap-1.5 text-xs text-zinc-500 font-semibold">
+                <Calendar className="w-4 h-4 text-primary" /> {formatDateAvailability(program.dateAvailability, program.availableDates)}
               </span>
             </div>
 
@@ -321,6 +355,18 @@ export default function TourDetail({ params }: PageProps) {
                 <span>Instant Booking</span>
                 <span className="text-teal-600 font-bold">Confirmed</span>
               </div>
+              <div className="flex items-center justify-between">
+                <span>Group Quota</span>
+                <span className="text-zinc-800 font-bold">
+                  {formatQuota(program.minQuota ?? program.maxGuestMin, program.maxQuota ?? program.maxGuestMax)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Availability</span>
+                <span className="text-zinc-800 font-bold">
+                  {formatDateAvailability(program.dateAvailability, program.availableDates)}
+                </span>
+              </div>
             </div>
 
             <Link
@@ -411,8 +457,8 @@ export default function TourDetail({ params }: PageProps) {
                   <div className="flex items-center justify-between pt-4 border-t border-zinc-100">
                     <div>
                       <span className="text-[10px] text-zinc-400 uppercase tracking-widest block">Start from</span>
-                      <span className="text-lg font-display font-extrabold text-primary-dark">
-                        {formatPrice(relTour.price)} <span className="text-xs font-normal text-zinc-500">/ person</span>
+                      <span className="text-lg font-display font-extrabold text-primary-dark tracking-tight">
+                        {formatPrice(relTour.price)} <span className="text-xs font-normal text-zinc-500">/ pax</span>
                       </span>
                     </div>
                     <Link
@@ -422,7 +468,7 @@ export default function TourDetail({ params }: PageProps) {
                         className: "h-10 px-4 text-xs flex items-center justify-center gap-1.5"
                       })}
                     >
-                      <span>Book Program</span>
+                      <span>Book</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>

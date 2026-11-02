@@ -1,15 +1,24 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Compass, Star, Clock, ArrowRight } from 'lucide-react';
-import { Destination, Program } from '@/types';
 import { buttonVariants } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCurrency } from '@/lib/CurrencyContext';
+import { Destination, Program } from '@/types';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowRight, Clock, Compass, Star, Users } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { AnimatedContainer } from '../ui/AnimatedContainer';
+
+function formatQuota(min?: number | null, max?: number | null): string {
+  if (min && max) {
+    if (min === max) return `${max} Pax`;
+    return `${min}-${max} Pax`;
+  }
+  if (max) return `Max ${max} Pax`;
+  if (min) return `Min ${min} Pax`;
+  return '';
+}
 
 
 interface ProgramsSectionProps {
@@ -88,10 +97,18 @@ export default function ProgramsSection({ programs, destinations, filteredTours,
                     {program.category}
                   </span>
 
-                  {/* Duration */}
-                  <span className="absolute bottom-4 left-4 flex items-center gap-1.5 text-white text-xs font-semibold">
-                    <Clock className="w-3.5 h-3.5" /> {program.duration}
-                  </span>
+                  {/* Duration & Quota */}
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white text-xs font-semibold">
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" /> {program.duration}
+                    </span>
+                    {(program.minQuota || program.maxQuota || program.maxGuestMin || program.maxGuestMax) ? (
+                      <span className="flex items-center gap-1 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px]">
+                        <Users className="w-3 h-3 text-primary-light" />
+                        {formatQuota(program.minQuota ?? program.maxGuestMin, program.maxQuota ?? program.maxGuestMax)}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
 
                 {/* Program Details */}
@@ -118,8 +135,8 @@ export default function ProgramsSection({ programs, destinations, filteredTours,
                   <div className="flex items-center justify-between pt-4 border-t border-zinc-100">
                     <div>
                       <span className="text-[10px] text-zinc-400 uppercase tracking-widest block">Start from</span>
-                      <span className="text-xl font-display font-extrabold text-primary-dark">
-                        {formatPrice(program.price)} <span className="text-xs font-normal text-zinc-500">/ person</span>
+                      <span className="text-xl font-display font-extrabold text-primary-dark tracking-tight ">
+                        {formatPrice(program.price)} <span className="text-xs font-normal text-zinc-500">/ pax</span>
                       </span>
                     </div>
                     <Link
@@ -129,7 +146,7 @@ export default function ProgramsSection({ programs, destinations, filteredTours,
                         className: "h-11 px-5 text-xs flex items-center justify-center gap-1.5"
                       })}
                     >
-                      <span>Book Program</span>
+                      <span>Book</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>

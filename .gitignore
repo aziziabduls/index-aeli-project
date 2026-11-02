@@ -8,11 +8,11 @@ node_modules/
 out/
 **/out/
 
-# TypeScript build outputs
+# Build outputs
+dist/
+**/dist/
 *.tsbuildinfo
 **/*.tsbuildinfo
-
-f
 
 # Environmental variables and secrets
 .env
@@ -25,6 +25,15 @@ f
 **/.env.development.local
 **/.env.test.local
 **/.env.production.local
+**/.env*.local
+!.env-example
+!.env.example
+!**/.env-example
+!**/.env.example
+
+# Media and uploads
+uploads/
+**/uploads/
 
 # Logs
 npm-debug.log*

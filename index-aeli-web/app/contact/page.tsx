@@ -1,10 +1,29 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DEFAULT_APP_CONFIG, getAppConfig } from '@/lib/api';
+import type { AppConfig } from '@/types';
 
 export default function ContactPage() {
+  const [contactConfig, setContactConfig] = useState<AppConfig['contact']>(
+    DEFAULT_APP_CONFIG.contact
+  );
+
+  useEffect(() => {
+    getAppConfig()
+      .then((cfg) => {
+        if (cfg?.contact) {
+          setContactConfig(cfg.contact);
+        }
+      })
+      .catch(() => {
+        // Fallback to default
+      });
+  }, []);
+
   return (
     <div className="w-full relative overflow-hidden bg-zinc-50 pt-0 pb-24 min-h-screen">
       {/* Background elements */}
@@ -20,9 +39,11 @@ export default function ContactPage() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <h1 className="text-4xl md:text-5xl font-extrabold text-zinc-900 mb-6 font-display">Get in Touch</h1>
-          <p className="text-lg text-zinc-600 leading-relaxed">
-            Have questions about our programs, destinations, or want to customize your journey? Our team of local experts is ready to help you plan the perfect Indonesian adventure.
+          <h1 className="text-4xl md:text-5xl font-extrabold text-zinc-900 mb-6 font-display">
+            {contactConfig.title}
+          </h1>
+          <p className="text-lg text-zinc-600 leading-relaxed whitespace-pre-line">
+            {contactConfig.description}
           </p>
         </motion.div>
 
@@ -43,9 +64,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-zinc-900 mb-1">Our Office</h4>
-                    <p className="text-zinc-600 leading-relaxed">
-                      Kuningan Cyber, Block C2-12,<br />
-                      South Jakarta, Indonesia
+                    <p className="text-zinc-600 leading-relaxed whitespace-pre-line">
+                      {contactConfig.address}
                     </p>
                   </div>
                 </div>
@@ -56,7 +76,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-zinc-900 mb-1">Phone</h4>
-                    <p className="text-zinc-600">+62 (21) 8000-AELI</p>
+                    <p className="text-zinc-600">{contactConfig.phone}</p>
                   </div>
                 </div>
 
@@ -66,7 +86,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-zinc-900 mb-1">Email</h4>
-                    <p className="text-zinc-600">explore@index-aeli.id</p>
+                    <p className="text-zinc-600">{contactConfig.email}</p>
                   </div>
                 </div>
               </div>
@@ -77,15 +97,21 @@ export default function ContactPage() {
               <ul className="space-y-2 text-zinc-600">
                 <li className="flex justify-between">
                   <span>Monday - Friday</span>
-                  <span className="font-medium text-zinc-900">09:00 - 18:00 (WIB)</span>
+                  <span className="font-medium text-zinc-900">
+                    {contactConfig.business_hours.weekday}
+                  </span>
                 </li>
                 <li className="flex justify-between">
                   <span>Saturday</span>
-                  <span className="font-medium text-zinc-900">10:00 - 15:00 (WIB)</span>
+                  <span className="font-medium text-zinc-900">
+                    {contactConfig.business_hours.saturday}
+                  </span>
                 </li>
                 <li className="flex justify-between">
                   <span>Sunday</span>
-                  <span className="font-medium text-zinc-900">Closed</span>
+                  <span className="font-medium text-zinc-900">
+                    {contactConfig.business_hours.sunday}
+                  </span>
                 </li>
               </ul>
             </div>

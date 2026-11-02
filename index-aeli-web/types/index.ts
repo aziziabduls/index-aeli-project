@@ -63,6 +63,14 @@ export interface Program {
   meetingPoint: string;
   itinerary: ItineraryItem[];
   gallery: string[];
+  maxGuestMin?: number | null;
+  maxGuestMax?: number | null;
+  minQuota?: number | null;
+  maxQuota?: number | null;
+  dateAvailability?: 'all_days' | 'weekdays' | 'weekends' | 'specific_dates' | string;
+  date_availability?: string;
+  availableDates?: string[];
+  available_dates?: string[];
 }
 
 export interface Review {
@@ -82,4 +90,81 @@ export interface BookingDetails {
   email: string;
   phone: string;
   specialRequest?: string;
+}
+
+export interface AppConfigCredentialItem {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+export interface AppConfigFooterLink {
+  label: string;
+  url: string;
+}
+
+export interface AppConfigBusinessHours {
+  weekday: string;
+  saturday: string;
+  sunday: string;
+}
+
+export interface AppConfigContact {
+  title: string;
+  description: string;
+  address: string;
+  phone: string;
+  email: string;
+  business_hours: AppConfigBusinessHours;
+}
+
+export interface AppConfigTeamMember {
+  name: string;
+  role: string;
+  image: string;
+  bio: string;
+}
+
+export interface AppConfigValueItem {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+export interface AppConfigAbout {
+  badge: string;
+  title: string;
+  description_1: string;
+  description_2: string;
+  image: string;
+  vision_title: string;
+  vision_desc: string;
+  mission_title: string;
+  mission_desc: string;
+  values_badge: string;
+  values_title: string;
+  values: AppConfigValueItem[];
+  team_badge: string;
+  team_title: string;
+  team_members: AppConfigTeamMember[];
+}
+
+export interface AppConfig {
+  tax_percent: number;
+  credentials: {
+    subtitle: string;
+    title: string;
+    items: AppConfigCredentialItem[];
+  };
+  contact: AppConfigContact;
+  about: AppConfigAbout;
+  footer: {
+    brand_description: string;
+    address: string;
+    phone: string;
+    email: string;
+    quick_links: AppConfigFooterLink[];
+    support_links: AppConfigFooterLink[];
+    copyright_text: string;
+  };
 }

@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 COPY services/api-gateway/package*.json ./services/api-gateway/
@@ -7,7 +7,7 @@ COPY services/api-gateway/tsconfig.json ./services/api-gateway/
 COPY services/api-gateway/src ./services/api-gateway/src
 RUN npm run build --workspace=services/api-gateway
 
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 COPY package*.json ./
 COPY services/api-gateway/package*.json ./services/api-gateway/

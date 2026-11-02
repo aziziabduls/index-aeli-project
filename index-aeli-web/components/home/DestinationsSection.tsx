@@ -36,46 +36,52 @@ export default function DestinationsSection({ destinations }: DestinationsSectio
       </div>
 
       {/* Scrollable Row */}
-      <div className="flex gap-6 overflow-x-auto pb-6 no-scrollbar snap-x scroll-smooth overflow-y-hidden">
-        {destinations.map((dest, index) => (
-          <motion.div
-            key={dest.id}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.05, duration: 0.5 }}
-            className="min-w-[280px] sm:min-w-[340px] snap-start"
-          >
-            <Link href={`/destinations/${dest.id}`} className="block group">
-              <div className="relative aspect-[4/5] rounded-[24px] overflow-hidden shadow-luxury transition-all duration-500 hover:shadow-luxury-hover">
-                <Image
-                  src={dest.image}
-                  alt={dest.name}
-                  fill
-                  sizes="340px"
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                {/* Graduated Dark Glass Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/95 via-primary-dark/20 to-black/10 transition-opacity duration-300" />
+      {destinations.length > 0 ? (
+        <div className="flex gap-6 overflow-x-auto pb-6 no-scrollbar snap-x scroll-smooth overflow-y-hidden">
+          {destinations.map((dest, index) => (
+            <motion.div
+              key={dest.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.05, duration: 0.5 }}
+              className="min-w-[280px] sm:min-w-[340px] snap-start"
+            >
+              <Link href={`/destinations/${dest.id}`} className="block group">
+                <div className="relative aspect-[4/5] rounded-[24px] overflow-hidden shadow-luxury transition-all duration-500 hover:shadow-luxury-hover">
+                  <Image
+                    src={dest.image}
+                    alt={dest.name}
+                    fill
+                    sizes="340px"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  {/* Graduated Dark Glass Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/95 via-primary-dark/20 to-black/10 transition-opacity duration-300" />
 
-                {/* Content Over the Image */}
-                <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col justify-end text-white">
-                  <span className="text-xs uppercase tracking-widest text-secondary-light font-bold mb-1">
-                    {dest.attractionCount} Experience
-                  </span>
-                  <h3 className="font-display font-bold text-2xl mb-3">{dest.name}</h3>
-                  <p className="text-zinc-300 text-xs line-clamp-2 mb-4 leading-relaxed font-light">
-                    {dest.description}
-                  </p>
-                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-white group-hover:text-secondary-light transition-colors">
-                    Explore Destination <ArrowRight className="w-4 h-4" />
-                  </span>
+                  {/* Content Over the Image */}
+                  <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col justify-end text-white">
+                    <span className="text-xs uppercase tracking-widest text-secondary-light font-bold mb-1">
+                      {dest.attractionCount} Experience
+                    </span>
+                    <h3 className="font-display font-bold text-2xl mb-3">{dest.name}</h3>
+                    <p className="text-zinc-300 text-xs line-clamp-2 mb-4 leading-relaxed font-light">
+                      {dest.description}
+                    </p>
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-white group-hover:text-secondary-light transition-colors">
+                      Explore Destination <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          </motion.div>
-        ))}
-      </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-16 bg-zinc-50 rounded-3xl border border-zinc-100">
+          <p className="text-zinc-500 text-sm">Belum ada destinasi yang ditambahkan.</p>
+        </div>
+      )}
     </section>
   );
 }

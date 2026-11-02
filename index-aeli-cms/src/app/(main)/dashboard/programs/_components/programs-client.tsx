@@ -34,6 +34,12 @@ export interface ProgramRow {
   price_max: string | null;
   price_note: string | null;
   duration_label: string;
+  max_guest_min?: number | null;
+  max_guest_max?: number | null;
+  min_quota?: number | null;
+  max_quota?: number | null;
+  date_availability?: string | null;
+  available_dates?: string[] | null;
   status: string;
 }
 
@@ -213,7 +219,25 @@ export function ProgramsClient({ initialPrograms, providers, destinations }: Pro
                           prog.price_note,
                         )}
                       </TableCell>
-                      <TableCell className="text-xs">{prog.duration_label}</TableCell>
+                      <TableCell className="text-xs">
+                        <div className="font-medium">{prog.duration_label}</div>
+                        {(prog.min_quota || prog.max_quota || prog.max_guest_min || prog.max_guest_max) ? (
+                          <div className="text-[11px] text-muted-foreground whitespace-nowrap">
+                            Quota: {prog.min_quota ?? prog.max_guest_min ?? 1} - {prog.max_quota ?? prog.max_guest_max ?? "∞"} pax
+                          </div>
+                        ) : null}
+                        {prog.date_availability && prog.date_availability !== "all_days" ? (
+                          <div className="text-[10px] font-semibold text-amber-600 mt-0.5">
+                            {prog.date_availability === "weekends"
+                              ? "Weekends only"
+                              : prog.date_availability === "weekdays"
+                                ? "Weekdays only"
+                                : `${prog.available_dates?.length || 0} specific dates`}
+                          </div>
+                        ) : (
+                          <div className="text-[10px] text-muted-foreground/70 mt-0.5">Everyday</div>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge className={statusColors[prog.status] || ""} variant="outline">
                           {prog.status}

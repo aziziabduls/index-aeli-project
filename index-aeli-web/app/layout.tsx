@@ -46,8 +46,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={cn("h-full", "antialiased", inter.variable, plusJakartaSans.variable, "font-sans", geist.variable)}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#FAFAFA] text-zinc-900 font-sans">
+      <body
+        className="min-h-full flex flex-col bg-[#FAFAFA] text-zinc-900 font-sans"
+        suppressHydrationWarning
+      >
         <CurrencyProvider>
           <Navbar />
           <main className="flex-1 flex flex-col">

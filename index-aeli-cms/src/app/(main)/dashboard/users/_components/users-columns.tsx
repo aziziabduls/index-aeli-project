@@ -5,7 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { parse } from "date-fns";
 import { Check, Clock, MoreHorizontal, X } from "lucide-react";
 
-import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
+import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -98,24 +98,6 @@ function AvatarCell({ lastActive, name }: { lastActive: number; name: string }) 
   );
 }
 
-function WorkspaceCell({ workspaces }: { workspaces: string[] }) {
-  const [firstWorkspace, ...remainingWorkspaces] = workspaces;
-  const remainingCount = remainingWorkspaces.length;
-
-  return (
-    <AvatarGroup className="*:data-[slot=avatar]:ring-0">
-      {firstWorkspace ? (
-        <Avatar className="after:rounded-sm">
-          <AvatarFallback className="rounded-sm ring-0">{getInitials(firstWorkspace)}</AvatarFallback>
-        </Avatar>
-      ) : null}
-      {remainingCount > 0 ? (
-        <AvatarGroupCount className="rounded-sm border ring-card">+{remainingCount}</AvatarGroupCount>
-      ) : null}
-    </AvatarGroup>
-  );
-}
-
 export const usersColumns: ColumnDef<UserRow>[] = [
   {
     id: "select",
@@ -170,12 +152,6 @@ export const usersColumns: ColumnDef<UserRow>[] = [
     header: "Team",
     filterFn: "equalsString",
     cell: ({ row }) => <div className="text-sm">{row.original.team}</div>,
-  },
-  {
-    accessorKey: "workspace",
-    header: "Workspace",
-    filterFn: "arrIncludes",
-    cell: ({ row }) => <WorkspaceCell workspaces={row.original.workspace} />,
   },
   {
     accessorKey: "status",

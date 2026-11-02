@@ -1,18 +1,21 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import {
-  Compass, MapPin, Calendar, Star, Clock, Info,
-  ArrowLeft, ArrowRight, ShieldCheck, HelpCircle
-} from 'lucide-react';
-import { getAttractionById, getDestinationById, getPrograms, getAttractions } from '@/lib/api';
-import { Destination, Attraction, Program } from '@/types';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { buttonVariants } from '@/components/ui/button';
+import { getAttractionById, getAttractions, getDestinationById, getPrograms } from '@/lib/api';
 import { useCurrency } from '@/lib/CurrencyContext';
+import { Attraction, Destination, Program } from '@/types';
+import {
+  ArrowLeft, ArrowRight,
+  Clock,
+  Compass, MapPin,
+  ShieldCheck,
+  Star
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { use, useEffect, useState } from 'react';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -278,8 +281,8 @@ export default function AttractionDetail({ params }: PageProps) {
                   <div className="flex items-center justify-between pt-4 border-t border-zinc-100">
                     <div>
                       <span className="text-[10px] text-zinc-400 uppercase tracking-widest block">Start from</span>
-                      <span className="text-lg font-display font-extrabold text-primary-dark">
-                        {formatPrice(program.price)} <span className="text-xs font-normal text-zinc-500">/ person</span>
+                      <span className="text-lg font-display font-extrabold text-primary-dark tracking-tight">
+                        {formatPrice(program.price)} <span className="text-xs font-normal text-zinc-500">/ pax</span>
                       </span>
                     </div>
                     <Link
@@ -289,7 +292,7 @@ export default function AttractionDetail({ params }: PageProps) {
                         className: "h-10 px-4 text-xs flex items-center justify-center gap-1.5"
                       })}
                     >
-                      <span>Book Program</span>
+                      <span>Book</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>

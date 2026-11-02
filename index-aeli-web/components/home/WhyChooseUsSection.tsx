@@ -1,32 +1,49 @@
 'use client';
 
-import { Compass, Map, Users, Trees } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+  Compass,
+  Map,
+  Users,
+  Trees,
+  Sparkles,
+  ShieldCheck,
+  Globe,
+  Heart,
+  type LucideIcon,
+} from 'lucide-react';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
+import { DEFAULT_APP_CONFIG, getAppConfig } from '@/lib/api';
+import type { AppConfig } from '@/types';
 
-const features = [
-  {
-    icon: Map,
-    title: 'Discover Hidden Gems',
-    desc: 'Explore Indonesia\'s untouched corners and secret spots, far from the usual tourist trails.'
-  },
-  {
-    icon: Compass,
-    title: 'Explore Unique Experiences',
-    desc: 'Authentic adventures curated to showcase Indonesia\'s rich culture and vibrant nature.'
-  },
-  {
-    icon: Users,
-    title: 'Connect Local Cultures',
-    desc: 'Support local communities through tourism. We champion homestays, local guides, and community-based enterprises to ensure your trip gives back directly to the people and places you visit. Experience genuine hospitality and preserve Indonesia\'s cultural heritage together.'
-  },
-  {
-    icon: Trees,
-    title: 'Sustain For Better Future',
-    desc: 'Protect the environment and support local communities through responsible tourism. We partner with eco-conscious operators, minimize waste, and promote conservation efforts to ensure your journey contributes to a sustainable future for Indonesia\'s natural treasures.'
-  }
-];
+const ICON_MAP: Record<string, LucideIcon> = {
+  Map,
+  Compass,
+  Users,
+  Trees,
+  Sparkles,
+  ShieldCheck,
+  Globe,
+  Heart,
+};
 
 export default function WhyChooseUsSection() {
+  const [credentials, setCredentials] = useState<AppConfig['credentials']>(
+    DEFAULT_APP_CONFIG.credentials
+  );
+
+  useEffect(() => {
+    getAppConfig()
+      .then((cfg) => {
+        if (cfg?.credentials) {
+          setCredentials(cfg.credentials);
+        }
+      })
+      .catch(() => {
+        // Fallback to default credentials
+      });
+  }, []);
+
   return (
     <section id="about" className="py-24 bg-primary-dark text-white relative overflow-hidden">
       {/* Abstract tropical decorations */}
@@ -35,18 +52,20 @@ export default function WhyChooseUsSection() {
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs uppercase tracking-[0.2em] font-extrabold text-secondary mb-2 block">Our Credentials</span>
+          <span className="text-xs uppercase tracking-[0.2em] font-extrabold text-secondary mb-2 block">
+            {credentials.subtitle}
+          </span>
           <h2 className="font-display font-extrabold text-3xl md:text-5xl text-white">
-            A World of Wonders Awaits
+            {credentials.title}
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, idx) => {
-            const Icon = feature.icon;
+          {credentials.items.map((feature, idx) => {
+            const Icon = ICON_MAP[feature.icon] || Compass;
             return (
               <AnimatedContainer
-                key={feature.title}
+                key={`${feature.title}-${idx}`}
                 animation="fadeInUp"
                 delay={idx * 0.1}
                 className="bg-white/5 border border-white/10 p-8 rounded-[24px] backdrop-blur-md flex flex-col items-start"
