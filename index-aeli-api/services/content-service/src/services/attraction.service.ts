@@ -65,7 +65,7 @@ export class AttractionService {
     return rows;
   }
 
-  async createAttraction(data: AttractionInput) {
+  async createAttraction(data: AttractionInput, userId: string | null = null) {
     const { id, destination_id, name, location_label, description, about, historical_background, operational_hours, latitude, longitude, entrance_access_info, facilities, image, gallery } = data;
 
     if (!destination_id || !name || !location_label || !description) {
@@ -76,9 +76,9 @@ export class AttractionService {
 
     try {
       const { rows } = await pool.query(
-        `INSERT INTO content.attractions (id, destination_id, name, slug, location_label, description, about, historical_background, operational_hours, latitude, longitude, entrance_access_info, facilities, status, image, gallery)
-         VALUES (COALESCE($1, gen_random_uuid()), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'draft', $14, $15) RETURNING *;`,
-        [id || null, destination_id, name, slug, location_label, description, about || '', historical_background || '', operational_hours || '', latitude || null, longitude || null, entrance_access_info || '', facilities || [], image || '', gallery || []]
+        `INSERT INTO content.attractions (id, destination_id, name, slug, location_label, description, about, historical_background, operational_hours, latitude, longitude, entrance_access_info, facilities, status, image, gallery, created_by, updated_by)
+         VALUES (COALESCE($1, gen_random_uuid()), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'draft', $14, $15, $16, $16) RETURNING *;`,
+        [id || null, destination_id, name, slug, location_label, description, about || '', historical_background || '', operational_hours || '', latitude || null, longitude || null, entrance_access_info || '', facilities || [], image || '', gallery || [], userId]
       );
       return rows[0];
     } catch (err: any) {
@@ -89,14 +89,14 @@ export class AttractionService {
     }
   }
 
-  async updateAttraction(id: string, data: AttractionInput) {
+  async updateAttraction(id: string, data: AttractionInput, userId: string | null = null) {
     const { name, location_label, description, about, historical_background, operational_hours, latitude, longitude, entrance_access_info, facilities, image, gallery } = data;
 
     const { rows } = await pool.query(
       `UPDATE content.attractions
-       SET name = $1, location_label = $2, description = $3, about = $4, historical_background = $5, operational_hours = $6, latitude = $7, longitude = $8, entrance_access_info = $9, facilities = $10, updated_at = NOW(), image = $11, gallery = $12
+       SET name = $1, location_label = $2, description = $3, about = $4, historical_background = $5, operational_hours = $6, latitude = $7, longitude = $8, entrance_access_info = $9, facilities = $10, updated_at = NOW(), image = $11, gallery = $12, updated_by = COALESCE($14, updated_by)
        WHERE id = $13 RETURNING *;`,
-      [name, location_label, description, about, historical_background, operational_hours, latitude, longitude, entrance_access_info, facilities, image, gallery, id]
+      [name, location_label, description, about, historical_background, operational_hours, latitude, longitude, entrance_access_info, facilities, image, gallery, id, userId]
     );
 
     if (rows.length === 0) {

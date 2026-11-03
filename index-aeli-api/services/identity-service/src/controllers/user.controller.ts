@@ -33,9 +33,24 @@ export class UserController {
   async updateRole(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { role, status } = req.body;
-      const data = await userService.updateUserRoleAndStatus(id, { role, status });
+      const { email, password, role, status } = req.body;
+      const data = await userService.updateUserRoleAndStatus(id, { email, password, role, status });
       return res.json({ success: true, data });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deleteUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const requestingUserId = (req as any).user?.id || req.header('x-user-id');
+      const data = await userService.deleteUserPermanently(id, requestingUserId);
+      return res.json({
+        success: true,
+        message: 'User and all associated created content permanently deleted',
+        data,
+      });
     } catch (err) {
       next(err);
     }

@@ -107,7 +107,7 @@ Controllers catch exceptions and forward to `next(err)`. The `errorHandler` midd
 #### `POST /api/v1/auth/register`
 - **Access**: Public
 - **Body**: `{ "email": "user@example.com", "password": "password123" }`
-- **Response** `201`: User object. (First registered user automatically becomes `super_admin`, subsequent users default to `viewer`).
+- **Response** `201`: User object. (First registered user automatically becomes `super_admin`, subsequent users default to `content_editor`).
 
 #### `POST /api/v1/auth/refresh`
 - **Access**: Public

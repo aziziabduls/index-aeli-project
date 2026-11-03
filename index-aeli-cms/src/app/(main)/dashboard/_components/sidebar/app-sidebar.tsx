@@ -78,13 +78,29 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const filteredSidebarItems = sidebarItems
     .map((group) => {
       if (group.id === 3) {
-        const hasAccess = user?.role === "super_admin" || user?.role === "admin";
+        // Location, Experience, Programs
+        const hasAccess =
+          user?.role === "super_admin" ||
+          user?.role === "admin" ||
+          user?.role === "content_editor";
+        return {
+          ...group,
+          items: hasAccess ? group.items : [],
+        };
+      }
+      if (group.id === 4) {
+        // User Access (Users, Roles) - only super_admin & admin
+        const hasAccess =
+          user?.role === "super_admin" ||
+          user?.role === "admin" ||
+          user?.email === "superadmin@indexaeli.com";
         return {
           ...group,
           items: hasAccess ? group.items : [],
         };
       }
       if (group.id === 5) {
+        // Configuration (App Config) - only super_admin
         const isSuperAdmin =
           user?.role === "super_admin" || user?.email === "superadmin@indexaeli.com";
         return {

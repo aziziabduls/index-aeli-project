@@ -33,7 +33,8 @@ export class AttractionController {
 
   async createAttraction(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await attractionService.createAttraction(req.body);
+      const userId = req.header('x-user-id') || null;
+      const data = await attractionService.createAttraction(req.body, userId);
       return res.status(201).json({ success: true, data });
     } catch (err) {
       next(err);
@@ -43,7 +44,8 @@ export class AttractionController {
   async updateAttraction(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const data = await attractionService.updateAttraction(id, req.body);
+      const userId = req.header('x-user-id') || null;
+      const data = await attractionService.updateAttraction(id, req.body, userId);
       return res.json({ success: true, data });
     } catch (err) {
       next(err);

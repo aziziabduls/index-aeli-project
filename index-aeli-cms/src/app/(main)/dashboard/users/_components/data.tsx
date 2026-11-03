@@ -17,11 +17,14 @@ const teamValues = [
 export type UserTeam = (typeof teamValues)[number];
 
 export type UserRow = {
+  id?: string;
   email: string;
   joinedDate: string;
   lastActive: number;
   name: string;
   role: string;
+  rawRole?: string;
+  rawStatus?: string;
   status: UserStatus;
   team: UserTeam;
   workspace: string[];

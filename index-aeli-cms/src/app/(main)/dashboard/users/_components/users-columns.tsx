@@ -3,7 +3,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { parse } from "date-fns";
-import { Check, Clock, MoreHorizontal, X } from "lucide-react";
+import { Check, Clock, Eye, Mail, MoreHorizontal, Pencil, Trash2, UserCheck, Users2, UserX, X } from "lucide-react";
 
 import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,15 @@ import {
 import { cn, getInitials } from "@/lib/utils";
 
 import { statusMeta, type UserRow } from "./data";
+
+export interface UsersTableMeta {
+  onViewProfile?: (user: UserRow) => void;
+  onEditUser?: (user: UserRow) => void;
+  onManageTeam?: (user: UserRow) => void;
+  onToggleStatus?: (user: UserRow) => void;
+  onDeletePermanently?: (user: UserRow) => void;
+  currentUser?: { id?: string; email?: string; role?: string } | null;
+}
 
 function RoleCell({ role, team }: { role: string; team: string }) {
   return (
@@ -168,36 +177,81 @@ export const usersColumns: ColumnDef<UserRow>[] = [
   {
     id: "actions",
     header: () => <div className="text-right">Actions</div>,
-    cell: ({ row }) => (
-      <div className="text-right">
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                aria-label={`Open actions for ${row.original.name}`}
-                className="size-8 rounded-md text-muted-foreground hover:bg-muted/50"
-                size="icon-sm"
-                variant="ghost"
-              />
-            }
-          >
-            <MoreHorizontal className="size-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuGroup>
-              <DropdownMenuItem>View profile</DropdownMenuItem>
-              <DropdownMenuItem>Edit user</DropdownMenuItem>
-              <DropdownMenuItem>Manage team</DropdownMenuItem>
-              <DropdownMenuItem>Resend invite</DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem variant="destructive">Deactivate user</DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    ),
+    cell: ({ row, table }) => {
+      const meta = table.options.meta as UsersTableMeta | undefined;
+      const user = row.original;
+      const isRootSuperAdmin = user.email.toLowerCase() === "superadmin@indexaeli.com";
+      const isSelf = meta?.currentUser?.email?.toLowerCase() === user.email.toLowerCase();
+      const isActive = user.status === "Active";
+
+      return (
+        <div className="text-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  aria-label={`Open actions for ${row.original.name}`}
+                  className="size-8 rounded-md text-muted-foreground hover:bg-muted/50"
+                  size="icon-sm"
+                  variant="ghost"
+                />
+              }
+            >
+              <MoreHorizontal className="size-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={() => meta?.onViewProfile?.(user)}>
+                  <Eye className="mr-2 size-4" />
+                  View profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => meta?.onEditUser?.(user)}>
+                  <Pencil className="mr-2 size-4" />
+                  Edit user
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => meta?.onManageTeam?.(user)}>
+                  <Users2 className="mr-2 size-4" />
+                  Manage team
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled className="cursor-not-allowed opacity-50">
+                  <Mail className="mr-2 size-4" />
+                  Resend invite (Inactive)
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  disabled={isRootSuperAdmin || isSelf}
+                  variant={isActive ? "destructive" : "default"}
+                  className={isActive ? "" : "text-emerald-600 focus:text-emerald-700"}
+                  onClick={() => meta?.onToggleStatus?.(user)}
+                >
+                  {isActive ? (
+                    <>
+                      <UserX className="mr-2 size-4" />
+                      Deactivate user
+                    </>
+                  ) : (
+                    <>
+                      <UserCheck className="mr-2 size-4" />
+                      Activate user
+                    </>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant="destructive"
+                  disabled={isRootSuperAdmin || isSelf}
+                  onClick={() => meta?.onDeletePermanently?.(user)}
+                >
+                  <Trash2 className="mr-2 size-4" />
+                  Delete permanently
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      );
+    },
     enableHiding: false,
     enableSorting: false,
   },

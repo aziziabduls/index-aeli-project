@@ -74,7 +74,8 @@ export class AuthService {
     try {
       const { rows: countRows } = await pool.query('SELECT COUNT(*) FROM identity.users;');
       const isFirstUser = parseInt(countRows[0].count, 10) === 0;
-      const initialRole = isFirstUser ? 'super_admin' : 'viewer';
+      const isSuperAdminEmail = email.toLowerCase() === 'superadmin@indexaeli.com';
+      const initialRole = isFirstUser || isSuperAdminEmail ? 'super_admin' : 'content_editor';
 
       const hash = await bcrypt.hash(password, 10);
       const { rows } = await pool.query(

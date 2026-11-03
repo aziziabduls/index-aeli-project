@@ -49,7 +49,8 @@ export class ProgramController {
 
   async createProgram(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await programService.createProgram(req.body);
+      const userId = req.header('x-user-id') || null;
+      const data = await programService.createProgram(req.body, userId);
       return res.status(201).json({ success: true, data });
     } catch (err) {
       next(err);
@@ -59,7 +60,8 @@ export class ProgramController {
   async updateProgram(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const data = await programService.updateProgram(id, req.body);
+      const userId = req.header('x-user-id') || null;
+      const data = await programService.updateProgram(id, req.body, userId);
       return res.json({ success: true, data });
     } catch (err) {
       next(err);

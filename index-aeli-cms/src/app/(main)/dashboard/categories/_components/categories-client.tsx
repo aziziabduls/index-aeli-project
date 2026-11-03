@@ -4,13 +4,21 @@ import { useMemo, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { Plus, Search } from "lucide-react";
+import { Edit, MoreHorizontal, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -52,6 +60,7 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
 
   // Dialog & Form State
   const [isOpen, setIsOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -73,7 +82,7 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
     );
 
     // Generate dynamic categories for custom ones (those program-assigned categories not yet saved in database)
-    const customCategories = customNames.map((name) => ({
+    const customCategories: Category[] = customNames.map((name) => ({
       name,
       description: "Custom user-defined category specified during program setup.",
       color: "from-sky-500/10 to-blue-500/10 text-sky-600 border-sky-500/20 bg-sky-500/5",
@@ -164,8 +173,16 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
   };
 
   const handleOpenCreate = () => {
+    setEditingCategory(null);
     setName("");
     setDescription("");
+    setIsOpen(true);
+  };
+
+  const handleOpenEdit = (cat: Category) => {
+    setEditingCategory(cat);
+    setName(cat.name);
+    setDescription(cat.description || "");
     setIsOpen(true);
   };
 
@@ -181,8 +198,13 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
       const token = getClientCookie("session_token");
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7009";
 
-      const res = await fetch(`${apiUrl}/api/v1/admin/categories`, {
-        method: "POST",
+      const url = editingCategory?.id
+        ? `${apiUrl}/api/v1/admin/categories/${editingCategory.id}`
+        : `${apiUrl}/api/v1/admin/categories`;
+      const method = editingCategory?.id ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -195,17 +217,50 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
 
       const resJson = await res.json();
       if (!res.ok) {
-        throw new Error(resJson.error || "Failed to create category");
+        throw new Error(resJson.error || `Failed to ${editingCategory ? "update" : "create"} category`);
       }
 
-      toast.success("Category created successfully!");
+      toast.success(editingCategory ? "Category updated successfully!" : "Category created successfully!");
       setIsOpen(false);
       router.refresh();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An error occurred while creating category";
+      const errorMessage = err instanceof Error ? err.message : "An error occurred while saving category";
       toast.error(errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (cat: Category) => {
+    if (!cat.id) {
+      toast.error("Cannot delete a custom category that has no database record");
+      return;
+    }
+    if (!confirm(`Are you sure you want to delete category "${cat.name}"?`)) {
+      return;
+    }
+
+    try {
+      const token = getClientCookie("session_token");
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7009";
+
+      const res = await fetch(`${apiUrl}/api/v1/admin/categories/${cat.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const resJson = await res.json();
+      if (!res.ok) {
+        throw new Error(resJson.error || "Failed to delete category");
+      }
+
+      toast.success("Category deleted successfully!");
+      router.refresh();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred while deleting category";
+      toast.error(errorMessage);
     }
   };
 
@@ -253,12 +308,13 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
                   <TableHead className="w-[120px] text-center">Total Programs</TableHead>
                   <TableHead className="w-[120px] text-center text-emerald-600">Active</TableHead>
                   <TableHead className="w-[120px] text-center text-slate-500">Draft</TableHead>
+                  <TableHead className="w-[80px] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedCategories.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-6 text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
                       No categories found.
                     </TableCell>
                   </TableRow>
@@ -282,6 +338,44 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
                       </TableCell>
                       <TableCell className="text-center align-middle font-semibold text-slate-500">
                         {cat.draftCount}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            render={
+                              <Button
+                                aria-label={`Open actions for ${cat.name}`}
+                                className="size-8 rounded-md text-muted-foreground hover:bg-muted/50"
+                                size="icon-sm"
+                                variant="ghost"
+                              />
+                            }
+                          >
+                            <MoreHorizontal className="size-4" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-44">
+                            <DropdownMenuGroup>
+                              <DropdownMenuItem onClick={() => handleOpenEdit(cat)}>
+                                <Edit className="mr-2 size-4" />
+                                Edit Category
+                              </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                            {cat.id && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuGroup>
+                                  <DropdownMenuItem
+                                    variant="destructive"
+                                    onClick={() => handleDelete(cat)}
+                                  >
+                                    <Trash2 className="mr-2 size-4" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))
@@ -417,9 +511,11 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[450px]">
           <DialogHeader>
-            <DialogTitle>Add Category</DialogTitle>
+            <DialogTitle>{editingCategory ? "Edit Category" : "Add Category"}</DialogTitle>
             <DialogDescription>
-              Create a new program category. Custom categories can be assigned when setting up tour programs.
+              {editingCategory
+                ? "Update category details. Renaming will automatically update all associated tour programs."
+                : "Create a new program category. Custom categories can be assigned when setting up tour programs."}
             </DialogDescription>
           </DialogHeader>
 
@@ -449,7 +545,7 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? "Saving..." : "Save Category"}
+                {loading ? "Saving..." : editingCategory ? "Update Category" : "Save Category"}
               </Button>
             </div>
           </form>

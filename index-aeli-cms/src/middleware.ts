@@ -51,6 +51,27 @@ export function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL("/unauthorized", req.url));
       }
     }
+
+    // Restrict /dashboard/app-config to super_admin
+    const isConfigRoute = path.startsWith("/dashboard/app-config");
+    if (isConfigRoute) {
+      try {
+        const payloadPart = token.split(".")[1];
+        if (payloadPart) {
+          const base64 = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
+          const payload = JSON.parse(atob(base64));
+          const role = payload.role;
+          const email = payload.email;
+          if (role !== "super_admin" && email !== "superadmin@indexaeli.com") {
+            return NextResponse.redirect(new URL("/unauthorized", req.url));
+          }
+        } else {
+          return NextResponse.redirect(new URL("/unauthorized", req.url));
+        }
+      } catch (_e) {
+        return NextResponse.redirect(new URL("/unauthorized", req.url));
+      }
+    }
   }
 
   if (isAuthPath && token && !isTokenExpired(token)) {

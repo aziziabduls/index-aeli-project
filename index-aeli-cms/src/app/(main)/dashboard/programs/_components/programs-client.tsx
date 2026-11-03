@@ -221,7 +221,7 @@ export function ProgramsClient({ initialPrograms, providers, destinations }: Pro
                       </TableCell>
                       <TableCell className="text-xs">
                         <div className="font-medium">{prog.duration_label}</div>
-                        {(prog.min_quota || prog.max_quota || prog.max_guest_min || prog.max_guest_max) ? (
+                        {/* {(prog.min_quota || prog.max_quota || prog.max_guest_min || prog.max_guest_max) ? (
                           <div className="text-[11px] text-muted-foreground whitespace-nowrap">
                             Quota: {prog.min_quota ?? prog.max_guest_min ?? 1} - {prog.max_quota ?? prog.max_guest_max ?? "∞"} pax
                           </div>
@@ -236,7 +236,7 @@ export function ProgramsClient({ initialPrograms, providers, destinations }: Pro
                           </div>
                         ) : (
                           <div className="text-[10px] text-muted-foreground/70 mt-0.5">Everyday</div>
-                        )}
+                        )} */}
                       </TableCell>
                       <TableCell>
                         <Badge className={statusColors[prog.status] || ""} variant="outline">

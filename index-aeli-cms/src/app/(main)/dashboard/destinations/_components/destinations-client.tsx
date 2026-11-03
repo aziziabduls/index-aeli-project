@@ -4,13 +4,21 @@ import { useMemo, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { Edit, Plus, Search, Star, Trash2 } from "lucide-react";
+import { Archive, CheckCircle, Edit, MoreHorizontal, Plus, Search, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { Input } from "@/components/ui/input";
 import {
@@ -356,45 +364,55 @@ export function DestinationsClient({ initialDestinations }: DestinationsClientPr
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          {d.status !== "published" && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 text-emerald-600 text-xs hover:text-emerald-700"
-                              onClick={() => handleUpdateStatus(d.id, "published")}
-                            >
-                              Publish
-                            </Button>
-                          )}
-                          {d.status === "published" && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 text-rose-600 text-xs hover:text-rose-700"
-                              onClick={() => handleUpdateStatus(d.id, "archived")}
-                            >
-                              Archive
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            title="Edit Destination"
-                            onClick={() => handleOpenEdit(d)}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            render={
+                              <Button
+                                aria-label={`Open actions for ${d.name}`}
+                                className="size-8 rounded-md text-muted-foreground hover:bg-muted/50"
+                                size="icon-sm"
+                                variant="ghost"
+                              />
+                            }
                           >
-                            <Edit className="size-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            title="Delete"
-                            className="text-rose-500 hover:bg-rose-50"
-                            onClick={() => handleDelete(d.id)}
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </div>
+                            <MoreHorizontal className="size-4" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuGroup>
+                              <DropdownMenuItem onClick={() => handleOpenEdit(d)}>
+                                <Edit className="mr-2 size-4" />
+                                Edit Destination
+                              </DropdownMenuItem>
+                              {d.status !== "published" ? (
+                                <DropdownMenuItem
+                                  className="text-emerald-600 focus:text-emerald-700"
+                                  onClick={() => handleUpdateStatus(d.id, "published")}
+                                >
+                                  <CheckCircle className="mr-2 size-4" />
+                                  Publish
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem
+                                  className="text-amber-600 focus:text-amber-700"
+                                  onClick={() => handleUpdateStatus(d.id, "archived")}
+                                >
+                                  <Archive className="mr-2 size-4" />
+                                  Archive
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuGroup>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuGroup>
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={() => handleDelete(d.id)}
+                              >
+                                <Trash2 className="mr-2 size-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))

@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { format } from "date-fns";
 
@@ -16,6 +17,21 @@ interface DbUser {
 
 export default async function Page() {
   const cookieStore = await cookies();
+
+  let user = null;
+  const userCookie = cookieStore.get("user")?.value;
+  if (userCookie) {
+    try {
+      user = JSON.parse(decodeURIComponent(userCookie));
+    } catch (e) {
+      console.error("Failed to parse user cookie in users page", e);
+    }
+  }
+
+  if (!user || (user.role !== "super_admin" && user.role !== "admin")) {
+    redirect("/unauthorized");
+  }
+
   const token = cookieStore.get("session_token")?.value;
 
   let apiUsers: DbUser[] = [];
@@ -56,7 +72,10 @@ export default async function Page() {
     const statusValue: UserStatus = user.status === "active" ? "Active" : "Deactivated";
 
     return {
+      id: user.id,
       email: user.email,
+      rawRole: user.role,
+      rawStatus: user.status,
       joinedDate: formattedDate,
       lastActive: 0,
       name: name,
@@ -67,5 +86,5 @@ export default async function Page() {
     };
   });
 
-  return <Users users={mappedUsers} />;
+  return <Users users={mappedUsers} currentUser={user} />;
 }

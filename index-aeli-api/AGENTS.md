@@ -1,66 +1,88 @@
-# AI Agent Guidelines & Architecture Rules
+# AI Agent Guidelines & Architecture Rules: `index-aeli-api`
 
-This repository is **Hoople Event API**, a backend service for an event builder and ticketing platform built with Express.js, TypeScript, PostgreSQL, and Prisma.
-
----
-
-## 📌 1. Primary Documentation & Single Source of Truth
-
-- **Comprehensive API & Technical Specifications**: Always consult [dev_documentation.md](file:///Users/a/01%20Projects/Web/index-aeli-project/index-aeli-api/dev_documentation.md) for domain rules, payload schemas, OTP flows, booking lifecycle, PDF ticket generation, and Hoople Payment integration.
-- **Project Setup & Operations**: See [README.md](file:///Users/a/01%20Projects/Web/index-aeli-project/index-aeli-api/README.md) for local setup, environment variables, Prisma migration commands, and Docker server maintenance.
-- **Detailed Coding Guidelines**: See [.agents/rules/guidelinescoding.md](file:///Users/a/01%20Projects/Web/index-aeli-project/index-aeli-api/.agents/rules/guidelinescoding.md) for extended architectural and coding behavior constraints.
+> [!IMPORTANT]
+> **Primary Source of Truth**:
+> For the platform-wide architecture, database schemas, RBAC matrix, and inter-service communication, see the root [ARCHITECTURE.md](file:///Users/a/01%20Projects/Web/index-aeli-project/ARCHITECTURE.md).
 
 ---
 
-## 🏗️ 2. Express.js Layered Architecture
+## 🏗️ 1. Architecture Overview
 
-Always strictly adhere to the layered structure:
+`index-aeli-api` is a modular microservice backend built with **Express.js**, **TypeScript**, and **PostgreSQL (raw `pg` pool)**.
 
+### Microservices & Ports
+- **`services/api-gateway` (Port 7009)**:
+  - Entrypoint for all client apps (`index-aeli-cms` and `index-aeli-web`).
+  - Handles JWT authentication (`authMiddleware`), CORS, rate limiting, and forwards user context headers (`x-user-id`, `x-user-role`, `x-user-email`).
+  - Logs write operations (POST, PUT, PATCH, DELETE) to `audit.audit_logs`.
+- **`services/identity-service` (Port 7010)**:
+  - Schema: `identity`.
+  - Authentication, password hashing (bcrypt), token issuance, user lifecycle, and permanent cascade user deletion.
+- **`services/content-service` (Port 7011)**:
+  - Schema: `content`.
+  - Manages `content.destinations`, `content.attractions`, `content.app_config`, and `content.cta_sections`.
+- **`services/program-service` (Port 7012)**:
+  - Schema: `program`.
+  - Manages `program.programs`, `program.providers`, `program.categories`, `program.itinerary_stops`, `program.rundown_items`, `program.include_exclude_items`.
+- **`services/media-service` (Port 7013)**:
+  - Schema: `media`.
+  - Handles static file uploads to disk (`uploads/`), static serving at `/uploads/`, and `media.media_assets` registry.
+
+---
+
+## 📐 2. Layered Architecture & Coding Rules
+
+Strictly adhere to the layered structure within each microservice:
 ```text
 Route
   ↓
 Controller (HTTP Concerns ONLY)
   ↓
-Service (Business Logic ONLY)
+Service (Business Logic & Database Queries)
   ↓
-Prisma Model / Database
+PostgreSQL Pool (pg)
 ```
 
 ### Controller Rules (Thin Controller)
-- **Allowed**: Read `req.params`, `req.query`, `req.body`, `req.user`, call a service method, return HTTP response envelope (`res.status(...).json(...)`), pass errors via `next(error)`.
-- **Forbidden**: Business logic, calculations, direct database/Prisma operations, payment orchestration, state transitions.
+- **Allowed**: Read `req.params`, `req.query`, `req.body`, `req.headers` (e.g. `x-user-id`, `x-user-role`), call service methods, return standardized JSON envelope, catch and forward errors via `next(error)`.
+- **Forbidden**: Writing raw SQL queries, transaction orchestration, or direct database calls.
 
 ### Service Rules (Fat Service)
-- **Allowed**: Business rules, calculations, Prisma database operations, external API orchestration (Payment, Email, etc.), throwing custom domain errors.
-- **Forbidden**: Using `req`, `res`, sending HTTP responses, importing or depending on Express HTTP objects.
+- **Allowed**: Business rules, raw SQL queries with parameterization (`$1`, `$2`), multi-table transactions (`BEGIN` ... `COMMIT`/`ROLLBACK`), throwing domain errors.
+- **Forbidden**: Referencing `req` or `res` Express objects.
+
+### Standard Response Envelope
+All API endpoints must return:
+```json
+{
+  "success": true,
+  "message": "Human readable message",
+  "data": { ... }
+}
+```
+Or for errors:
+```json
+{
+  "success": false,
+  "message": "Error description",
+  "error": "..."
+}
+```
 
 ---
 
-## 🎯 3. Core Behavioral Guidelines for AI Agents
+## 🔒 3. RBAC & Headers
+- Gateway automatically validates Bearer JWT tokens and forwards headers:
+  - `x-user-id`: UUID of the authenticated user.
+  - `x-user-role`: `super_admin` | `admin` | `content_editor` | `viewer`.
+  - `x-user-email`: Email string.
+- Services inspect `req.headers['x-user-role']` via role checking helper functions (`checkAdminRole`, `checkEditorRole`).
+- **Registration**: Newly registered users automatically default to role `content_editor`.
 
-1. **Think Before Coding**:
-   - Understand existing patterns and database schema before creating new files.
-   - Surface tradeoffs and clarify ambiguities if they affect architecture or business logic.
-2. **Simplicity First**:
-   - Minimum code that solves the problem. No speculative abstractions, single-use utility wrappers, or premature patterns.
-3. **Surgical Changes**:
-   - Touch only the lines/files necessary for the task.
-   - Preserve existing code formatting, comments, and unaffected logic.
-   - Remove only unused imports or variables introduced by your own changes.
-4. **Standard Response Envelope**:
-   All API endpoints must return the standardized response structure:
-   ```json
-   {
-     "success": true | false,
-     "message": "Human readable message",
-     "data": { ... } | null,
-     "meta": { "page": 1, "perPage": 10, "total": 50, "totalPages": 5 } | null,
-     "error": null | {
-       "code": "VALIDATION_ERROR" | "NOT_FOUND" | "UNAUTHORIZED" | "FORBIDDEN" | "CONFLICT" | "SERVER_ERROR",
-       "errors": { "field": ["detail"] }
-     }
-   }
-   ```
-5. **Knowledge Graph & Doc Synchronization**:
-   - After creating or modifying endpoints, services, or domain logic, update [dev_documentation.md](file:///Users/a/01%20Projects/Web/index-aeli-project/index-aeli-api/dev_documentation.md).
-   - Keep the knowledge graph synced via `graphify update .`.
+---
+
+## 🧪 4. Build & Verification
+Always verify backend builds without errors before concluding changes:
+```bash
+npm --prefix index-aeli-api run build
+```

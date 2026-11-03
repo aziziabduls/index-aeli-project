@@ -28,6 +28,26 @@ export class CategoryController {
       next(err);
     }
   }
+
+  async updateCategory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const data = await categoryService.updateCategory(id, req.body);
+      return res.json({ success: true, data });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deleteCategory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const data = await categoryService.deleteCategory(id);
+      return res.json({ success: true, message: 'Category deleted successfully', data });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export const categoryController = new CategoryController();

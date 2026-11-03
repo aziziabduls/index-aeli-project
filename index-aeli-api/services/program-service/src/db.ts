@@ -70,6 +70,8 @@ export async function initDb(): Promise<void> {
     await pool.query(`
       ALTER TABLE program.programs ADD COLUMN IF NOT EXISTS image VARCHAR(500);
       ALTER TABLE program.programs ADD COLUMN IF NOT EXISTS gallery TEXT[];
+      ALTER TABLE program.programs ADD COLUMN IF NOT EXISTS created_by UUID;
+      ALTER TABLE program.programs ADD COLUMN IF NOT EXISTS updated_by UUID;
     `);
 
     // Ensure date_availability and available_dates exist in programs table

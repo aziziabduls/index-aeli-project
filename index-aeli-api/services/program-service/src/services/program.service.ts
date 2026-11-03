@@ -253,7 +253,7 @@ export class ProgramService {
     };
   }
 
-  async createProgram(data: ProgramInput) {
+  async createProgram(data: ProgramInput, userId: string | null = null) {
     const {
       id, provider_id, destination_id, attraction_id, name, category, location_label,
       short_description, overview, highlights, price_min, price_max,
@@ -284,13 +284,13 @@ export class ProgramService {
            short_description, overview, highlights, price_min, price_max,
            price_unit, price_note, duration_label, max_guest_min, max_guest_max,
            min_quota, max_quota,
-           meeting_point, status, image, gallery, date_availability, available_dates
-         ) VALUES (COALESCE($1, gen_random_uuid()), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $16, $17, $18, 'draft', $19, $20, $21, $22) RETURNING *;`,
+           meeting_point, status, image, gallery, date_availability, available_dates, created_by, updated_by
+         ) VALUES (COALESCE($1, gen_random_uuid()), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $16, $17, $18, 'draft', $19, $20, $21, $22, $23, $23) RETURNING *;`,
         [
           id || null, provider_id, destination_id || null, attraction_id || null, name, category, location_label,
           short_description, overview || '', highlights || [], price_min || null, price_max || null,
           price_unit || '', price_note || '', duration_label, guestMin, guestMax,
-          meeting_point || '', image || '', gallery || [], availability, datesList
+          meeting_point || '', image || '', gallery || [], availability, datesList, userId
         ]
       );
 
@@ -359,7 +359,7 @@ export class ProgramService {
     }
   }
 
-  async updateProgram(id: string, data: ProgramInput) {
+  async updateProgram(id: string, data: ProgramInput, userId: string | null = null) {
     const {
       provider_id, destination_id, attraction_id, name, category, location_label,
       short_description, overview, highlights, price_min, price_max,
@@ -391,13 +391,14 @@ export class ProgramService {
              max_guest_min = $15, max_guest_max = $16, min_quota = $15, max_quota = $16,
              meeting_point = $17, updated_at = NOW(), image = $18, gallery = $19,
              date_availability = COALESCE($20, date_availability, 'all_days'),
-             available_dates = COALESCE($21, available_dates, '{}')
+             available_dates = COALESCE($21, available_dates, '{}'),
+             updated_by = COALESCE($23, updated_by)
          WHERE id = $22 RETURNING *;`,
         [
           provider_id, destination_id || null, attraction_id || null, name, category, location_label,
           short_description, overview, highlights, price_min, price_max,
           price_unit, price_note, duration_label, guestMin, guestMax,
-          meeting_point, image, gallery, availability, datesList, id
+          meeting_point, image, gallery, availability, datesList, id, userId
         ]
       );
 

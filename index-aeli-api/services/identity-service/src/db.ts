@@ -16,11 +16,13 @@ export async function initDb(): Promise<void> {
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
-        role VARCHAR(50) NOT NULL DEFAULT 'viewer',
+        role VARCHAR(50) NOT NULL DEFAULT 'content_editor',
         status VARCHAR(50) NOT NULL DEFAULT 'active',
         created_at TIMESTAMP NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
+
+      ALTER TABLE identity.users ALTER COLUMN role SET DEFAULT 'content_editor';
     `);
 
     // Seed initial superadmin if table is empty

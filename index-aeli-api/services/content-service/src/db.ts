@@ -70,6 +70,8 @@ export async function initDb(): Promise<void> {
     await pool.query(`
       ALTER TABLE content.attractions ADD COLUMN IF NOT EXISTS image VARCHAR(500);
       ALTER TABLE content.attractions ADD COLUMN IF NOT EXISTS gallery TEXT[];
+      ALTER TABLE content.attractions ADD COLUMN IF NOT EXISTS created_by UUID;
+      ALTER TABLE content.attractions ADD COLUMN IF NOT EXISTS updated_by UUID;
     `);
 
     // CTA Sections table
