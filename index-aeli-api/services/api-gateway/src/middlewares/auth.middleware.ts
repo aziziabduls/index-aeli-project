@@ -41,7 +41,10 @@ export const protectAdminRoutes = (req: CustomRequest, res: express.Response, ne
   const isProtectedPath =
     req.path.startsWith('/api/v1/admin/') ||
     req.path.startsWith('/api/v1/users') ||
-    req.path.startsWith('/api/v1/roles');
+    req.path.startsWith('/api/v1/roles') ||
+    req.path.startsWith('/api/v1/billing') ||
+    req.path.startsWith('/api/v1/notifications') ||
+    req.path.startsWith('/api/v1/payout');
 
   if (isProtectedPath && !req.user) {
     return res.status(401).json({ success: false, error: 'Unauthorized', code: 'UNAUTHORIZED' });

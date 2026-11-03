@@ -71,10 +71,48 @@ The PostgreSQL database `index_aeli_db` uses PostgreSQL schemas to namespace dom
   - `id UUID PRIMARY KEY DEFAULT gen_random_uuid()`
   - `email VARCHAR(255) UNIQUE NOT NULL`
   - `password_hash VARCHAR(255) NOT NULL`
+  - `name VARCHAR(255)`
+  - `phone VARCHAR(50)`
+  - `bio TEXT`
   - `role VARCHAR(50) NOT NULL DEFAULT 'content_editor'` (`super_admin` | `admin` | `content_editor` | `viewer`)
   - `status VARCHAR(50) NOT NULL DEFAULT 'active'` (`active` | `inactive`)
+  - `notification_preferences JSONB DEFAULT '{"email": true, "security": true, "updates": true, "marketing": false}'`
   - `created_at TIMESTAMP NOT NULL DEFAULT NOW()`
   - `updated_at TIMESTAMP NOT NULL DEFAULT NOW()`
+
+- **`identity.notifications`**:
+  - `id UUID PRIMARY KEY DEFAULT gen_random_uuid()`
+  - `user_id UUID` (Nullable; if null, broadcast)
+  - `title VARCHAR(255) NOT NULL`
+  - `message TEXT NOT NULL`
+  - `type VARCHAR(50) NOT NULL DEFAULT 'info'` (`info` | `success` | `warning` | `security`)
+  - `link VARCHAR(255)`
+  - `is_read BOOLEAN NOT NULL DEFAULT false`
+  - `created_at TIMESTAMP NOT NULL DEFAULT NOW()`
+
+- **`identity.billing_profiles`**:
+  - `id UUID PRIMARY KEY DEFAULT gen_random_uuid()`
+  - `user_id UUID`
+  - `plan_name VARCHAR(100) NOT NULL DEFAULT 'INDEX-AELI Operator Pro'`
+  - `billing_cycle VARCHAR(50) NOT NULL DEFAULT 'monthly'` (`monthly` | `yearly`)
+  - `status VARCHAR(50) NOT NULL DEFAULT 'active'`
+  - `renewal_date DATE DEFAULT (CURRENT_DATE + INTERVAL '30 days')`
+  - `payment_methods JSONB`
+  - `invoices JSONB`
+  - `created_at TIMESTAMP DEFAULT NOW()`, `updated_at TIMESTAMP DEFAULT NOW()`
+
+- **`identity.payout_profiles`**:
+  - `id UUID PRIMARY KEY DEFAULT gen_random_uuid()`
+  - `user_id UUID`
+  - `available_balance NUMERIC(15, 2)` (Saldo siap ditransfer/ditarik)
+  - `pending_balance NUMERIC(15, 2)` (Dana booking dalam kliring)
+  - `total_paid_out NUMERIC(15, 2)` (Total dana telah berhasil dicairkan ke bank)
+  - `auto_payout_enabled BOOLEAN DEFAULT true` (Transfer otomatis aktif)
+  - `auto_payout_schedule VARCHAR(50) DEFAULT 'daily'` (`daily` | `weekly` | `monthly`)
+  - `bank_accounts JSONB` (Daftar rekening bank terverifikasi, nomor rekening, atas nama, rekening utama)
+  - `recent_purchases JSONB` (Pemasukan dari pemesanan program tour wisatawan)
+  - `payout_history JSONB` (Mutasi histori pencairan/disbursement ke rekening bank)
+  - `created_at TIMESTAMP DEFAULT NOW()`, `updated_at TIMESTAMP DEFAULT NOW()`
 
 #### Schema `content`
 - **`content.destinations`**:
@@ -292,6 +330,12 @@ When a `super_admin` invokes `DELETE /api/v1/users/:id`, the backend executes an
 - **`/dashboard/app-config`**:
   - Tabbed interface: Tax Percentage (`tax_percent`), Our Credentials, About Us, Contact Us, and Footer links.
   - Changes immediately update backend `content.app_config` and propagate to the public web portal.
+- **`/dashboard/account`**:
+  - Personal profile editor (Name, Phone, Bio, Email), password change with current password verification, authoring contribution metrics, and personal audit trail.
+- **`/dashboard/payout`**:
+  - Tour program booking revenue management, automatic daily/weekly/monthly disbursements, registered Indonesian bank accounts (BCA, Mandiri, BNI, BRI, etc.), instant withdrawal, and transfer receipt printouts.
+- **`/dashboard/notifications`**:
+  - Real-time platform notifications, read/unread filters, dismiss actions, and notification preference switches.
 
 ---
 

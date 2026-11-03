@@ -77,7 +77,13 @@ const proxyOptions = {
 app.use(createProxyMiddleware({
   ...proxyOptions,
   target: identityServiceUrl,
-  pathFilter: (path) => path.startsWith('/api/v1/auth') || path.startsWith('/api/v1/users') || path.startsWith('/api/v1/roles')
+  pathFilter: (path) =>
+    path.startsWith('/api/v1/auth') ||
+    path.startsWith('/api/v1/users') ||
+    path.startsWith('/api/v1/roles') ||
+    path.startsWith('/api/v1/billing') ||
+    path.startsWith('/api/v1/notifications') ||
+    path.startsWith('/api/v1/payout')
 }));
 
 // 2. Content Service Proxies

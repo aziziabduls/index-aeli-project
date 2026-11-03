@@ -292,10 +292,11 @@ export function DestinationsClient({ initialDestinations }: DestinationsClientPr
   };
 
   return (
-    <div className="flex h-full flex-col gap-4 p-6">
+    <div className="@container/main flex flex-col gap-4 md:gap-6">
+
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="font-bold text-3xl tracking-tight">Destinations</h1>
+          <h1 className="text-3xl tracking-tight">Destinations</h1>
           <p className="text-muted-foreground text-sm">
             Manage physical locations, regional descriptions, and popularity flags.
           </p>
@@ -593,7 +594,7 @@ export function DestinationsClient({ initialDestinations }: DestinationsClientPr
                 placeholder="e.g. May to September"
               />
             </div>
- 
+
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <span className="font-medium text-sm">Regional Capital</span>
@@ -603,7 +604,7 @@ export function DestinationsClient({ initialDestinations }: DestinationsClientPr
                   placeholder="e.g. Denpasar"
                 />
               </div>
- 
+
               <div className="flex flex-col gap-2">
                 <span className="font-medium text-sm">Estimated Population</span>
                 <Input
@@ -613,7 +614,7 @@ export function DestinationsClient({ initialDestinations }: DestinationsClientPr
                 />
               </div>
             </div>
- 
+
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <span className="font-medium text-sm">Spoken Languages</span>
@@ -623,7 +624,7 @@ export function DestinationsClient({ initialDestinations }: DestinationsClientPr
                   placeholder="e.g. Balinese & Indonesian"
                 />
               </div>
- 
+
               <div className="flex flex-col gap-2">
                 <span className="font-medium text-sm">Timezone</span>
                 <Input
@@ -633,7 +634,7 @@ export function DestinationsClient({ initialDestinations }: DestinationsClientPr
                 />
               </div>
             </div>
- 
+
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <span className="font-medium text-sm">Temperature</span>
@@ -643,7 +644,7 @@ export function DestinationsClient({ initialDestinations }: DestinationsClientPr
                   placeholder="e.g. 28°C"
                 />
               </div>
- 
+
               <div className="flex flex-col gap-2">
                 <span className="font-medium text-sm">Weather Condition</span>
                 <Input

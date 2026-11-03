@@ -173,10 +173,11 @@ export function ProvidersClient({ initialProviders }: ProvidersClientProps) {
   };
 
   return (
-    <div className="flex h-full flex-col gap-4 p-6">
+    <div className="@container/main flex flex-col gap-4 md:gap-6">
+
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="font-bold text-3xl tracking-tight">Providers</h1>
+          <h1 className="text-3xl tracking-tight">Providers</h1>
           <p className="text-muted-foreground text-sm">
             Manage partner operators, legal entities, and contact information.
           </p>

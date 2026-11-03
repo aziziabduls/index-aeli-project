@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 
 import {
   Award,
-  Clock,
   Compass,
   Globe,
   Heart,
@@ -24,8 +23,7 @@ import {
   Sparkles,
   Trash2,
   Trees,
-  UserCheck,
-  Users,
+  Users
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -35,7 +33,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { getClientCookie } from "@/lib/cookie.client";
@@ -52,6 +49,7 @@ import {
   DEFAULT_APP_CONFIG,
 } from "./app-config-types";
 
+export { DEFAULT_APP_CONFIG };
 export type {
   AppConfigAbout,
   AppConfigBusinessHours,
@@ -60,9 +58,8 @@ export type {
   AppConfigData,
   AppConfigFooterLink,
   AppConfigTeamMember,
-  AppConfigValueItem,
+  AppConfigValueItem
 };
-export { DEFAULT_APP_CONFIG };
 
 const ICON_OPTIONS = [
   { value: "Map", label: "Map", Icon: Map },
@@ -296,7 +293,7 @@ export function AppConfigClient({ initialConfig }: { initialConfig: AppConfigDat
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-semibold text-2xl tracking-tight">App Config</h1>
+            <h1 className="text-3xl tracking-tight">App Config</h1>
             <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
               Superadmin Only
             </Badge>

@@ -290,10 +290,11 @@ export function AttractionsClient({ initialAttractions, destinations }: Attracti
   };
 
   return (
-    <div className="flex h-full flex-col gap-4 p-6">
+    <div className="@container/main flex flex-col gap-4 md:gap-6">
+
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="font-bold text-3xl tracking-tight">Experiences</h1>
+          <h1 className="text-3xl tracking-tight">Experiences</h1>
           <p className="text-muted-foreground text-sm">
             Manage physical travel experience/sights linked inside popular destinations.
           </p>

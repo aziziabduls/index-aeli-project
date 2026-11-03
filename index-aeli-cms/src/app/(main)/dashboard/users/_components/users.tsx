@@ -1,8 +1,8 @@
 "use client";
 "use no memo";
 
-import * as React from "react";
 import { useRouter } from "next/navigation";
+import * as React from "react";
 
 import {
   type ColumnFiltersState,
@@ -42,7 +42,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -330,13 +330,13 @@ export function Users({ users, currentUser }: UsersProps) {
         setEditEmail(user.email);
         setEditRole(
           user.rawRole ||
-            (user.role === "Super Admin"
-              ? "super_admin"
-              : user.role === "Admin"
-                ? "admin"
-                : user.role === "Content Editor"
-                  ? "content_editor"
-                  : "viewer")
+          (user.role === "Super Admin"
+            ? "super_admin"
+            : user.role === "Admin"
+              ? "admin"
+              : user.role === "Content Editor"
+                ? "content_editor"
+                : "viewer")
         );
         setEditStatus(user.rawStatus || (user.status === "Active" ? "active" : "inactive"));
         setEditPassword("");
@@ -346,13 +346,13 @@ export function Users({ users, currentUser }: UsersProps) {
         setTeamValue(user.team || "Platform");
         setTeamRole(
           user.rawRole ||
-            (user.role === "Super Admin"
-              ? "super_admin"
-              : user.role === "Admin"
-                ? "admin"
-                : user.role === "Content Editor"
-                  ? "content_editor"
-                  : "viewer")
+          (user.role === "Super Admin"
+            ? "super_admin"
+            : user.role === "Admin"
+              ? "admin"
+              : user.role === "Content Editor"
+                ? "content_editor"
+                : "viewer")
         );
       },
       onToggleStatus: (user: UserRow) => handleToggleStatus(user),
@@ -392,14 +392,37 @@ export function Users({ users, currentUser }: UsersProps) {
 
   return (
     <>
+      <div className="flex flex-col gap-1 mb-4">
+        <h1 className="text-3xl tracking-tight">Users</h1>
+        <p className="text-muted-foreground text-sm">
+          Manage your organization members, assign roles, and control access permissions.
+        </p>
+      </div>
       <Card>
         <CardHeader className="border-b has-data-[slot=card-action]:grid-cols-1 md:has-data-[slot=card-action]:grid-cols-[1fr_auto]">
-          <CardTitle className="font-semibold text-xl leading-none">Users</CardTitle>
+          {/* <h1 className="text-3xl tracking-tight leading-none">Users</h1>
           <CardDescription className="max-w-sm leading-snug">
             Manage your organization members, assign roles, and control access permissions.
-          </CardDescription>
+          </CardDescription> */}
+          <InputGroup className="h-7 w-full md:w-64">
+            <InputGroupAddon align="inline-start">
+              <Search className="size-3.5" />
+            </InputGroupAddon>
+            <InputGroupInput
+              className="h-7"
+              placeholder="Search users..."
+              value={searchQuery}
+              onChange={(event) => {
+                table.getColumn("search")?.setFilterValue(event.target.value || undefined);
+                table.setPageIndex(0);
+              }}
+            />
+            <InputGroupAddon align="inline-end">
+              <Kbd className="h-4 text-[10px]">⌘K</Kbd>
+            </InputGroupAddon>
+          </InputGroup>
           <CardAction className="col-start-1 row-start-auto flex w-full flex-wrap justify-start gap-2 justify-self-stretch md:col-start-2 md:row-span-2 md:row-start-1 md:w-auto md:flex-nowrap md:justify-end md:justify-self-end">
-            <InputGroup className="h-7 w-full md:w-64">
+            {/* <InputGroup className="h-7 w-full md:w-64">
               <InputGroupAddon align="inline-start">
                 <Search className="size-3.5" />
               </InputGroupAddon>
@@ -415,7 +438,7 @@ export function Users({ users, currentUser }: UsersProps) {
               <InputGroupAddon align="inline-end">
                 <Kbd className="h-4 text-[10px]">⌘K</Kbd>
               </InputGroupAddon>
-            </InputGroup>
+            </InputGroup> */}
             <Button
               variant="outline"
               size="sm"

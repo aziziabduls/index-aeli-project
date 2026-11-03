@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import { initDb } from './db.js';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
+import billingRoutes from './routes/billing.routes.js';
+import notificationRoutes from './routes/notification.routes.js';
+import payoutRoutes from './routes/payout.routes.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 
 dotenv.config();
@@ -17,6 +20,9 @@ app.use(express.json());
 // Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1', userRoutes);
+app.use('/api/v1', billingRoutes);
+app.use('/api/v1', notificationRoutes);
+app.use('/api/v1', payoutRoutes);
 
 // Central Error Handling Middleware
 app.use(errorHandler);
