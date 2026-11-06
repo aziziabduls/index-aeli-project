@@ -765,7 +765,7 @@ function BookingFormContent() {
                   <span className="font-medium text-zinc-800 tabular-nums">{formatPrice(basePrice)}</span>
                 </div>
                 <div className="flex justify-between text-zinc-500">
-                  <span>Taxes & fees ({taxPercent}%)</span>
+                  <span>Tax (PPN {taxPercent}%)</span>
                   <span className="font-medium text-zinc-800 tabular-nums">{formatPrice(taxAndFees)}</span>
                 </div>
                 <div className="flex justify-between items-center text-zinc-500 pt-1">

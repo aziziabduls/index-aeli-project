@@ -60,6 +60,7 @@ export interface AppConfigAbout {
 
 export interface AppConfigData {
   tax_percent: number;
+  platform_fee_percent?: number;
   credentials: {
     subtitle: string;
     title: string;
@@ -80,6 +81,7 @@ export interface AppConfigData {
 
 export const DEFAULT_APP_CONFIG: AppConfigData = {
   tax_percent: 10,
+  platform_fee_percent: 5,
   credentials: {
     subtitle: 'Our Credentials',
     title: 'A World of Wonders Awaits',
@@ -217,6 +219,10 @@ export class AppConfigService {
         typeof stored.tax_percent === 'number' && !Number.isNaN(stored.tax_percent)
           ? stored.tax_percent
           : DEFAULT_APP_CONFIG.tax_percent,
+      platform_fee_percent:
+        typeof stored.platform_fee_percent === 'number' && !Number.isNaN(stored.platform_fee_percent)
+          ? stored.platform_fee_percent
+          : (DEFAULT_APP_CONFIG.platform_fee_percent ?? 5),
       credentials: {
         subtitle: stored.credentials?.subtitle ?? DEFAULT_APP_CONFIG.credentials.subtitle,
         title: stored.credentials?.title ?? DEFAULT_APP_CONFIG.credentials.title,
@@ -296,8 +302,17 @@ export class AppConfigService {
       throw new AppError('Tax percentage must be a number between 0 and 100', 400);
     }
 
+    const parsedPlatformFee =
+      payload.platform_fee_percent !== undefined
+        ? Number(payload.platform_fee_percent)
+        : (current.platform_fee_percent ?? 5);
+    if (Number.isNaN(parsedPlatformFee) || parsedPlatformFee < 0 || parsedPlatformFee > 100) {
+      throw new AppError('Platform fee percentage must be a number between 0 and 100', 400);
+    }
+
     const merged: AppConfigData = {
       tax_percent: parsedTax,
+      platform_fee_percent: parsedPlatformFee,
       credentials: {
         subtitle: payload.credentials?.subtitle ?? current.credentials.subtitle,
         title: payload.credentials?.title ?? current.credentials.title,

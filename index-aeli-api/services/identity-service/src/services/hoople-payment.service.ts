@@ -1,5 +1,5 @@
 import { pool } from '../db.js';
-import { payoutService } from './payout.service.js';
+import { payoutService, getPlatformFeePercent } from './payout.service.js';
 
 export interface PaymentItem {
   id: string;
@@ -151,7 +151,8 @@ export class HooplePaymentService {
 
     const { orderId, token, redirectUrl, paymentUrl } = json.content;
     const finalRedirectUrl = redirectUrl || paymentUrl || '';
-    const platformFee = Math.round(amount * 0.05);
+    const feePercent = await getPlatformFeePercent();
+    const platformFee = Math.round(amount * (feePercent / 100));
     const netPayout = amount - platformFee;
 
     // Persist to identity.transactions
@@ -526,7 +527,8 @@ export class HooplePaymentService {
     // If Payment is SUCCESSFUL, record into payout profile & create operator notification
     if (status === 'SUCCESS' && trx.status !== 'cleared') {
       const grossAmount = parseFloat(trx.gross_amount || '0');
-      const platformFee = Math.round(grossAmount * 0.05);
+      const feePercent = await getPlatformFeePercent();
+      const platformFee = Math.round(grossAmount * (feePercent / 100));
       const netPayout = grossAmount - platformFee;
 
       try {

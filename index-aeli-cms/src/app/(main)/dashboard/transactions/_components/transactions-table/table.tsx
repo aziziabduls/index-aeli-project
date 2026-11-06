@@ -91,7 +91,13 @@ const pageSizeItems = [10, 20, 30, 40, 50].map((pageSize) => ({
   label: `${pageSize}`,
 }));
 
-export function TransactionsTable({ data }: { data: TransactionRow[] }) {
+export function TransactionsTable({
+  data,
+  platformFeePercent,
+}: {
+  data: TransactionRow[];
+  platformFeePercent?: number;
+}) {
   const [selectedTransaction, setSelectedTransaction] = React.useState<TransactionRow | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const [rowSelection, setRowSelection] = React.useState({});
@@ -348,6 +354,8 @@ export function TransactionsTable({ data }: { data: TransactionRow[] }) {
               selectedTransaction.status.toLowerCase()
             );
 
+            const feePercent = platformFeePercent ?? 10;
+
             return (
               <div className="flex h-full flex-col">
                 <DrawerHeader className="border-b border-border/40 px-6 py-5">
@@ -463,7 +471,7 @@ export function TransactionsTable({ data }: { data: TransactionRow[] }) {
                         </span>
                       </div>
                       <div className="flex items-center justify-between px-3.5 py-2.5">
-                        <span className="text-muted-foreground text-xs">Platform fee (5%)</span>
+                        <span className="text-muted-foreground text-xs">Platform fee ({feePercent}%)</span>
                         <span className="text-muted-foreground tabular-nums text-xs">
                           -{formatIDR(selectedTransaction.platform_fee)}
                         </span>

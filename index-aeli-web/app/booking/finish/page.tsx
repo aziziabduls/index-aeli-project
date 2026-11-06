@@ -190,13 +190,12 @@ function FinishPaymentContent() {
             <div className="flex justify-between items-center text-sm">
               <span className="text-zinc-500">Transaction Status</span>
               <span
-                className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                  isSuccess
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : isPending
+                className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isSuccess
+                  ? 'bg-emerald-50 text-emerald-700'
+                  : isPending
                     ? 'bg-amber-50 text-amber-700'
                     : 'bg-rose-50 text-rose-700'
-                }`}
+                  }`}
               >
                 {isSuccess ? 'Paid / Settled' : isPending ? 'Awaiting Settlement' : 'Failed'}
               </span>
@@ -216,11 +215,11 @@ function FinishPaymentContent() {
         {/* Action Footer */}
         <div className="bg-zinc-50/70 p-6 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-3">
           <Link
-            href="/tours"
+            href="/programs"
             className="w-full sm:w-auto h-10 px-4 rounded-xl border border-zinc-200 bg-white text-zinc-700 text-xs font-medium hover:bg-zinc-50 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
             <Compass className="size-3.5" />
-            <span>Browse More Tours</span>
+            <span>Browse More Programs</span>
           </Link>
 
           <div className="w-full sm:w-auto flex items-center gap-2">

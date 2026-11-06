@@ -151,6 +151,7 @@ export interface AppConfigAbout {
 
 export interface AppConfig {
   tax_percent: number;
+  platform_fee_percent?: number;
   credentials: {
     subtitle: string;
     title: string;

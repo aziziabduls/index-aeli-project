@@ -57,6 +57,7 @@ export interface AppConfigAbout {
 
 export interface AppConfigData {
   tax_percent: number;
+  platform_fee_percent?: number;
   credentials: {
     subtitle: string;
     title: string;
@@ -77,6 +78,7 @@ export interface AppConfigData {
 
 export const DEFAULT_APP_CONFIG: AppConfigData = {
   tax_percent: 10,
+  platform_fee_percent: 5,
   credentials: {
     subtitle: "Our Credentials",
     title: "A World of Wonders Awaits",

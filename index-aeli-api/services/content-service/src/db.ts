@@ -101,6 +101,7 @@ export async function initDb(): Promise<void> {
 
     const defaultAppConfig = {
       tax_percent: 10,
+      platform_fee_percent: 5,
       credentials: {
         subtitle: 'Our Credentials',
         title: 'A World of Wonders Awaits',

@@ -1,6 +1,21 @@
 import { pool } from '../db.js';
 import { AppError } from '../errors.js';
 
+export async function getPlatformFeePercent(): Promise<number> {
+  try {
+    const { rows } = await pool.query(
+      `SELECT COALESCE((config->>'platform_fee_percent')::numeric, 5) as fee FROM content.app_config WHERE id = 1 LIMIT 1;`
+    );
+    if (rows.length > 0 && rows[0].fee !== null) {
+      const num = Number(rows[0].fee);
+      return Number.isNaN(num) ? 5 : num;
+    }
+  } catch (err) {
+    // Non-blocking fallback
+  }
+  return 5;
+}
+
 export interface BankAccountInput {
   bank_name: string;
   bank_code: string;
@@ -46,16 +61,31 @@ export class PayoutService {
     }
 
     const payout = rows[0];
+    const feePercent = await getPlatformFeePercent();
+
+    let allPurchases: any[] = [];
+    try {
+      allPurchases = await this.getTransactions();
+    } catch (e) {
+      allPurchases = payout.recent_purchases || [];
+    }
+
+    const pendingBalance = allPurchases.length > 0
+      ? allPurchases
+          .filter((t: any) => t.status === 'pending' || t.status === 'pending_clearance')
+          .reduce((sum: number, t: any) => sum + (Number(t.net_payout) || 0), 0)
+      : parseFloat(payout.pending_balance || '0');
 
     return {
       id: payout.id,
       available_balance: parseFloat(payout.available_balance || '0'),
-      pending_balance: parseFloat(payout.pending_balance || '0'),
+      pending_balance: pendingBalance,
       total_paid_out: parseFloat(payout.total_paid_out || '0'),
+      platform_fee_percent: feePercent,
       auto_payout_enabled: payout.auto_payout_enabled,
       auto_payout_schedule: payout.auto_payout_schedule || 'daily',
       bank_accounts: payout.bank_accounts || [],
-      recent_purchases: payout.recent_purchases || [],
+      recent_purchases: allPurchases.length > 0 ? allPurchases : (payout.recent_purchases || []),
       payout_history: payout.payout_history || [],
       updated_at: payout.updated_at
     };
@@ -242,9 +272,10 @@ export class PayoutService {
       );
 
       if (rows.length > 0) {
+        const feePercent = await getPlatformFeePercent();
         return rows.map((r: any) => {
           const gross = parseFloat(r.gross_amount || '0');
-          const fee = Math.round(gross * 0.05);
+          const fee = Math.round(gross * (feePercent / 100));
           const net = gross - fee;
           return {
             id: r.id,
@@ -287,8 +318,9 @@ export class PayoutService {
     payment_method: string;
   }) {
     const overview = await this.getPayoutOverview();
+    const feePercent = await getPlatformFeePercent();
 
-    const platformFee = Math.round(data.gross_amount * 0.05); // 5% platform fee
+    const platformFee = Math.round(data.gross_amount * (feePercent / 100)); // dynamic platform fee
     const netPayout = data.gross_amount - platformFee;
 
     const newPurchase = {

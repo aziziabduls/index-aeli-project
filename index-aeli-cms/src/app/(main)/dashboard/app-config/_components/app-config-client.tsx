@@ -79,8 +79,15 @@ export function AppConfigClient({ initialConfig }: { initialConfig: AppConfigDat
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
-    if (Number.isNaN(Number(config.tax_percent)) || config.tax_percent < 0 || config.tax_percent > 100) {
+    const taxVal = Number(config.tax_percent);
+    if (Number.isNaN(taxVal) || taxVal < 0 || taxVal > 100) {
       toast.error("Tax percentage must be between 0 and 100");
+      return;
+    }
+
+    const platformFeeVal = Number(config.platform_fee_percent ?? 5);
+    if (Number.isNaN(platformFeeVal) || platformFeeVal < 0 || platformFeeVal > 100) {
+      toast.error("Platform fee percentage must be between 0 and 100");
       return;
     }
 
@@ -320,7 +327,7 @@ export function AppConfigClient({ initialConfig }: { initialConfig: AppConfigDat
         <TabsList className="grid w-full max-w-3xl grid-cols-5">
           <TabsTrigger value="tax" className="gap-1.5 text-xs sm:text-sm">
             <Percent className="size-4" />
-            Tax
+            Tax & Fees
           </TabsTrigger>
           <TabsTrigger value="credentials" className="gap-1.5 text-xs sm:text-sm">
             <Award className="size-4" />
@@ -344,10 +351,9 @@ export function AppConfigClient({ initialConfig }: { initialConfig: AppConfigDat
         <TabsContent value="tax" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Booking Tax & Fees Configuration</CardTitle>
+              <CardTitle>Booking Tax & Platform Fees</CardTitle>
               <CardDescription>
-                {/* Overrides <code>NEXT_PUBLIC_TAX_PERCENT</code> on the booking checkout page (
-                <code>/booking</code>). */}
+                Configure the traveler tax rate applied at checkout and the platform fee deducted before paying tour operators.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -372,16 +378,50 @@ export function AppConfigClient({ initialConfig }: { initialConfig: AppConfigDat
                   <span className="font-medium text-muted-foreground text-sm">%</span>
                 </div>
                 <p className="text-muted-foreground text-xs">
-                  Example calculation on Rp 1,000,000 base tour price: Tax & Fees ={" "}
+                  Applied to traveler booking subtotal. Example on Rp 1,000,000 tour price: Tax ={" "}
                   <strong>
                     Rp {Math.round(1000000 * ((config.tax_percent || 0) / 100)).toLocaleString("id-ID")}
                   </strong>{" "}
-                  (Total:{" "}
+                  (Checkout Total:{" "}
                   <strong>
                     Rp{" "}
                     {(1000000 + Math.round(1000000 * ((config.tax_percent || 0) / 100))).toLocaleString(
                       "id-ID"
                     )}
+                  </strong>
+                  ).
+                </p>
+              </div>
+
+              <div className="grid max-w-md gap-2 pt-4 border-t border-border">
+                <Label htmlFor="platform-fee-percent">Operator Platform Fee Percentage (%)</Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    id="platform-fee-percent"
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.5}
+                    value={config.platform_fee_percent ?? 5}
+                    onChange={(e) =>
+                      setConfig((prev) => ({
+                        ...prev,
+                        platform_fee_percent: e.target.value === "" ? 0 : Number(e.target.value),
+                      }))
+                    }
+                    className="w-36"
+                  />
+                  <span className="font-medium text-muted-foreground text-sm">%</span>
+                </div>
+                <p className="text-muted-foreground text-xs">
+                  Fee deducted by the platform from gross bookings before crediting provider payout balances.
+                  Example on Rp 1,000,000 booking: Platform Fee ={" "}
+                  <strong>
+                    Rp {Math.round(1000000 * ((config.platform_fee_percent ?? 5) / 100)).toLocaleString("id-ID")}
+                  </strong>{" "}
+                  (Net Provider Payout:{" "}
+                  <strong>
+                    Rp {(1000000 - Math.round(1000000 * ((config.platform_fee_percent ?? 5) / 100))).toLocaleString("id-ID")}
                   </strong>
                   ).
                 </p>

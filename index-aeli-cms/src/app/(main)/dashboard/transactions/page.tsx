@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 import { TransactionsClient } from "./_components/transactions-client";
 import type { TransactionRow } from "./_components/transactions-table/schema";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Transactions | INDEX-AELI CMS",
   description: "View and manage user transactions from the traveler portal.",
@@ -15,6 +17,17 @@ export default async function TransactionsPage() {
     process.env.INTERNAL_API_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
     "http://localhost:7009";
+
+  let platformFeePercent = 10;
+  try {
+    const configRes = await fetch(`${apiUrl}/api/v1/app-config`, { cache: "no-store" });
+    const configJson = await configRes.json();
+    if (configJson.data?.platform_fee_percent !== undefined) {
+      platformFeePercent = Number(configJson.data.platform_fee_percent);
+    }
+  } catch {
+    // Fallback to 10%
+  }
 
   let transactions: TransactionRow[] = [];
 
@@ -36,6 +49,8 @@ export default async function TransactionsPage() {
   // Fallback to /api/v1/registrations if /transactions returned empty
   if (!transactions || transactions.length === 0) {
     try {
+      const feePercent = platformFeePercent;
+
       const regRes = await fetch(`${apiUrl}/api/v1/registrations`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -46,7 +61,7 @@ export default async function TransactionsPage() {
       if (regJson.success && Array.isArray(regJson.data) && regJson.data.length > 0) {
         transactions = regJson.data.map((r: any) => {
           const gross = Number(r.gross_amount) || 0;
-          const fee = Math.round(gross * 0.05);
+          const fee = Math.round(gross * (feePercent / 100));
           return {
             id: r.id,
             booking_code: r.booking_code,
@@ -159,6 +174,11 @@ export default async function TransactionsPage() {
     }
   }
 
-  return <TransactionsClient initialData={transactions} />;
+  return (
+    <TransactionsClient
+      initialData={transactions}
+      platformFeePercent={platformFeePercent}
+    />
+  );
 }
 

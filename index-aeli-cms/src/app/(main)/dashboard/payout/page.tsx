@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { PayoutClient } from "./_components/payout-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function PayoutPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get("session_token")?.value;
@@ -30,6 +32,7 @@ export default async function PayoutPage() {
       available_balance: 48500000,
       pending_balance: 12200000,
       total_paid_out: 135000000,
+      platform_fee_percent: 5,
       auto_payout_enabled: true,
       auto_payout_schedule: "daily",
       bank_accounts: [

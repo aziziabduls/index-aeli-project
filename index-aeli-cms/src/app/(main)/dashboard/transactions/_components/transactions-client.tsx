@@ -10,7 +10,13 @@ import { formatIDR } from "@/lib/currency";
 import type { TransactionRow } from "./transactions-table/schema";
 import { TransactionsTable } from "./transactions-table/table";
 
-export function TransactionsClient({ initialData }: { readonly initialData: TransactionRow[] }) {
+export function TransactionsClient({
+  initialData,
+  platformFeePercent,
+}: {
+  readonly initialData: TransactionRow[];
+  readonly platformFeePercent?: number;
+}) {
   const router = useRouter();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const transactions = initialData || [];
@@ -165,7 +171,10 @@ export function TransactionsClient({ initialData }: { readonly initialData: Tran
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
-          <TransactionsTable data={transactions} />
+          <TransactionsTable
+            data={transactions}
+            platformFeePercent={platformFeePercent}
+          />
         </CardContent>
       </Card>
     </div>

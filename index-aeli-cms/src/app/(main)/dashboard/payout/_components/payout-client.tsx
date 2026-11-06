@@ -112,6 +112,7 @@ interface PayoutData {
   available_balance: number;
   pending_balance: number;
   total_paid_out: number;
+  platform_fee_percent?: number;
   auto_payout_enabled: boolean;
   auto_payout_schedule: string;
   bank_accounts: BankAccount[];
@@ -793,8 +794,8 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
                       {/* <TableHead className="h-11 p-3 font-medium">Location & Experience</TableHead> */}
                       <TableHead className="h-11 p-3 font-medium">Booking Ref</TableHead>
                       <TableHead className="h-11 p-3 font-medium">Gross Revenue</TableHead>
-                      <TableHead className="h-11 p-3 font-medium">Fee (5%)</TableHead>
-                      <TableHead className="h-11 p-3 font-medium">Net Payout (95%)</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Fee ({data.platform_fee_percent ?? 10}%)</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Net Payout ({100 - (data.platform_fee_percent ?? 10)}%)</TableHead>
                       <TableHead className="h-11 p-3 font-medium">Settlement Date</TableHead>
                       <TableHead className="h-11 p-3 font-medium text-center">Payout Status</TableHead>
                       <TableHead className="h-11 p-3 font-medium text-right">Actions</TableHead>
@@ -1117,6 +1118,23 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
                 Current available balance: <strong>{formatIDR(data.available_balance)}</strong>
               </p>
             </div>
+
+            <div className="rounded-lg border bg-muted/40 p-3 text-xs space-y-1.5 text-muted-foreground">
+              <div className="flex justify-between">
+                <span>Jumlah Penarikan:</span>
+                <span className="font-medium text-foreground">{formatIDR(parseFloat(withdrawAmount) || 0)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Potongan Platform Fee ({data.platform_fee_percent ?? 10}%):</span>
+                <span className="text-rose-600 dark:text-rose-400 font-medium">
+                  Sudah dipotong saat penyelesaian booking
+                </span>
+              </div>
+              <div className="flex justify-between border-t border-border/60 pt-1.5 font-semibold text-emerald-600 dark:text-emerald-400">
+                <span>Dana Bersih Ditransfer ke Rekening:</span>
+                <span>{formatIDR(parseFloat(withdrawAmount) || 0)}</span>
+              </div>
+            </div>
           </div>
 
           <DialogFooter>
@@ -1219,12 +1237,19 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
                 <span className="font-medium text-foreground">{formatIDR(parseFloat(simGrossAmount) || 0)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Platform Fee (5%):</span>
-                <span className="text-destructive">-{formatIDR(Math.round((parseFloat(simGrossAmount) || 0) * 0.05))}</span>
+                <span>Platform Fee ({data.platform_fee_percent ?? 5}%):</span>
+                <span className="text-destructive">
+                  -{formatIDR(Math.round((parseFloat(simGrossAmount) || 0) * ((data.platform_fee_percent ?? 5) / 100)))}
+                </span>
               </div>
               <div className="flex justify-between border-t pt-1 font-semibold text-emerald-600 dark:text-emerald-400">
                 <span>Net Earnings to Payout:</span>
-                <span>+{formatIDR((parseFloat(simGrossAmount) || 0) * 0.95)}</span>
+                <span>
+                  +{formatIDR(
+                    (parseFloat(simGrossAmount) || 0) -
+                    Math.round((parseFloat(simGrossAmount) || 0) * ((data.platform_fee_percent ?? 5) / 100))
+                  )}
+                </span>
               </div>
             </div>
 
@@ -1259,17 +1284,17 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
               navigator.clipboard.writeText(selectedPurchase.booking_code);
               toast.success("Booking reference copied");
             };
+            const purchaseFeePercent = data.platform_fee_percent ?? 10;
 
             return (
               <div className="flex h-full flex-col">
                 <DrawerHeader className="border-b border-border/40 px-6 py-5">
                   <div className="flex items-center justify-between gap-3 mb-2.5">
                     <span
-                      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium ${
-                        isCleared
-                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                          : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                      }`}
+                      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium ${isCleared
+                        ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                        : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                        }`}
                     >
                       <span className={`size-1.5 rounded-full ${isCleared ? "bg-emerald-500" : "bg-amber-500"}`} />
                       {isCleared ? "Payout available" : "In clearance"}
@@ -1380,7 +1405,7 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
                         </span>
                       </div>
                       <div className="flex items-center justify-between px-3.5 py-2.5">
-                        <span className="text-muted-foreground text-xs">Platform fee (5%)</span>
+                        <span className="text-muted-foreground text-xs">Platform fee ({purchaseFeePercent}%)</span>
                         <span className="text-muted-foreground tabular-nums text-xs">
                           -{formatIDR(selectedPurchase.platform_fee)}
                         </span>
