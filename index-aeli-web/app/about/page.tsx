@@ -15,10 +15,11 @@ import {
   Globe,
   type LucideIcon,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { buttonVariants } from '@/components/ui/button';
 import { DEFAULT_APP_CONFIG, getAppConfig } from '@/lib/api';
+import { cn } from '@/lib/utils';
 import type { AppConfig } from '@/types';
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -50,162 +51,186 @@ export default function AboutPage() {
       });
   }, []);
 
+  const heroImage =
+    aboutConfig.image ||
+    'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&fit=crop';
+
   return (
-    <div className="w-full relative overflow-hidden bg-zinc-50 pt-0 pb-24 min-h-screen">
-      {/* Background decorations */}
-      <div className="absolute top-0 right-0 w-1/2 h-[500px] bg-primary/5 rounded-bl-full blur-3xl -z-10" />
-      <div className="absolute bottom-0 left-0 w-1/2 h-[500px] bg-blue-500/5 rounded-tr-full blur-3xl -z-10" />
-      <div className="h-24 bg-primary-dark mb-10" />
+    <div className="w-full bg-[#FAFAFA] min-h-screen">
+      {/* 1. HERO HEADER (Dark surface provides contrast for fixed transparent navbar) */}
+      <section className="bg-primary-dark text-white pt-32 pb-16 sm:pb-20 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center"
+          >
+            {/* Left Content Column */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/90 text-xs font-medium">
+                <span className="size-1.5 rounded-full bg-emerald-400" />
+                <span>{aboutConfig.badge || 'Organizational mission'}</span>
+              </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-8">
-        {/* Hero Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
-          <AnimatedContainer animation="slideInLeft" className="text-left space-y-6">
-            <span className="text-xs uppercase tracking-[0.2em] font-extrabold text-primary block">
-              {aboutConfig.badge}
-            </span>
-            <h1 className="font-display font-extrabold text-4xl md:text-5xl lg:text-6xl text-primary-dark tracking-tight leading-tight">
-              {aboutConfig.title}
-            </h1>
-            <p className="text-zinc-600 text-base md:text-lg leading-relaxed whitespace-pre-line">
-              {aboutConfig.description_1}
-            </p>
-            {aboutConfig.description_2 && (
-              <p className="text-zinc-500 text-sm md:text-base leading-relaxed whitespace-pre-line">
-                {aboutConfig.description_2}
+              <h1 className="font-display font-medium text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
+                {aboutConfig.title}
+              </h1>
+
+              <p className="text-white/80 text-base sm:text-lg leading-relaxed whitespace-pre-line max-w-2xl">
+                {aboutConfig.description_1}
               </p>
-            )}
-            <div className="pt-2">
-              <Link
-                href="/programs"
-                className={buttonVariants({ variant: 'cobalt', size: 'lg', className: 'rounded-full' })}
-              >
-                <span>Explore Programs</span>
-                <ArrowRight className="w-4 h-4 ml-1.5" />
-              </Link>
+
+              {aboutConfig.description_2 && (
+                <p className="text-white/60 text-sm sm:text-base leading-relaxed whitespace-pre-line max-w-2xl">
+                  {aboutConfig.description_2}
+                </p>
+              )}
+
+              <div className="pt-2">
+                <Link
+                  href="/programs"
+                  className={cn(
+                    buttonVariants({ variant: 'secondary' }),
+                    'h-11 px-6 rounded-xl bg-white hover:bg-zinc-100 text-zinc-900 font-medium text-sm inline-flex items-center gap-2 shadow-xs transition-colors'
+                  )}
+                >
+                  <span>Explore programs</span>
+                  <ArrowRight className="size-4" />
+                </Link>
+              </div>
             </div>
-          </AnimatedContainer>
 
-          <AnimatedContainer
-            animation="slideInRight"
-            className="relative aspect-[4/3] rounded-[32px] overflow-hidden shadow-luxury"
-          >
-            <img
-              src={
-                aboutConfig.image ||
-                'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&fit=crop'
-              }
-              alt="About Us Banner"
-              className="object-cover w-full h-full"
-            />
-          </AnimatedContainer>
+            {/* Right Image Visual */}
+            <div className="lg:col-span-5">
+              <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden border border-white/15 shadow-xl bg-white/5">
+                <Image
+                  src={heroImage}
+                  alt={aboutConfig.title || 'About INDEX-AELI'}
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                />
+              </div>
+            </div>
+          </motion.div>
         </div>
+      </section>
 
+      {/* 2. MAIN BODY CONTENT */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 space-y-20 sm:space-y-24">
         {/* Vision & Mission Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24 text-left">
-          <AnimatedContainer
-            animation="fadeInUp"
-            delay={0.1}
-            className="bg-white border border-zinc-150 p-8 md:p-10 rounded-[32px] shadow-sm space-y-4"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-              <Compass className="w-6 h-6" />
+        <section aria-labelledby="vision-mission-heading">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Vision Card */}
+            <div className="bg-white border border-zinc-200/80 p-8 rounded-2xl shadow-xs space-y-4 hover:border-zinc-300 transition-colors">
+              <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <Compass className="size-5" />
+              </div>
+              <h2 id="vision-mission-heading" className="font-display font-medium text-xl text-zinc-900">
+                {aboutConfig.vision_title}
+              </h2>
+              <p className="text-zinc-600 text-sm sm:text-base leading-relaxed whitespace-pre-line">
+                {aboutConfig.vision_desc}
+              </p>
             </div>
-            <h3 className="font-display font-extrabold text-2xl text-primary-dark">
-              {aboutConfig.vision_title}
-            </h3>
-            <p className="text-zinc-600 text-sm md:text-base leading-relaxed whitespace-pre-line">
-              {aboutConfig.vision_desc}
-            </p>
-          </AnimatedContainer>
 
-          <AnimatedContainer
-            animation="fadeInUp"
-            delay={0.2}
-            className="bg-white border border-zinc-150 p-8 md:p-10 rounded-[32px] shadow-sm space-y-4"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-secondary/15 text-secondary flex items-center justify-center">
-              <Award className="w-6 h-6" />
+            {/* Mission Card */}
+            <div className="bg-white border border-zinc-200/80 p-8 rounded-2xl shadow-xs space-y-4 hover:border-zinc-300 transition-colors">
+              <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <Award className="size-5" />
+              </div>
+              <h2 className="font-display font-medium text-xl text-zinc-900">
+                {aboutConfig.mission_title}
+              </h2>
+              <p className="text-zinc-600 text-sm sm:text-base leading-relaxed whitespace-pre-line">
+                {aboutConfig.mission_desc}
+              </p>
             </div>
-            <h3 className="font-display font-extrabold text-2xl text-primary-dark">
-              {aboutConfig.mission_title}
-            </h3>
-            <p className="text-zinc-600 text-sm md:text-base leading-relaxed whitespace-pre-line">
-              {aboutConfig.mission_desc}
-            </p>
-          </AnimatedContainer>
-        </div>
+          </div>
+        </section>
 
         {/* Core Values Section */}
-        <div className="mb-24">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs uppercase tracking-[0.2em] font-extrabold text-primary mb-2 block">
-              {aboutConfig.values_badge}
-            </span>
-            <h2 className="font-display font-extrabold text-3xl md:text-5xl text-primary-dark">
-              {aboutConfig.values_title}
-            </h2>
-          </div>
+        {aboutConfig.values && aboutConfig.values.length > 0 && (
+          <section aria-labelledby="values-heading">
+            <div className="mb-10">
+              <span className="text-xs font-medium text-primary mb-2 block">
+                {aboutConfig.values_badge || 'Organizational pillars'}
+              </span>
+              <h2 id="values-heading" className="font-display font-medium text-2xl sm:text-3xl text-zinc-900 tracking-tight">
+                {aboutConfig.values_title}
+              </h2>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
-            {aboutConfig.values.map((val, idx) => {
-              const Icon = ICON_MAP[val.icon] || Map;
-              return (
-                <AnimatedContainer
-                  key={`${val.title}-${idx}`}
-                  animation="fadeInUp"
-                  delay={idx * 0.05}
-                  className="bg-white/70 border border-zinc-200/60 p-6.5 rounded-[24px] shadow-sm flex flex-col items-start backdrop-blur-sm"
-                >
-                  <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-5">
-                    <Icon className="w-5 h-5" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {aboutConfig.values.map((val, idx) => {
+                const Icon = ICON_MAP[val.icon] || Map;
+                return (
+                  <div
+                    key={`${val.title}-${idx}`}
+                    className="bg-white border border-zinc-200/80 p-6 rounded-2xl shadow-xs flex flex-col justify-between hover:border-zinc-300 transition-colors"
+                  >
+                    <div>
+                      <div className="size-9 rounded-lg bg-zinc-100 text-zinc-800 flex items-center justify-center mb-4 shrink-0">
+                        <Icon className="size-4.5" />
+                      </div>
+                      <h3 className="font-display font-medium text-base text-zinc-900 mb-2">
+                        {val.title}
+                      </h3>
+                      <p className="text-zinc-500 text-xs sm:text-sm leading-relaxed">
+                        {val.desc}
+                      </p>
+                    </div>
                   </div>
-                  <h4 className="font-display font-bold text-base text-zinc-900 mb-2">{val.title}</h4>
-                  <p className="text-zinc-500 text-xs leading-relaxed">{val.desc}</p>
-                </AnimatedContainer>
-              );
-            })}
-          </div>
-        </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* Team Section */}
-        <div>
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs uppercase tracking-[0.2em] font-extrabold text-primary mb-2 block">
-              {aboutConfig.team_badge}
-            </span>
-            <h2 className="font-display font-extrabold text-3xl md:text-5xl text-primary-dark">
-              {aboutConfig.team_title}
-            </h2>
-          </div>
+        {aboutConfig.team_members && aboutConfig.team_members.length > 0 && (
+          <section aria-labelledby="team-heading">
+            <div className="mb-10">
+              <span className="text-xs font-medium text-primary mb-2 block">
+                {aboutConfig.team_badge || 'Leadership & stewards'}
+              </span>
+              <h2 id="team-heading" className="font-display font-medium text-2xl sm:text-3xl text-zinc-900 tracking-tight">
+                {aboutConfig.team_title}
+              </h2>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {aboutConfig.team_members.map((member, idx) => (
-              <AnimatedContainer
-                key={`${member.name}-${idx}`}
-                animation="fadeInUp"
-                delay={idx * 0.1}
-                className="bg-white border border-zinc-100 rounded-[28px] p-6 shadow-luxury flex flex-col items-center text-center space-y-4 hover:shadow-luxury-hover transition-all duration-300"
-              >
-                <div className="relative w-28 h-28 rounded-full overflow-hidden shadow-md">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-display font-bold text-lg text-primary-dark">{member.name}</h4>
-                  <span className="text-xs text-primary font-bold tracking-wider uppercase">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {aboutConfig.team_members.map((member, idx) => (
+                <div
+                  key={`${member.name}-${idx}`}
+                  className="bg-white border border-zinc-200/80 rounded-2xl p-6 shadow-xs flex flex-col items-center text-center hover:border-zinc-300 transition-colors"
+                >
+                  <div className="relative size-24 rounded-full overflow-hidden border-2 border-zinc-100 bg-zinc-100 mb-4 shrink-0 ring-4 ring-zinc-50">
+                    <Image
+                      src={member.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&fit=crop'}
+                      alt={member.name}
+                      fill
+                      className="object-cover"
+                      sizes="96px"
+                    />
+                  </div>
+                  <h3 className="font-display font-medium text-base text-zinc-900">
+                    {member.name}
+                  </h3>
+                  <span className="text-xs text-primary font-medium mt-0.5 mb-2">
                     {member.role}
                   </span>
+                  <p className="text-zinc-500 text-xs sm:text-sm leading-relaxed max-w-xs line-clamp-3">
+                    {member.bio}
+                  </p>
                 </div>
-                <p className="text-zinc-500 text-xs leading-relaxed max-w-xs">{member.bio}</p>
-              </AnimatedContainer>
-            ))}
-          </div>
-        </div>
-      </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </main>
     </div>
   );
 }

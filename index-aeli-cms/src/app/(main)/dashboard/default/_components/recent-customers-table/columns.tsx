@@ -2,7 +2,7 @@
 "use no memo";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { addMinutes, differenceInCalendarDays, endOfToday, format, parseISO } from "date-fns";
+import { differenceInCalendarDays, endOfToday, format, isValid, parseISO } from "date-fns";
 import { CircleAlertIcon, CircleCheckIcon, Clock3Icon, LoaderIcon, UserRound } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,20 @@ function billingIcon(billing: string) {
     default:
       return null;
   }
+}
+
+function parseSafeDate(raw: unknown): Date {
+  if (!raw) return new Date();
+  if (raw instanceof Date && !isNaN(raw.getTime())) return raw;
+  try {
+    const parsed = typeof raw === "string" ? parseISO(raw) : new Date(raw as string | number);
+    if (isValid(parsed)) return parsed;
+    const fallback = new Date(raw as string | number);
+    if (isValid(fallback)) return fallback;
+  } catch {
+    // fallback
+  }
+  return new Date();
 }
 
 export const recentCustomersColumns: ColumnDef<RecentCustomerRow>[] = [
@@ -60,7 +74,7 @@ export const recentCustomersColumns: ColumnDef<RecentCustomerRow>[] = [
           <div className="flex items-end justify-between gap-3">
             <div className="grid min-w-0 gap-0.5">
               <span className="truncate font-medium text-sm leading-none">{row.original.name}</span>
-              <span className="truncate text-muted-foreground text-xs leading-none">#{row.original.id}</span>
+              <span className="truncate text-muted-foreground text-xs leading-none">{row.original.email}</span>
             </div>
           </div>
         </div>
@@ -70,18 +84,34 @@ export const recentCustomersColumns: ColumnDef<RecentCustomerRow>[] = [
   },
   {
     id: "search",
-    accessorFn: (row) => `${row.id} ${row.name} ${row.email}`,
+    accessorFn: (row) => `${row.id} ${row.name} ${row.email} ${row.program_name} ${row.experience_name}`,
     filterFn: "includesString",
     enableHiding: true,
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    filterFn: "equalsString",
+    accessorKey: "program_name",
+    header: "Program Name",
     cell: ({ row }) => (
-      <Badge variant="outline" className="px-1.5 text-muted-foreground">
-        {row.original.status}
-      </Badge>
+      <div className="flex items-center gap-2 max-w-[280px]">
+        {/* <span className="flex size-7 shrink-0 items-center justify-center rounded-md border bg-muted">
+          <ListTodo className="size-3.5 text-primary" />
+        </span> */}
+        <span className="truncate font-medium text-sm text-foreground">
+          {row.original.program_name}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "experience_name",
+    header: "Experience Name",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-1.5 max-w-[240px]">
+        {/* <Compass className="size-3.5 shrink-0 text-muted-foreground" /> */}
+        <span className="truncate text-sm text-muted-foreground">
+          {row.original.experience_name}
+        </span>
+      </div>
     ),
   },
   {
@@ -96,17 +126,17 @@ export const recentCustomersColumns: ColumnDef<RecentCustomerRow>[] = [
     ),
   },
   {
-    accessorKey: "plan",
-    header: "Plan",
-    cell: ({ row }) => <span className="text-sm">{row.original.plan}</span>,
-  },
-  {
     id: "joinedWindow",
     accessorFn: (row) => {
-      const daysSinceJoined = differenceInCalendarDays(endOfToday(), parseISO(row.joined));
+      try {
+        const date = parseSafeDate(row.joined);
+        const daysSinceJoined = differenceInCalendarDays(endOfToday(), date);
 
-      if (daysSinceJoined <= 30) return ["30", "90"];
-      if (daysSinceJoined <= 90) return ["90"];
+        if (daysSinceJoined <= 30) return ["30", "90"];
+        if (daysSinceJoined <= 90) return ["90"];
+      } catch {
+        // ignore
+      }
       return [];
     },
     filterFn: "arrIncludes",
@@ -116,13 +146,12 @@ export const recentCustomersColumns: ColumnDef<RecentCustomerRow>[] = [
     accessorKey: "joined",
     header: "Joined",
     cell: ({ row }) => {
-      const baseDate = parseISO(row.original.joined);
-      const joinedAt = addMinutes(baseDate, 9 * 60 + (Number(row.original.id) % 12) * 17);
+      const date = parseSafeDate(row.original.joined);
 
       return (
         <div className="grid gap-0.5">
-          <span className="text-sm">{format(joinedAt, "do MMMM yyyy")}</span>
-          <span className="text-muted-foreground text-xs">at {format(joinedAt, "h:mm a")}</span>
+          <span className="text-sm">{format(date, "dd MMMM yyyy")}</span>
+          <span className="text-muted-foreground text-xs">at {format(date, "h:mm a")}</span>
         </div>
       );
     },

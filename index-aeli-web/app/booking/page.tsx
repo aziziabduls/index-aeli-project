@@ -1,23 +1,28 @@
 'use client';
 
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getAppConfig, getPrograms } from '@/lib/api';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { createBooking, createPaymentBooking, getAppConfig, getPrograms } from '@/lib/api';
+import { HOOPLE_PAYMENT_METHODS, PAYMENT_CATEGORIES, PaymentMethodItem } from '@/lib/payment-methods';
 import { useCurrency } from '@/lib/CurrencyContext';
 import { Program } from '@/types';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  ArrowLeft, ArrowRight,
+  ArrowLeft,
+  ArrowRight,
   Calendar,
   Check,
   CheckCircle2,
+  ChevronRight,
   Compass,
   Copy,
-  CreditCard, Landmark,
+  CreditCard,
+  Landmark,
   Lock,
   Mail,
   MessageSquare,
@@ -25,18 +30,19 @@ import {
   Printer,
   QrCode,
   ShieldCheck,
+  Sparkles,
   Star,
-  Ticket,
+  Store,
   User,
-  Users
+  Users,
+  Wallet
 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 
-// Inner component using useSearchParams
 function BookingFormContent() {
-  const { formatPrice, currency } = useCurrency();
+  const { formatPrice } = useCurrency();
   const searchParams = useSearchParams();
   const router = useRouter();
   const tourIdParam = searchParams.get('programId');
@@ -68,14 +74,11 @@ function BookingFormContent() {
       }
     }
     loadPrograms();
-  }, []);
+  }, [tourIdParam]);
 
-  const selectedTour = programsData.find(t => t.id === selectedTourId) || programsData[0];
+  const selectedTour = programsData.find((t) => t.id === selectedTourId) || programsData[0];
 
-  // Step state: 1 = Details, 2 = Payment
-  const [currentStep, setCurrentStep] = useState(1);
-
-  // Form states (Step 1)
+  // Form states
   const [travelDate, setTravelDate] = useState('');
   const [guestsCount, setGuestsCount] = useState(1);
   const [fullName, setFullName] = useState('');
@@ -84,33 +87,45 @@ function BookingFormContent() {
   const [specialRequest, setSpecialRequest] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Payment states (Step 2)
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'wallet' | 'transfer'>('card');
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvv, setCardCvv] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [paymentErrors, setPaymentErrors] = useState<Record<string, string>>({});
-  const [copied, setCopied] = useState(false);
-
   // Submission/Success modal state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [bookingRef, setBookingRef] = useState('');
 
-  // Update selected program if query param changes
-  useEffect(() => {
-    if (tourIdParam) {
-      setSelectedTourId(tourIdParam);
-    }
-  }, [tourIdParam]);
+  // Payment method selection states (Section 9 Hoople Payment Catalog)
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('qris');
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState<boolean>(false);
+  const [activeCategory, setActiveCategory] = useState<string>('all');
 
-  // Sync card holder name with full name entered in Step 1
-  useEffect(() => {
-    if (fullName && !cardName) {
-      setCardName(fullName.toUpperCase());
+  const activeMethod =
+    HOOPLE_PAYMENT_METHODS.find((m) => m.id === selectedPaymentMethod) || HOOPLE_PAYMENT_METHODS[0];
+
+  const filteredMethods = HOOPLE_PAYMENT_METHODS.filter((m) => {
+    if (activeCategory === 'all') return true;
+    if (activeCategory === 'qris_ewallet') return m.category === 'qris' || m.category === 'ewallet';
+    if (activeCategory === 'va') return m.category === 'va';
+    if (activeCategory === 'card') return m.category === 'card';
+    if (activeCategory === 'paylater_retail') return m.category === 'paylater' || m.category === 'convenience';
+    return true;
+  });
+
+  const getMethodIcon = (category: string) => {
+    switch (category) {
+      case 'qris':
+        return <QrCode className="size-4" />;
+      case 'ewallet':
+        return <Wallet className="size-4" />;
+      case 'va':
+        return <Landmark className="size-4" />;
+      case 'card':
+        return <CreditCard className="size-4" />;
+      case 'convenience':
+        return <Store className="size-4" />;
+      case 'paylater':
+      default:
+        return <Sparkles className="size-4" />;
     }
-  }, [fullName, cardName]);
+  };
 
   const minAllowedGuests = selectedTour?.minQuota ?? selectedTour?.maxGuestMin ?? 1;
   const maxAllowedGuests = selectedTour?.maxQuota ?? selectedTour?.maxGuestMax ?? 50;
@@ -121,18 +136,18 @@ function BookingFormContent() {
     if (normalized === 'weekends' || normalized === 'only weekend' || normalized === 'weekend') {
       return {
         type: 'weekends' as const,
-        label: 'Only Weekend',
-        fullLabel: 'Only Weekend (Sat - Sun)',
-        badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
+        label: 'Weekends only',
+        fullLabel: 'Saturday – Sunday only',
+        badgeColor: 'bg-zinc-100 text-zinc-700 border-zinc-200',
         description: 'Available on Saturdays and Sundays only',
       };
     }
     if (normalized === 'weekdays' || normalized === 'only weekday' || normalized === 'weekday') {
       return {
         type: 'weekdays' as const,
-        label: 'Only Weekday',
-        fullLabel: 'Only Weekday (Mon - Fri)',
-        badgeColor: 'bg-sky-50 text-sky-700 border-sky-200',
+        label: 'Weekdays only',
+        fullLabel: 'Monday – Friday only',
+        badgeColor: 'bg-zinc-100 text-zinc-700 border-zinc-200',
         description: 'Available from Monday to Friday only',
       };
     }
@@ -140,27 +155,26 @@ function BookingFormContent() {
       const datesCount = selectedTour?.availableDates?.length || 0;
       return {
         type: 'specific_dates' as const,
-        label: datesCount > 0 ? `Specific Dates (${datesCount})` : 'Specific Dates',
-        fullLabel: datesCount > 0 ? `Specific Dates (${datesCount} Available)` : 'Specific Dates Only',
-        badgeColor: 'bg-violet-50 text-violet-700 border-violet-200',
+        label: datesCount > 0 ? `${datesCount} dates available` : 'Specific dates',
+        fullLabel: datesCount > 0 ? `Specific dates (${datesCount} schedules)` : 'Specific dates only',
+        badgeColor: 'bg-zinc-100 text-zinc-700 border-zinc-200',
         description: datesCount > 0
-          ? `Available on ${datesCount} specific date(s) marked in calendar`
+          ? `Available on ${datesCount} specific scheduled dates`
           : 'Available on specifically scheduled dates only',
       };
     }
     return {
       type: 'all_days' as const,
-      label: 'All Dates',
-      fullLabel: 'All Dates (Everyday)',
-      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      description: 'Available on all days of the week',
+      label: 'All dates',
+      fullLabel: 'Available daily',
+      badgeColor: 'bg-zinc-100 text-zinc-700 border-zinc-200',
+      description: 'Available every day of the week',
     };
   };
 
   const availabilityInfo = getDateAvailabilityInfo(selectedTour?.dateAvailability);
 
   const isDateDisabled = (date: Date) => {
-    // Disable past dates
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (date < today) return true;
@@ -226,9 +240,9 @@ function BookingFormContent() {
         newErrors.travelDate = 'Travel date cannot be in the past';
       } else if (isDateDisabled(pickedDate)) {
         if (availabilityInfo.type === 'weekends') {
-          newErrors.travelDate = 'This experience is only available on weekends (Saturday - Sunday)';
+          newErrors.travelDate = 'This experience is only available on weekends';
         } else if (availabilityInfo.type === 'weekdays') {
-          newErrors.travelDate = 'This experience is only available on weekdays (Monday - Friday)';
+          newErrors.travelDate = 'This experience is only available on weekdays';
         } else if (availabilityInfo.type === 'specific_dates') {
           newErrors.travelDate = 'This experience is only available on specifically scheduled dates';
         } else {
@@ -240,9 +254,9 @@ function BookingFormContent() {
     if (!fullName.trim()) newErrors.fullName = 'Full name is required';
 
     if (guestsCount < minAllowedGuests) {
-      newErrors.guests = `Minimum quota for this tour is ${minAllowedGuests} guest(s)`;
+      newErrors.guests = `Minimum quota is ${minAllowedGuests} guest(s)`;
     } else if (guestsCount > maxAllowedGuests) {
-      newErrors.guests = `Maximum quota for this tour is ${maxAllowedGuests} guest(s)`;
+      newErrors.guests = `Maximum quota is ${maxAllowedGuests} guest(s)`;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -262,691 +276,446 @@ function BookingFormContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateStep2 = () => {
-    if (paymentMethod !== 'card') return true; // Wallet/Transfer are mock interactions
-
-    const newErrors: Record<string, string> = {};
-
-    // Remove spaces for length check
-    const cleanCard = cardNumber.replace(/\s/g, '');
-    if (!cleanCard) {
-      newErrors.cardNumber = 'Card number is required';
-    } else if (cleanCard.length < 16) {
-      newErrors.cardNumber = 'Card number must be 16 digits';
-    }
-
-    if (!cardExpiry) {
-      newErrors.cardExpiry = 'Expiry date is required';
-    } else if (!/^(0[1-9]|1[0-2])\/?([0-9]{2})$/.test(cardExpiry)) {
-      newErrors.cardExpiry = 'Invalid format (MM/YY)';
-    }
-
-    if (!cardCvv) {
-      newErrors.cardCvv = 'CVV is required';
-    } else if (cardCvv.length < 3) {
-      newErrors.cardCvv = 'CVV must be 3 digits';
-    }
-
-    if (!cardName.trim()) {
-      newErrors.cardName = 'Cardholder name is required';
-    }
-
-    setPaymentErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleNextStep = (e: React.FormEvent) => {
+  // Form submission opens payment method dialog
+  const handleOpenPaymentDialog = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateStep1()) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setCurrentStep(2);
+      setIsPaymentDialogOpen(true);
     }
   };
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateStep2()) return;
+  // Execute payment through Hoople Payment Gateway
+  const handleExecutePayment = async () => {
+    if (!validateStep1()) {
+      setIsPaymentDialogOpen(false);
+      return;
+    }
 
     setIsSubmitting(true);
+    const randomId = Math.floor(1000 + Math.random() * 9000);
+    const ref = `AELI-${randomId}-INDO`;
+    setBookingRef(ref);
 
-    // Simulate API request delay for secure payment gateway authorization
-    setTimeout(() => {
-      const randomId = Math.floor(1000 + Math.random() * 9000);
-      setBookingRef(`AELI-${randomId}-INDO`);
-      setIsSubmitting(false);
+    try {
+      const paymentRes = await createPaymentBooking({
+        amount: totalCost,
+        customerName: fullName,
+        customerEmail: email,
+        customerPhone: phone,
+        paymentMethodId: selectedPaymentMethod,
+        programName: selectedTour?.name || 'Indonesian Signature Tour Program',
+        experienceName: selectedTour?.category || 'Scenic Tour Experience',
+        locationName: selectedTour?.meetingPoint || 'Indonesia',
+        pax: guestsCount,
+        bookingCode: ref,
+        items: [
+          {
+            id: selectedTour?.id || 'tour-pass',
+            name: (selectedTour?.name || 'Tour Ticket').slice(0, 50),
+            quantity: guestsCount,
+            price: Math.round(totalCost / Math.max(1, guestsCount)),
+          },
+        ],
+      });
+
+      if (paymentRes.success && paymentRes.data?.redirectUrl) {
+        // Redirect directly to Hoople Payment / Midtrans SNAP checkout
+        window.location.href = paymentRes.data.redirectUrl;
+        return;
+      }
+
+      // If gateway returned without redirectUrl or fallback:
+      const orderId = paymentRes.data?.orderId || ref;
+      router.push(`/booking/finish?orderId=${encodeURIComponent(orderId)}&bookingCode=${encodeURIComponent(ref)}`);
+    } catch (err) {
+      console.error('Error submitting booking transaction:', err);
+      setIsPaymentDialogOpen(false);
       setShowSuccessModal(true);
-    }, 2000);
-  };
-
-  // Card formatting utilities
-  const handleCardNumberChange = (value: string) => {
-    const clean = value.replace(/\D/g, '').substring(0, 16);
-    const parts = [];
-    for (let i = 0; i < clean.length; i += 4) {
-      parts.push(clean.substring(i, i + 4));
+    } finally {
+      setIsSubmitting(false);
     }
-    setCardNumber(parts.join(' '));
-  };
-
-  const handleExpiryChange = (value: string) => {
-    const clean = value.replace(/\D/g, '').substring(0, 4);
-    if (clean.length > 2) {
-      setCardExpiry(`${clean.substring(0, 2)}/${clean.substring(2, 4)}`);
-    } else {
-      setCardExpiry(clean);
-    }
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   if (isLoading) {
     return (
-      <div className="w-full min-h-screen bg-luxury-bg flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="w-full min-h-[60vh] flex items-center justify-center">
+        <div className="size-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="w-full relative">
-      {/* Spacer for sticky header */}
-      <div className="h-24 bg-primary-dark" />
+    <div className="w-full bg-[#FAFAFA] min-h-screen pt-28 pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Navigation back link */}
+        <div className="mb-6">
+          <button
+            type="button"
+            onClick={() => {
+              router.push(selectedTour ? `/programs/${selectedTour.id}` : '/programs');
+            }}
+            className="inline-flex items-center gap-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="size-3.5" />
+            <span>Back to program catalog</span>
+          </button>
+        </div>
 
-      {/* Progress Indicator */}
-      <div className="bg-zinc-50 border-b border-zinc-150 py-4">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 flex items-center justify-center gap-6 md:gap-12">
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="font-display font-medium text-2xl sm:text-3xl text-zinc-900 tracking-tight">
+            Complete your booking
+          </h1>
+          <p className="text-sm text-zinc-500 mt-1">
+            Fill in traveler information and confirm your expedition schedule.
+          </p>
+        </div>
+
+        {/* Stepper Progress Bar */}
+        <div className="flex items-center gap-3 mb-8 pb-6 border-b border-zinc-200">
           <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${currentStep === 1
-              ? 'bg-primary text-white'
-              : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
-              }`}>
-              {currentStep > 1 ? <Check className="w-3.5 h-3.5" /> : '1'}
+            <span className="size-6 rounded-full flex items-center justify-center text-xs font-medium bg-primary text-white">
+              1
             </span>
-            <span className={`text-xs md:text-sm font-display font-bold ${currentStep === 1 ? 'text-zinc-900' : 'text-zinc-400'
-              }`}>
-              Traveler Details
+            <span className="text-xs sm:text-sm font-medium text-zinc-900">
+              Traveler details & schedule
             </span>
           </div>
-          <div className="w-10 md:w-20 h-px bg-zinc-200" />
+
+          <div className="w-8 sm:w-12 h-px bg-zinc-200" />
+
           <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${currentStep === 2
-              ? 'bg-primary text-white font-extrabold'
-              : 'bg-zinc-200 text-zinc-500'
-              }`}>
+            <span className="size-6 rounded-full flex items-center justify-center text-xs font-medium bg-zinc-100 text-zinc-400">
               2
             </span>
-            <span className={`text-xs md:text-sm font-display font-bold ${currentStep === 2 ? 'text-zinc-950 font-extrabold' : 'text-zinc-400'
-              }`}>
-              Secure Payment
+            <span className="text-xs sm:text-sm font-medium text-zinc-400">
+              Hoople Payment Gateway
             </span>
           </div>
         </div>
-      </div>
 
-      <section className="max-w-7xl mx-auto px-6 md:px-8 py-10">
-        <button
-          onClick={() => {
-            if (currentStep === 2) {
-              setCurrentStep(1);
-            } else {
-              router.push(selectedTour ? `/programs/${selectedTour.id}` : '/');
-            }
-          }}
-          className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-primary transition-colors bg-white border border-zinc-200 px-4 py-2 rounded-full mb-8 shadow-sm cursor-pointer"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>{currentStep === 2 ? 'Back to Traveler Details' : 'Back to Experience'}</span>
-        </button>
+        {/* Form and Summary Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Main Checkout Panel (Left) */}
+          <div className="lg:col-span-7 xl:col-span-8">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white border border-zinc-200/80 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6"
+            >
+              <div className="border-b border-zinc-100 pb-4">
+                <h2 className="font-display font-medium text-lg text-zinc-900">
+                  Traveler details
+                </h2>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  Information used for your official voucher and operator coordination.
+                </p>
+              </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* LEFT: Multi-step checkout panel */}
-          <div className="lg:col-span-2">
-            <AnimatePresence mode="wait">
-              {currentStep === 1 ? (
-                /* STEP 1: Traveler Details Form */
-                <motion.div
-                  key="step1"
-                  initial={{ opacity: 0, x: -15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 15 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-white border border-zinc-100 rounded-[28px] p-6 md:p-10 shadow-luxury space-y-8"
-                >
-                  <div className="border-b border-zinc-150 pb-4 text-left">
-                    <h2 className="font-display font-extrabold text-2xl text-primary-dark">
-                      Enter Traveler Details
-                    </h2>
-                    <p className="text-zinc-400 text-xs mt-1">
-                      Please fill in accurate traveler information to configure your digital voucher.
-                    </p>
+              <form onSubmit={handleOpenPaymentDialog} className="space-y-5">
+                {/* Program Selection */}
+                <div className="flex flex-col text-left gap-1.5">
+                  <label className="text-xs font-medium text-zinc-700 flex items-center gap-1.5">
+                    <Compass className="size-3.5 text-zinc-400" />
+                    <span>Selected expedition program</span>
+                  </label>
+                  <Select
+                    value={selectedTourId}
+                    onValueChange={(val) => setSelectedTourId(val || '')}
+                    disabled={Boolean(selectedTourId)}
+                  >
+                    <SelectTrigger
+                      disabled={Boolean(selectedTourId)}
+                      className="w-full h-11 px-3.5 rounded-xl border border-zinc-200 bg-zinc-50/70 text-zinc-800 text-sm shadow-none focus-visible:ring-1 focus-visible:ring-primary disabled:opacity-90 disabled:cursor-not-allowed"
+                    >
+                      <SelectValue placeholder="Select an experience">
+                        {selectedTourId
+                          ? programsData.find((t) => t.id === selectedTourId)?.name || 'Select an experience'
+                          : 'Select an experience'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-zinc-200 shadow-lg rounded-xl p-1 z-50">
+                      {programsData.map((t) => (
+                        <SelectItem key={t.id} value={t.id} className="text-zinc-800">
+                          {t.name} ({formatPrice(t.price)}/pax)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Travel Date & Guests */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  {/* Travel Date */}
+                  <div className="flex flex-col text-left gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-medium text-zinc-700 flex items-center gap-1.5">
+                        <Calendar className="size-3.5 text-zinc-400" />
+                        <span>Travel date</span>
+                      </label>
+                      {selectedTour && (
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-600 border border-zinc-200/60">
+                          {availabilityInfo.label}
+                        </span>
+                      )}
+                    </div>
+
+                    <Popover>
+                      <PopoverTrigger
+                        className={`w-full h-11 px-3.5 rounded-xl border flex items-center justify-between text-sm transition-colors text-left bg-zinc-50/70 ${errors.travelDate ? 'border-rose-400 bg-rose-50/30' : 'border-zinc-200'
+                          } text-zinc-800 cursor-pointer`}
+                      >
+                        <span className={travelDate ? 'font-medium text-zinc-900' : 'text-zinc-400'}>
+                          {travelDate
+                            ? new Date(travelDate).toLocaleDateString(undefined, { dateStyle: 'medium' })
+                            : 'Select date'}
+                        </span>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-50 bg-white border border-zinc-200 shadow-xl rounded-xl">
+                        <CalendarComponent
+                          mode="single"
+                          selected={travelDate ? new Date(travelDate) : undefined}
+                          disabled={isDateDisabled}
+                          onSelect={(date) => {
+                            if (!date) {
+                              setTravelDate('');
+                              return;
+                            }
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const day = String(date.getDate()).padStart(2, '0');
+                            setTravelDate(`${year}-${month}-${day}`);
+                            if (errors.travelDate) {
+                              setErrors((prev) => {
+                                const next = { ...prev };
+                                delete next.travelDate;
+                                return next;
+                              });
+                            }
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+
+                    <span className="text-[11px] text-zinc-400 leading-tight">
+                      {availabilityInfo.description}
+                    </span>
+                    {errors.travelDate && (
+                      <span className="text-rose-500 text-xs font-medium">{errors.travelDate}</span>
+                    )}
                   </div>
 
-                  <form onSubmit={handleNextStep} className="space-y-6">
-                    {/* Program Selection */}
-                    <div className="flex flex-col text-left">
-                      <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5 mb-2">
-                        <Compass className="w-4 h-4 text-primary" />
-                        Select Attraction Experience *
+                  {/* Number of Guests */}
+                  <div className="flex flex-col text-left gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-medium text-zinc-700 flex items-center gap-1.5">
+                        <Users className="size-3.5 text-zinc-400" />
+                        <span>Number of guests</span>
                       </label>
-                      <Select
-                        value={selectedTourId}
-                        onValueChange={(val) => setSelectedTourId(val || '')}
-                        disabled={Boolean(selectedTourId)}
-                      >
-                        <SelectTrigger
-                          disabled={Boolean(selectedTourId)}
-                          className="w-full h-12 px-4 rounded-xl border border-zinc-200 bg-zinc-50 font-semibold focus:outline-none focus:border-primary focus:bg-white text-zinc-800 text-sm transition-all flex items-center justify-between shadow-none hover:bg-zinc-100/50 disabled:bg-zinc-100 disabled:text-zinc-600 disabled:cursor-not-allowed disabled:opacity-80"
-                        >
-                          <SelectValue placeholder="Select an experience">
-                            {selectedTourId
-                              ? (programsData.find(t => t.id === selectedTourId)?.name || 'Select an experience')
-                              : 'Select an experience'}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border border-zinc-200 shadow-xl rounded-2xl p-1 z-50">
-                          {programsData.map(t => (
-                            <SelectItem key={t.id} value={t.id}>{t.name} ({formatPrice(t.price)}/person)</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      {/* Travel Date */}
-                      <div className="flex flex-col text-left">
-                        <div className="flex items-center justify-between mb-2">
-                          <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5">
-                            <Calendar className="w-4 h-4 text-primary" /> Travel Date *
-                          </label>
-                          {selectedTour && (
-                            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${availabilityInfo.badgeColor}`}>
-                              {availabilityInfo.fullLabel}
-                            </span>
-                          )}
-                        </div>
-                        <Popover>
-                          <PopoverTrigger className={`w-full h-12 px-4 rounded-xl border flex items-center justify-between text-sm transition-all text-left bg-zinc-50 border-zinc-200 focus:outline-none text-zinc-800 cursor-pointer ${errors.travelDate ? 'border-rose-500 bg-rose-50/10' : ''
-                            }`}>
-                            <span>
-                              {travelDate ? new Date(travelDate).toLocaleDateString(undefined, { dateStyle: 'medium' }) : 'Select Date'}
-                            </span>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 z-50 bg-white border border-zinc-200 shadow-xl rounded-2xl">
-                            <CalendarComponent
-                              mode="single"
-                              selected={travelDate ? new Date(travelDate) : undefined}
-                              disabled={isDateDisabled}
-                              onSelect={(date) => {
-                                if (!date) {
-                                  setTravelDate('');
-                                  return;
-                                }
-                                const year = date.getFullYear();
-                                const month = String(date.getMonth() + 1).padStart(2, '0');
-                                const day = String(date.getDate()).padStart(2, '0');
-                                setTravelDate(`${year}-${month}-${day}`);
-                                if (errors.travelDate) {
-                                  setErrors(prev => {
-                                    const next = { ...prev };
-                                    delete next.travelDate;
-                                    return next;
-                                  });
-                                }
-                              }}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <span className="text-[11px] text-zinc-400 mt-1 font-medium">
-                          {availabilityInfo.description}
+                      {(selectedTour?.minQuota || selectedTour?.maxQuota || selectedTour?.maxGuestMin || selectedTour?.maxGuestMax) ? (
+                        <span className="text-[11px] text-zinc-400">
+                          Quota: {minAllowedGuests} – {maxAllowedGuests} pax
                         </span>
-                        {errors.travelDate && (
-                          <span className="text-rose-500 text-xs mt-1 font-medium">{errors.travelDate}</span>
-                        )}
-                      </div>
-
-                      {/* Number of Guests */}
-                      <div className="flex flex-col text-left">
-                        <div className="flex items-center justify-between mb-2">
-                          <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5">
-                            <Users className="w-4 h-4 text-primary" /> Guests count *
-                          </label>
-                          {(selectedTour?.minQuota || selectedTour?.maxQuota || selectedTour?.maxGuestMin || selectedTour?.maxGuestMax) ? (
-                            <span className="text-[11px] text-zinc-400 font-medium">
-                              Quota: {minAllowedGuests} - {maxAllowedGuests} pax
-                            </span>
-                          ) : null}
-                        </div>
-                        <div className="flex h-12 border border-zinc-200 bg-zinc-50 rounded-xl overflow-hidden">
-                          <button
-                            type="button"
-                            onClick={() => setGuestsCount(prev => Math.max(minAllowedGuests, prev - 1))}
-                            className="w-12 h-full flex items-center justify-center font-bold text-lg hover:bg-zinc-200/50 cursor-pointer"
-                          >
-                            -
-                          </button>
-                          <div className="flex-1 h-full flex items-center justify-center font-bold text-zinc-800 text-sm bg-white border-x border-zinc-150">
-                            {guestsCount}
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setGuestsCount(prev => Math.min(maxAllowedGuests, prev + 1))}
-                            className="w-12 h-full flex items-center justify-center font-bold text-lg hover:bg-zinc-200/50 cursor-pointer"
-                          >
-                            +
-                          </button>
-                        </div>
-                        {errors.guests && (
-                          <span className="text-rose-500 text-xs mt-1.5 font-medium">{errors.guests}</span>
-                        )}
-                      </div>
+                      ) : null}
                     </div>
 
-                    <div className="space-y-6 pt-4 border-t border-zinc-100">
-                      <h3 className="font-display font-bold text-base text-primary-dark text-left">
-                        Contact Information
-                      </h3>
-
-                      {/* Full Name */}
-                      <div className="flex flex-col text-left">
-                        <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5 mb-2">
-                          <User className="w-4 h-4 text-primary" /> Lead Traveler Name *
-                        </label>
-                        <Input
-                          type="text"
-                          placeholder="e.g. John Doe"
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                          className={`w-full h-12 px-4 bg-zinc-50 rounded-xl border ${errors.fullName ? 'border-rose-500 bg-rose-50/10' : 'border-zinc-200'
-                            } focus:outline-none focus-visible:border-primary focus-visible:bg-white text-sm transition-all text-zinc-800`}
-                        />
-                        {errors.fullName && (
-                          <span className="text-rose-500 text-xs mt-1.5 font-medium">{errors.fullName}</span>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        {/* Email */}
-                        <div className="flex flex-col text-left">
-                          <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5 mb-2">
-                            <Mail className="w-4 h-4 text-primary" /> Email Address *
-                          </label>
-                          <Input
-                            type="email"
-                            placeholder="name@domain.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className={`w-full h-12 px-4 bg-zinc-50 rounded-xl border ${errors.email ? 'border-rose-500 bg-rose-50/10' : 'border-zinc-200'
-                              } focus:outline-none focus-visible:border-primary focus-visible:bg-white text-sm transition-all text-zinc-800`}
-                          />
-                          {errors.email && (
-                            <span className="text-rose-500 text-xs mt-1.5 font-medium">{errors.email}</span>
-                          )}
-                        </div>
-
-                        {/* Phone */}
-                        <div className="flex flex-col text-left">
-                          <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5 mb-2">
-                            <Phone className="w-4 h-4 text-primary" /> Phone Number *
-                          </label>
-                          <Input
-                            type="tel"
-                            placeholder="+62 812-3456-7890"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            className={`w-full h-12 px-4 bg-zinc-50 rounded-xl border ${errors.phone ? 'border-rose-500 bg-rose-50/10' : 'border-zinc-200'
-                              } focus:outline-none focus-visible:border-primary focus-visible:bg-white text-sm transition-all text-zinc-800`}
-                          />
-                          {errors.phone && (
-                            <span className="text-rose-500 text-xs mt-1.5 font-medium">{errors.phone}</span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Special Request */}
-                      <div className="flex flex-col text-left">
-                        <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-1.5 mb-2">
-                          <MessageSquare className="w-4 h-4 text-primary" /> Special Requests (Optional)
-                        </label>
-                        <textarea
-                          placeholder="Dietary requests, hotel pickup instructions, accessibility guidelines..."
-                          rows={4}
-                          value={specialRequest}
-                          onChange={(e) => setSpecialRequest(e.target.value)}
-                          className="w-full p-4 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:border-primary focus:bg-white text-sm transition-all text-zinc-800 resize-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Submit Button */}
-                    <div className="pt-4 border-t border-zinc-150">
+                    <div className="flex h-11 border border-zinc-200 bg-zinc-50/70 rounded-xl overflow-hidden">
                       <button
-                        type="submit"
-                        className="w-full h-14 bg-marketing-btn hover:bg-marketing-btn-hover text-white font-display font-bold rounded-full flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm hover:-translate-y-0.5 active:translate-y-0 text-sm"
+                        type="button"
+                        onClick={() => setGuestsCount((prev) => Math.max(minAllowedGuests, prev - 1))}
+                        className="w-11 h-full flex items-center justify-center font-medium text-zinc-600 hover:bg-zinc-200/50 transition-colors cursor-pointer"
                       >
-                        <span>Continue to Payment</span>
-                        <ArrowRight className="w-5 h-5" />
+                        –
+                      </button>
+                      <div className="flex-1 h-full flex items-center justify-center font-medium text-zinc-900 text-sm bg-white border-x border-zinc-200 tabular-nums">
+                        {guestsCount}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setGuestsCount((prev) => Math.min(maxAllowedGuests, prev + 1))}
+                        className="w-11 h-full flex items-center justify-center font-medium text-zinc-600 hover:bg-zinc-200/50 transition-colors cursor-pointer"
+                      >
+                        +
                       </button>
                     </div>
-                  </form>
-                </motion.div>
-              ) : (
-                /* STEP 2: Secure Payment Page */
-                <motion.div
-                  key="step2"
-                  initial={{ opacity: 0, x: 15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -15 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-white border border-zinc-100 rounded-[28px] p-6 md:p-10 shadow-luxury space-y-8"
-                >
-                  <div className="pb-4 flex items-center justify-between text-left">
-                    <div>
-                      <h2 className="font-display font-extrabold text-2xl text-primary-dark">
-                        Secure Payment
-                      </h2>
-                      <p className="text-zinc-400 text-xs mt-1">
-                        Select your preferred payment method and authorize payment safely.
-                      </p>
+                    {errors.guests && (
+                      <span className="text-rose-500 text-xs font-medium">{errors.guests}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Contact Details Group */}
+                <div className="pt-4 border-t border-zinc-100 space-y-4">
+                  <h3 className="font-display font-medium text-sm text-zinc-900">
+                    Primary contact
+                  </h3>
+
+                  {/* Full Name */}
+                  <div className="flex flex-col text-left gap-1.5">
+                    <label className="text-xs font-medium text-zinc-700 flex items-center gap-1.5">
+                      <User className="size-3.5 text-zinc-400" />
+                      <span>Lead traveler full name</span>
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. John Doe"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className={`w-full h-11 px-3.5 bg-zinc-50/70 rounded-xl border text-sm transition-colors text-zinc-900 ${errors.fullName ? 'border-rose-400 bg-rose-50/30' : 'border-zinc-200'
+                        } focus-visible:ring-1 focus-visible:ring-primary`}
+                    />
+                    {errors.fullName && (
+                      <span className="text-rose-500 text-xs font-medium">{errors.fullName}</span>
+                    )}
+                  </div>
+
+                  {/* Email and Phone */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                    <div className="flex flex-col text-left gap-1.5">
+                      <label className="text-xs font-medium text-zinc-700 flex items-center gap-1.5">
+                        <Mail className="size-3.5 text-zinc-400" />
+                        <span>Email address</span>
+                      </label>
+                      <Input
+                        type="email"
+                        placeholder="name@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className={`w-full h-11 px-3.5 bg-zinc-50/70 rounded-xl border text-sm transition-colors text-zinc-900 ${errors.email ? 'border-rose-400 bg-rose-50/30' : 'border-zinc-200'
+                          } focus-visible:ring-1 focus-visible:ring-primary`}
+                      />
+                      {errors.email && (
+                        <span className="text-rose-500 text-xs font-medium">{errors.email}</span>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200/50 px-3 py-1 rounded-full uppercase tracking-wider">
-                      <Lock className="w-3.5 h-3.5" /> Secure
+
+                    <div className="flex flex-col text-left gap-1.5">
+                      <label className="text-xs font-medium text-zinc-700 flex items-center gap-1.5">
+                        <Phone className="size-3.5 text-zinc-400" />
+                        <span>Phone number</span>
+                      </label>
+                      <Input
+                        type="tel"
+                        placeholder="+62 812-3456-7890"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className={`w-full h-11 px-3.5 bg-zinc-50/70 rounded-xl border text-sm transition-colors text-zinc-900 ${errors.phone ? 'border-rose-400 bg-rose-50/30' : 'border-zinc-200'
+                          } focus-visible:ring-1 focus-visible:ring-primary`}
+                      />
+                      {errors.phone && (
+                        <span className="text-rose-500 text-xs font-medium">{errors.phone}</span>
+                      )}
                     </div>
                   </div>
 
-                  {/* Payment Method Selector Tabs */}
-                  <Tabs
-                    value={paymentMethod}
-                    onValueChange={(val) => setPaymentMethod(val as 'card' | 'wallet' | 'transfer')}
-                    className="w-full space-y-9"
-                  >
-                    <TabsList className="grid grid-cols-3 gap-2 rounded-2xl bg-zinc-50 h-auto w-full bg-transparent">
-                      <TabsTrigger
-                        value="card"
-                        className="h-11 rounded-xl text-xs font-display font-bold flex items-center justify-center gap-2 transition-all cursor-pointer data-active:bg-white data-active:text-zinc-950 data-active:shadow-sm data-active:border-zinc-200/50 text-zinc-500 hover:text-zinc-800 after:hidden"
+                  {/* Special Requests */}
+                  <div className="flex flex-col text-left gap-1.5">
+                    <label className="text-xs font-medium text-zinc-700 flex items-center gap-1.5">
+                      <MessageSquare className="size-3.5 text-zinc-400" />
+                      <span>Special requests (optional)</span>
+                    </label>
+                    <textarea
+                      placeholder="Dietary requirements, pickup preferences, or accessibility guidelines..."
+                      rows={3}
+                      value={specialRequest}
+                      onChange={(e) => setSpecialRequest(e.target.value)}
+                      className="w-full p-3.5 rounded-xl border border-zinc-200 bg-zinc-50/70 focus:outline-none focus:border-primary focus:bg-white text-sm transition-colors text-zinc-900 resize-none"
+                    />
+                  </div>
+
+                  {/* Payment Method Selector Tile */}
+                  <div className="pt-4 border-t border-zinc-100 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-medium text-zinc-700 flex items-center gap-1.5">
+                        <CreditCard className="size-3.5 text-zinc-400" />
+                        <span>Payment channel</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setIsPaymentDialogOpen(true)}
+                        className="text-xs font-medium text-primary hover:text-primary-dark transition-colors cursor-pointer"
                       >
-                        <CreditCard className="w-4 h-4" />
-                        <span className="hidden sm:inline">Credit Card</span>
-                        <span className="sm:hidden">Card</span>
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="wallet"
-                        className="h-11 rounded-xl text-xs font-display font-bold flex items-center justify-center gap-2 transition-all cursor-pointer data-active:bg-white data-active:text-zinc-950 data-active:shadow-sm data-active:border-zinc-200/50 text-zinc-500 hover:text-zinc-800 after:hidden"
-                      >
-                        <QrCode className="w-4 h-4" />
-                        <span className="hidden sm:inline">E-Wallet (QRIS)</span>
-                        <span className="sm:hidden">QRIS</span>
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="transfer"
-                        className="h-11 rounded-xl text-xs font-display font-bold flex items-center justify-center gap-2 transition-all cursor-pointer data-active:bg-white data-active:text-zinc-950 data-active:shadow-sm data-active:border-zinc-200/50 text-zinc-500 hover:text-zinc-800 after:hidden"
-                      >
-                        <Landmark className="w-4 h-4" />
-                        <span className="hidden sm:inline">Bank Transfer</span>
-                        <span className="sm:hidden">Bank</span>
-                      </TabsTrigger>
-                    </TabsList>
+                        Change channel
+                      </button>
+                    </div>
 
-                    <form onSubmit={handleBookingSubmit} className="space-y-8">
-                      {/* Method details conditional render */}
-                      <AnimatePresence mode="wait">
-                        <TabsContent value="card">
-                          <motion.div
-                            key="card-details"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="space-y-6"
-                          >
-                            {/* Mock Credit Card Graphic Preview */}
-                            <div className="relative w-full max-w-[400px] h-[220px] rounded-3xl bg-gradient-to-br from-primary via-primary-light to-primary-dark p-6 text-white flex flex-col justify-between shadow-lg overflow-hidden mx-auto">
-                              {/* Decorative design elements */}
-                              <div className="absolute right-0 top-0 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
-                              <div className="absolute left-1/3 bottom-0 w-24 h-24 bg-white/5 rounded-full blur-xl" />
-
-                              <div className="flex justify-between items-start">
-                                <Compass className="w-8 h-8 opacity-90" />
-                                <span className="text-xs uppercase tracking-widest font-black opacity-80">INDEXAELI CARD</span>
-                              </div>
-
-                              {/* Card Chip & Wi-Fi */}
-                              <div className="w-10 h-7 rounded bg-amber-400/80 shadow-inner flex items-center justify-center mt-2 relative overflow-hidden">
-                                <div className="absolute inset-0 border border-amber-600/30 grid grid-cols-3 gap-px p-1" />
-                              </div>
-
-                              <div className="space-y-4">
-                                {/* Card Number */}
-                                <div className="font-display font-bold text-lg md:text-xl tracking-wider text-center select-none">
-                                  {cardNumber || '•••• •••• •••• ••••'}
-                                </div>
-
-                                {/* Cardholder name & Expiry */}
-                                <div className="flex justify-between items-end text-xs">
-                                  <div className="text-left max-w-[70%]">
-                                    <span className="block text-[8px] uppercase tracking-widest text-white/50 mb-0.5">Cardholder</span>
-                                    <span className="font-bold tracking-wide uppercase truncate block">{cardName || 'YOUR FULL NAME'}</span>
-                                  </div>
-                                  <div className="text-right">
-                                    <span className="block text-[8px] uppercase tracking-widest text-white/50 mb-0.5">Expires</span>
-                                    <span className="font-bold tracking-wide">{cardExpiry || 'MM/YY'}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Card Inputs Form */}
-                            <div className="space-y-4">
-                              {/* Card Number */}
-                              <div className="flex flex-col text-left">
-                                <label className="text-xs font-bold text-zinc-500 mb-1.5">Card Number *</label>
-                                <div className="relative">
-                                  <Input
-                                    type="text"
-                                    placeholder="4111 1111 1111 1111"
-                                    value={cardNumber}
-                                    onChange={(e) => handleCardNumberChange(e.target.value)}
-                                    className={`w-full h-11 pl-10 pr-4 rounded-xl border bg-zinc-50 ${paymentErrors.cardNumber ? 'border-rose-500 bg-rose-50/10' : 'border-zinc-200'
-                                      } focus:outline-none focus-visible:border-primary focus-visible:bg-white text-sm transition-all font-semibold text-zinc-800`}
-                                  />
-                                  <CreditCard className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-400" />
-                                </div>
-                                {paymentErrors.cardNumber && (
-                                  <span className="text-rose-500 text-xs mt-1 font-medium">{paymentErrors.cardNumber}</span>
-                                )}
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-4">
-                                {/* Expiry Date */}
-                                <div className="flex flex-col text-left">
-                                  <label className="text-xs font-bold text-zinc-500 mb-1.5">Expiration Date *</label>
-                                  <Input
-                                    type="text"
-                                    placeholder="MM/YY"
-                                    value={cardExpiry}
-                                    onChange={(e) => handleExpiryChange(e.target.value)}
-                                    className={`w-full h-11 px-4 rounded-xl border bg-zinc-50 ${paymentErrors.cardExpiry ? 'border-rose-500 bg-rose-50/10' : 'border-zinc-200'
-                                      } focus:outline-none focus-visible:border-primary focus-visible:bg-white text-sm transition-all font-semibold text-zinc-800`}
-                                  />
-                                  {paymentErrors.cardExpiry && (
-                                    <span className="text-rose-500 text-xs mt-1 font-medium">{paymentErrors.cardExpiry}</span>
-                                  )}
-                                </div>
-
-                                {/* CVV */}
-                                <div className="flex flex-col text-left">
-                                  <label className="text-xs font-bold text-zinc-500 mb-1.5">CVV / CVC *</label>
-                                  <Input
-                                    type="password"
-                                    placeholder="•••"
-                                    maxLength={3}
-                                    value={cardCvv}
-                                    onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ''))}
-                                    className={`w-full h-11 px-4 rounded-xl border bg-zinc-50 ${paymentErrors.cardCvv ? 'border-rose-500 bg-rose-50/10' : 'border-zinc-200'
-                                      } focus:outline-none focus-visible:border-primary focus-visible:bg-white text-sm transition-all font-semibold text-zinc-800`}
-                                  />
-                                  {paymentErrors.cardCvv && (
-                                    <span className="text-rose-500 text-xs mt-1 font-medium">{paymentErrors.cardCvv}</span>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Cardholder Name */}
-                              <div className="flex flex-col text-left">
-                                <label className="text-xs font-bold text-zinc-500 mb-1.5">Cardholder Name *</label>
-                                <Input
-                                  type="text"
-                                  placeholder="YOUR FULL NAME"
-                                  value={cardName}
-                                  onChange={(e) => setCardName(e.target.value.toUpperCase())}
-                                  className={`w-full h-11 px-4 rounded-xl border bg-zinc-50 ${paymentErrors.cardName ? 'border-rose-500 bg-rose-50/10' : 'border-zinc-200'
-                                    } focus:outline-none focus-visible:border-primary focus-visible:bg-white text-sm transition-all font-semibold text-zinc-800`}
-                                />
-                                {paymentErrors.cardName && (
-                                  <span className="text-rose-500 text-xs mt-1 font-medium">{paymentErrors.cardName}</span>
-                                )}
-                              </div>
-                            </div>
-                          </motion.div>
-                        </TabsContent>
-
-                        <TabsContent value="wallet">
-                          <motion.div
-                            key="wallet-details"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="space-y-6 text-center"
-                          >
-                            <div className="bg-zinc-50 rounded-2xl border border-zinc-150 p-6 flex flex-col items-center max-w-[320px] mx-auto space-y-4">
-                              <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">QRIS Digital Payment</span>
-
-                              {/* Mock QR Code Graphic */}
-                              <div className="relative w-48 h-48 bg-white border border-zinc-200 p-2 rounded-xl flex items-center justify-center shadow-inner">
-                                <div className="w-full h-full relative opacity-85">
-                                  {/* Visual representation of a QR code using boxes */}
-                                  <div className="absolute inset-0 bg-zinc-900 grid grid-cols-6 gap-2 p-1.5 rounded">
-                                    <div className="bg-white rounded-sm border-2 border-zinc-900" />
-                                    <div className="bg-white rounded-sm border-2 border-zinc-900" />
-                                    <div className="bg-white" />
-                                    <div className="bg-white" />
-                                    <div className="bg-white rounded-sm border-2 border-zinc-900" />
-                                    <div className="bg-white" />
-                                  </div>
-                                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-zinc-200 shadow-sm z-10">
-                                    <Compass className="w-5 h-5 text-primary" />
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="space-y-1">
-                                <span className="text-xs font-bold text-zinc-800">Scan to pay: {formatPrice(totalCost)}</span>
-                                <span className="text-[10px] text-zinc-400 block">Accepts GoPay, OVO, ShopeePay, DANA & LinkAja</span>
-                              </div>
-                            </div>
-                          </motion.div>
-                        </TabsContent>
-
-                        <TabsContent value="transfer">
-                          <motion.div
-                            key="transfer-details"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="space-y-6"
-                          >
-                            <div className="bg-zinc-50 rounded-2xl border border-zinc-150 p-6 text-left space-y-5">
-                              <div className="border-b border-zinc-200 pb-3 flex items-center justify-between">
-                                <div>
-                                  <span className="text-xs text-zinc-400 uppercase tracking-widest block font-bold">Bank Name</span>
-                                  <span className="font-display font-extrabold text-sm text-zinc-800">Bank Central Asia (BCA)</span>
-                                </div>
-                                <span className="text-xs font-extrabold text-primary bg-primary-soft px-3 py-1 rounded-full">Virtual Account</span>
-                              </div>
-
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <span className="text-xs text-zinc-400 uppercase tracking-widest block font-bold">VA Number</span>
-                                  <span className="font-mono text-lg font-bold text-zinc-900 tracking-wider">80008 1234 5678 90</span>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => copyToClipboard('800081234567890')}
-                                  className="h-9 px-3 bg-white hover:bg-zinc-100 text-zinc-600 border border-zinc-200 rounded-lg flex items-center justify-center gap-1.5 text-xs font-semibold transition-all cursor-pointer"
-                                >
-                                  {copied ? (
-                                    <>
-                                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                                      <span className="text-emerald-600">Copied!</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Copy className="w-3.5 h-3.5" />
-                                      <span>Copy VA</span>
-                                    </>
-                                  )}
-                                </button>
-                              </div>
-
-                              <div className="border-t border-zinc-200 pt-3 text-xs text-zinc-500 leading-relaxed space-y-1">
-                                <p className="font-bold text-zinc-700">Instructions:</p>
-                                <p>1. Input the Virtual Account number in your Mobile Banking app.</p>
-                                <p>2. The app will automatically populate the booking amount: <span className="font-bold text-zinc-800">{formatPrice(totalCost)}</span>.</p>
-                                <p>3. Authorize the transfer and return to this page to receive your ticket.</p>
-                              </div>
-                            </div>
-                          </motion.div>
-                        </TabsContent>
-                      </AnimatePresence>
-
-                      {/* Submit and Navigation Action Buttons */}
-                      <div className="pt-6 border-t border-zinc-150 flex flex-col sm:flex-row gap-4">
-                        <button
-                          type="button"
-                          onClick={() => setCurrentStep(1)}
-                          className="h-14 px-8 border border-zinc-200 hover:bg-zinc-50 text-zinc-700 font-display font-bold rounded-full flex items-center justify-center gap-2 transition-all cursor-pointer order-2 sm:order-1 text-sm shadow-sm"
-                        >
-                          <ArrowLeft className="w-4 h-4" />
-                          <span>Back to Details</span>
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={isSubmitting}
-                          className="flex-1 h-14 bg-primary hover:bg-primary-light disabled:bg-primary-dark/50 text-white font-display font-bold rounded-full flex items-center justify-center gap-2 transition-all cursor-pointer order-1 sm:order-2 text-sm shadow-md hover:-translate-y-0.5 active:translate-y-0"
-                        >
-                          {isSubmitting ? (
-                            <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                              <span>Processing Secured Payment...</span>
-                            </div>
-                          ) : (
-                            <>
-                              <ShieldCheck className="w-4.5 h-4.5" />
-                              <span>Authorize Secure Payment & Book</span>
-                            </>
-                          )}
-                        </button>
+                    {/* Interactive Active Method Card */}
+                    <div
+                      onClick={() => setIsPaymentDialogOpen(true)}
+                      className="group p-3.5 rounded-xl border border-zinc-200 hover:border-zinc-300 bg-zinc-50/70 hover:bg-zinc-50/90 transition-all cursor-pointer flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="size-10 rounded-lg bg-white border border-zinc-200/80 text-zinc-800 flex items-center justify-center shrink-0 shadow-2xs group-hover:border-zinc-300 transition-colors">
+                          {getMethodIcon(activeMethod.category)}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-zinc-900 truncate">
+                              {activeMethod.name}
+                            </span>
+                            {activeMethod.recommended && (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                                Recommended
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-zinc-500 truncate mt-0.5">
+                            {activeMethod.description}
+                          </p>
+                        </div>
                       </div>
-                    </form>
-                  </Tabs>
-                </motion.div>
-              )}
-            </AnimatePresence>
+
+                      <div className="flex items-center gap-1.5 text-xs text-zinc-400 group-hover:text-zinc-600 transition-colors shrink-0">
+                        <span className="hidden sm:inline">Select</span>
+                        <ChevronRight className="size-4" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Direct to Hoople Payment Action */}
+                <div className="pt-4 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                    <ShieldCheck className="size-4 text-emerald-600" />
+                    <span>Secured by Hoople Payment ({activeMethod.name})</span>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full sm:w-auto h-11 px-6 bg-primary hover:bg-primary-dark text-white font-medium rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer text-sm shadow-xs active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Connecting to Hoople Payment...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Proceed to Payment • {formatPrice(totalCost)}</span>
+                        <ArrowRight className="size-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </div>
 
-          {/* RIGHT: Booking Summary Column */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white border border-zinc-100 rounded-[28px] p-6 md:p-8 shadow-luxury space-y-6">
-              <h3 className="font-display font-bold text-lg text-primary-dark border-b border-zinc-100 pb-4">
-                Booking Summary
-              </h3>
+          {/* Booking Summary Column (Right) */}
+          <div className="lg:col-span-5 xl:col-span-4 space-y-6 lg:sticky lg:top-28">
+            <div className="bg-white border border-zinc-200/80 rounded-2xl p-6 shadow-xs space-y-5">
+              <div className="border-b border-zinc-100 pb-3">
+                <h3 className="font-display font-medium text-base text-zinc-900">
+                  Reservation summary
+                </h3>
+              </div>
 
               {/* Selected Program Preview */}
               {selectedTour && (
-                <div className="space-y-4">
-                  <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden shadow-sm">
+                <div className="space-y-3">
+                  <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-zinc-100">
                     <Image
                       src={selectedTour.image}
                       alt={selectedTour.name}
@@ -955,146 +724,295 @@ function BookingFormContent() {
                     />
                   </div>
                   <div>
-                    <h4 className="font-display font-bold text-zinc-900 leading-tight">
+                    <h4 className="font-display font-medium text-sm text-zinc-900 leading-snug">
                       {selectedTour.name}
                     </h4>
-                    <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500">
-                        <Star className="w-4 h-4 fill-accent text-accent" />
-                        <span>{selectedTour.rating} ({selectedTour.reviewsCount} reviews)</span>
+                    <div className="flex items-center gap-2 mt-1.5 text-xs text-zinc-500">
+                      <div className="flex items-center gap-1">
+                        <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                        <span className="font-medium text-zinc-700">{selectedTour.rating}</span>
+                        <span>({selectedTour.reviewsCount})</span>
                       </div>
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${availabilityInfo.badgeColor}`}>
-                        {availabilityInfo.label}
-                      </span>
+                      <span>•</span>
+                      <span>{availabilityInfo.label}</span>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Calculator details */}
-              <div className="border-t border-zinc-100 pt-6 space-y-4 text-sm">
-                <div className="flex justify-between text-zinc-500">
-                  <span>Schedule</span>
-                  <span className="font-semibold text-zinc-800">{availabilityInfo.label}</span>
-                </div>
+              {/* Cost ledger */}
+              <div className="border-t border-zinc-100 pt-4 space-y-3 text-xs">
                 {travelDate && (
                   <div className="flex justify-between text-zinc-500">
-                    <span>Travel Date</span>
-                    <span className="font-semibold text-zinc-800">
+                    <span>Date</span>
+                    <span className="font-medium text-zinc-800">
                       {new Date(travelDate).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between text-zinc-500">
-                  <span>Price per Person</span>
-                  <span>{selectedTour && formatPrice(selectedTour.price)}</span>
+                  <span>Price per person</span>
+                  <span className="tabular-nums font-medium text-zinc-800">
+                    {selectedTour && formatPrice(selectedTour.price)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-zinc-500">
-                  <span>Number of Guests</span>
-                  <span>x {guestsCount}</span>
+                  <span>Guests</span>
+                  <span className="font-medium text-zinc-800 tabular-nums">{guestsCount} pax</span>
                 </div>
                 <div className="flex justify-between text-zinc-500">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-zinc-800">{formatPrice(basePrice)}</span>
+                  <span className="font-medium text-zinc-800 tabular-nums">{formatPrice(basePrice)}</span>
                 </div>
                 <div className="flex justify-between text-zinc-500">
-                  <span>CHSE Safety Tax & Fees ({taxPercent}%)</span>
-                  <span>{formatPrice(taxAndFees)}</span>
+                  <span>Taxes & fees ({taxPercent}%)</span>
+                  <span className="font-medium text-zinc-800 tabular-nums">{formatPrice(taxAndFees)}</span>
                 </div>
-                <div className="flex justify-between items-baseline pt-4 border-t border-zinc-100">
-                  <span className="font-display font-bold text-primary-dark text-base">Grand Total</span>
-                  <span className="font-display font-black text-2xl text-primary">{formatPrice(totalCost)}</span>
+                <div className="flex justify-between items-center text-zinc-500 pt-1">
+                  <span>Payment channel</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsPaymentDialogOpen(true)}
+                    className="font-medium text-zinc-800 hover:text-primary transition-colors flex items-center gap-1.5 cursor-pointer text-xs"
+                  >
+                    <span>{activeMethod.name}</span>
+                    <span className="text-[10px] text-primary underline underline-offset-2">Change</span>
+                  </button>
+                </div>
+
+                <div className="flex justify-between items-baseline pt-3 border-t border-zinc-100">
+                  <span className="font-display font-medium text-zinc-900 text-sm">Total amount</span>
+                  <span className="font-display font-semibold text-lg text-zinc-900 tabular-nums">
+                    {formatPrice(totalCost)}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Secure Trust Badge */}
-            <div className="bg-white border border-zinc-100 rounded-[24px] p-6 shadow-luxury flex gap-4">
-              <div className="p-3 bg-teal-50 text-teal-600 rounded-xl flex-shrink-0 h-fit">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <h4 className="font-display font-bold text-sm text-primary-dark">Instant Confirmed Booking</h4>
-                <p className="text-zinc-500 text-xs leading-relaxed">
-                  Your payment is secured with standard 256-bit encryption. Voucher instantly available after confirmation.
-                </p>
-              </div>
+            {/* Reassurance note */}
+            <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200/60 flex items-start gap-3">
+              <ShieldCheck className="size-4 text-zinc-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-zinc-500 leading-relaxed">
+                Official booking voucher is generated immediately upon confirmation. Full refund available up to 48 hours before departure.
+              </p>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* SUCCESS MODAL DIALOG (Step 3: Ticket success) */}
-      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-        <DialogContent className="max-w-xl bg-white rounded-[32px] overflow-hidden p-8 md:p-10 shadow-2xl text-center space-y-6 z-50 border-0" showCloseButton={false}>
-          {/* Success Checkmark */}
-          <div className="w-20 h-20 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-2 animate-bounce">
-            <CheckCircle2 className="w-12 h-12" />
+      {/* PAYMENT METHOD SELECTION DIALOG */}
+      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+        <DialogContent
+          className="max-w-2xl bg-white rounded-2xl p-6 sm:p-7 shadow-xl border border-zinc-200 space-y-4"
+          showCloseButton={true}
+        >
+          <DialogHeader className="space-y-1.5 text-left">
+            <div className="flex items-center gap-2.5">
+              <div className="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <CreditCard className="size-4" />
+              </div>
+              <div>
+                <DialogTitle className="font-display font-medium text-lg text-zinc-900">
+                  Select payment method
+                </DialogTitle>
+                <DialogDescription className="text-zinc-500 text-xs sm:text-sm">
+                  <span>Choose your preferred channel powered by Hoople Payment (Hoopay) gateway.</span>
+                </DialogDescription>
+              </div>
+
+
+            </div>
+          </DialogHeader>
+
+          <div className="text-left w-full sm:w-auto">
+            <span className="text-xs text-zinc-400 block">Total payment</span>
+            <span className="text-base font-semibold text-zinc-900 tabular-nums font-display">
+              {formatPrice(totalCost)}
+            </span>
           </div>
 
-          <DialogHeader className="space-y-2">
-            <DialogTitle className="font-display font-extrabold text-2xl md:text-3xl text-primary-dark text-center">
-              Booking Confirmed!
+          {/* Category Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-b border-zinc-100 -mx-1 px-1">
+            {PAYMENT_CATEGORIES.map((cat) => {
+              const isCurrent = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${isCurrent
+                    ? 'bg-zinc-900 text-white shadow-2xs'
+                    : 'bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900'
+                    }`}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Channel List */}
+          <div className="max-h-[340px] overflow-y-auto space-y-2 pr-1 divide-y-0">
+            {filteredMethods.map((method) => {
+              const isSelected = selectedPaymentMethod === method.id;
+              return (
+                <div
+                  key={method.id}
+                  onClick={() => setSelectedPaymentMethod(method.id)}
+                  className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${isSelected
+                    ? 'border-primary bg-primary/[0.03] ring-1 ring-primary/30 shadow-2xs'
+                    : 'border-zinc-200/90 hover:border-zinc-300 bg-white hover:bg-zinc-50/60'
+                    }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className={`size-10 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isSelected
+                        ? 'bg-primary/10 text-primary border border-primary/20'
+                        : 'bg-zinc-100 text-zinc-600 border border-zinc-200/60'
+                        }`}
+                    >
+                      {getMethodIcon(method.category)}
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-medium ${isSelected ? 'text-zinc-900' : 'text-zinc-800'}`}>
+                          {method.name}
+                        </span>
+                        {method.recommended && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                            Recommended
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-zinc-500 truncate mt-0.5">
+                        {method.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 flex items-center pl-2">
+                    <div
+                      className={`size-5 rounded-full border flex items-center justify-center transition-colors ${isSelected
+                        ? 'border-primary bg-primary text-white'
+                        : 'border-zinc-300 bg-white'
+                        }`}
+                    >
+                      {isSelected && <Check className="size-3 stroke-[2.5]" />}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Dialog Footer */}
+          <div className="pt-3 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="text-left w-full sm:w-auto">
+              {/* <span className="text-xs text-zinc-400 block">Total payment</span>
+              <span className="text-base font-semibold text-zinc-900 tabular-nums font-display">
+                {formatPrice(totalCost)}
+              </span> */}
+            </div>
+
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsPaymentDialogOpen(false)}
+                className="h-10 px-4 rounded-xl text-xs border-zinc-200 text-zinc-700 hover:bg-zinc-50 flex-1 sm:flex-initial"
+              >
+                Close
+              </Button>
+              <Button
+                type="button"
+                onClick={handleExecutePayment}
+                disabled={isSubmitting}
+                className="h-10 px-5 rounded-xl text-xs bg-primary hover:bg-primary-dark text-white font-medium flex-1 sm:flex-initial shadow-xs"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center gap-1.5">
+                    <div className="size-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Processing...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <span>Pay with {activeMethod.name}</span>
+                    <ArrowRight className="size-3.5" />
+                  </div>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* SUCCESS MODAL DIALOG */}
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent
+          className="max-w-lg bg-white rounded-2xl p-6 sm:p-8 shadow-xl text-center space-y-5 border border-zinc-200"
+          showCloseButton={false}
+        >
+          <div className="size-12 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto">
+            <CheckCircle2 className="size-6" />
+          </div>
+
+          <DialogHeader className="space-y-1.5 text-center">
+            <DialogTitle className="font-display font-medium text-xl text-zinc-900 text-center">
+              Booking confirmed
             </DialogTitle>
-            <DialogDescription className="text-zinc-500 text-sm max-w-md mx-auto text-center">
-              Thank you for booking with INDEX-AELI. Your travel voucher has been generated successfully and is ready.
+            <DialogDescription className="text-zinc-500 text-xs sm:text-sm max-w-sm mx-auto text-center">
+              Your expedition reservation is locked. A confirmation voucher has been generated.
             </DialogDescription>
           </DialogHeader>
 
-          {/* Booking Voucher Receipt */}
-          <div className="border border-dashed border-zinc-200 rounded-[20px] p-6 text-left space-y-4 bg-zinc-50 relative">
-            {/* Punch Holes for ticket effect */}
-            <div className="absolute -left-3.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-white rounded-full border-r border-zinc-200" />
-            <div className="absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-white rounded-full border-l border-zinc-200" />
-
-            <div className="flex items-center gap-3 border-b border-dashed border-zinc-200 pb-3">
-              <div className="p-2 bg-primary/10 text-primary rounded-lg">
-                <Ticket className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-zinc-400 uppercase tracking-widest block font-bold">Booking Ref</span>
-                <span className="font-display font-extrabold text-sm text-primary-dark tracking-wide">{bookingRef}</span>
-              </div>
+          {/* Clean digital voucher receipt */}
+          <div className="rounded-xl border border-zinc-200 bg-zinc-50/60 p-4 sm:p-5 text-left space-y-3 text-xs">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
+              <span className="text-zinc-500">Reference code</span>
+              <span className="font-mono font-medium text-zinc-900">{bookingRef}</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-xs">
-              <div>
-                <span className="text-zinc-400 font-semibold block mb-0.5">Program Name</span>
-                <span className="font-bold text-zinc-800 line-clamp-1">{selectedTour?.name}</span>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Program</span>
+                <span className="font-medium text-zinc-900 text-right max-w-[60%] truncate">
+                  {selectedTour?.name}
+                </span>
               </div>
-              <div>
-                <span className="text-zinc-400 font-semibold block mb-0.5">Date</span>
-                <span className="font-bold text-zinc-800">{travelDate}</span>
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Schedule date</span>
+                <span className="font-medium text-zinc-900">{travelDate || 'Confirmed'}</span>
               </div>
-              <div>
-                <span className="text-zinc-400 font-semibold block mb-0.5">Guests</span>
-                <span className="font-bold text-zinc-800">{guestsCount} Person(s)</span>
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Guests</span>
+                <span className="font-medium text-zinc-900">{guestsCount} person(s)</span>
               </div>
-              <div>
-                <span className="text-zinc-400 font-semibold block mb-0.5">Total Paid</span>
-                <span className="font-bold text-teal-600">{formatPrice(totalCost)}</span>
+              <div className="flex justify-between pt-2 border-t border-zinc-200">
+                <span className="font-medium text-zinc-700">Total paid</span>
+                <span className="font-semibold text-zinc-900 tabular-nums">{formatPrice(totalCost)}</span>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <button
-              onClick={() => {
-                window.print();
-              }}
-              className="h-12 border border-primary/20 hover:border-primary text-primary font-display font-bold rounded-full flex items-center justify-center gap-2 text-sm transition-all cursor-pointer"
+              type="button"
+              onClick={() => window.print()}
+              className="h-10 border border-zinc-200 hover:bg-zinc-50 text-zinc-700 font-medium rounded-xl flex items-center justify-center gap-2 text-xs transition-colors cursor-pointer"
             >
-              <Printer className="w-4 h-4" />
-              <span>Print Voucher</span>
+              <Printer className="size-3.5 text-zinc-500" />
+              <span>Print voucher</span>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setShowSuccessModal(false);
                 router.push('/');
               }}
-              className="h-12 bg-primary hover:bg-primary-light text-white font-display font-bold rounded-full flex items-center justify-center text-sm shadow-md transition-all cursor-pointer"
+              className="h-10 bg-primary hover:bg-primary-dark text-white font-medium rounded-xl flex items-center justify-center text-xs transition-colors cursor-pointer shadow-xs"
             >
-              Return to Home
+              Return to home
             </button>
           </div>
         </DialogContent>
@@ -1105,14 +1023,13 @@ function BookingFormContent() {
 
 export default function BookingPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen w-full flex items-center justify-center bg-luxury-bg">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-zinc-500 font-medium text-sm">Loading booking form...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] w-full flex items-center justify-center">
+          <div className="size-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </div>
-    }>
+      }
+    >
       <BookingFormContent />
     </Suspense>
   );

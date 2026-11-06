@@ -4,21 +4,21 @@
 import { useMemo } from "react";
 
 import { flexRender, type Table as TableType } from "@tanstack/react-table";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
 import type { Role } from "./data";
+
+const pageSizeItems = [12, 24, 48].map((size) => ({
+  value: `${size}`,
+  label: `${size}`,
+}));
 
 type RoleTableRow = ReturnType<TableType<Role>["getRowModel"]>["rows"][number];
 
@@ -59,14 +59,14 @@ export function RolesTable({ table }: { table: TableType<Role> }) {
   return (
     <>
       <Table className="w-full table-fixed border-collapse" style={{ minWidth: table.getTotalSize() }}>
-        <TableHeader>
+        <TableHeader className="bg-muted/15">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id} className="border-y hover:bg-transparent [&>:not(:last-child)]:border-r">
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
                   style={{ width: header.getSize() }}
-                  className="h-10 px-4 text-center font-medium text-foreground text-sm first:text-left"
+                  className="h-11 px-4 text-center font-medium text-foreground text-sm first:text-left"
                 >
                   {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                 </TableHead>
@@ -94,73 +94,81 @@ export function RolesTable({ table }: { table: TableType<Role> }) {
         </TableBody>
       </Table>
 
-      <div className="flex items-center border-border/70 border-t p-4">
-        <div className="text-muted-foreground text-sm">
+      <div className="flex items-center justify-between border-border/70 border-t p-4">
+        <div className="hidden flex-1 text-muted-foreground text-sm lg:flex">
           Showing {start} to {end} of {filteredRows.length} roles
         </div>
-
-        <div className="mx-auto">
-          <Pagination className="mx-0 w-auto justify-center">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  size="sm"
-                  href="#"
-                  text=""
-                  className={!table.getCanPreviousPage() ? "pointer-events-none opacity-50" : ""}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    table.previousPage();
-                  }}
-                />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink
-                  size="sm"
-                  href="#"
-                  isActive
-                  onClick={(e) => {
-                    e.preventDefault();
-                  }}
-                >
-                  {pageIndex + 1}
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext
-                  size="sm"
-                  href="#"
-                  text=""
-                  className={!table.getCanNextPage() ? "pointer-events-none opacity-50" : ""}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    table.nextPage();
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-sm">Rows per page</span>
-          <Select
-            value={`${pageSize}`}
-            onValueChange={(v) => {
-              table.setPageSize(Number(v));
-            }}
-          >
-            <SelectTrigger size="sm" className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent align="end" side="top">
-              <SelectGroup>
-                <SelectItem value="12">12</SelectItem>
-                <SelectItem value="24">24</SelectItem>
-                <SelectItem value="48">48</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+        <div className="flex w-full items-center gap-8 lg:w-fit">
+          <div className="hidden items-center gap-2 lg:flex">
+            <Label htmlFor="roles-rows-per-page" className="font-medium text-sm">
+              Rows per page
+            </Label>
+            <Select
+              value={`${pageSize}`}
+              onValueChange={(v) => {
+                if (v) table.setPageSize(Number(v));
+              }}
+              items={pageSizeItems}
+            >
+              <SelectTrigger size="sm" className="w-20" id="roles-rows-per-page">
+                <SelectValue placeholder={`${pageSize}`} />
+              </SelectTrigger>
+              <SelectContent side="top">
+                <SelectGroup>
+                  {pageSizeItems.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex w-fit items-center justify-center font-medium text-sm">
+            Page {pageIndex + 1} of {Math.max(table.getPageCount(), 1)}
+          </div>
+          <div className="ml-auto flex items-center gap-2 lg:ml-0">
+            <Button
+              variant="outline"
+              className="hidden size-8 lg:flex"
+              size="icon"
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Go to first page</span>
+              <ChevronsLeft className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="size-8"
+              size="icon"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Go to previous page</span>
+              <ChevronLeft className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="size-8"
+              size="icon"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Go to next page</span>
+              <ChevronRight className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="hidden size-8 lg:flex"
+              size="icon"
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Go to last page</span>
+              <ChevronsRight className="size-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </>

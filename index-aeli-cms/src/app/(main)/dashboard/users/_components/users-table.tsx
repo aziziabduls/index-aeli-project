@@ -1,55 +1,34 @@
 "use client";
 "use no memo";
 
-import type { MouseEvent } from "react";
-
 import { flexRender, type Table as TableType } from "@tanstack/react-table";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import type { UserRow } from "./data";
 
-function preventPaginationNavigation(event: MouseEvent<HTMLAnchorElement>) {
-  event.preventDefault();
-}
-
-function getPageNumbers(currentPage: number, pageCount: number) {
-  if (pageCount <= 3) {
-    return Array.from({ length: pageCount }, (_, index) => index + 1);
-  }
-
-  if (currentPage <= 2) return [1, 2, 3];
-  if (currentPage >= pageCount - 1) return [pageCount - 2, pageCount - 1, pageCount];
-
-  return [currentPage - 1, currentPage, currentPage + 1];
-}
+const pageSizeItems = [10, 20, 30, 40, 50].map((pageSize) => ({
+  value: `${pageSize}`,
+  label: `${pageSize}`,
+}));
 
 export function UsersTable({ table }: { table: TableType<UserRow> }) {
   const pageCount = Math.max(table.getPageCount(), 1);
-  const currentPage = Math.min(table.getState().pagination.pageIndex + 1, pageCount);
-  const pageNumbers = getPageNumbers(currentPage, pageCount);
-  const rowsPerPage = `${table.getState().pagination.pageSize}`;
+  const currentPage = table.getState().pagination.pageIndex + 1;
 
   return (
-    <div className="flex flex-1 flex-col gap-4">
-      <div>
-        <Table className="**:data-[slot='table-cell']:px-4 **:data-[slot='table-head']:px-4">
-          <TableHeader className="[&_tr]:border-t">
+    <div className="flex flex-1 flex-col gap-4 px-4 pb-4">
+      <div className="overflow-hidden rounded-lg border bg-card">
+        <Table>
+          <TableHeader className="bg-muted/15">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="py-4 font-normal">
+                  <TableHead key={header.id} colSpan={header.colSpan} className="h-11 p-3 font-medium">
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -62,11 +41,10 @@ export function UsersTable({ table }: { table: TableType<UserRow> }) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="border-border/60 hover:bg-white/2.5"
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-3 py-4 align-middle">
+                    <TableCell key={cell.id} className="p-3 align-middle">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -83,85 +61,83 @@ export function UsersTable({ table }: { table: TableType<UserRow> }) {
         </Table>
       </div>
 
-      <Separator />
-
-      <div className="flex items-center justify-between px-4">
-        <div className="flex items-center gap-4 text-muted-foreground text-sm">
-          <div className="flex items-center gap-2">
-            <span>Rows per page</span>
+      <div className="flex items-center justify-between px-1">
+        <div className="hidden flex-1 text-muted-foreground text-sm lg:flex">
+          {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
+          selected.
+        </div>
+        <div className="flex w-full items-center gap-8 lg:w-fit">
+          <div className="hidden items-center gap-2 lg:flex">
+            <Label htmlFor="users-rows-per-page" className="font-medium text-sm">
+              Rows per page
+            </Label>
             <Select
               value={`${table.getState().pagination.pageSize}`}
-              onValueChange={(value) => table.setPageSize(Number(value))}
+              onValueChange={(value) => {
+                if (value) table.setPageSize(Number(value));
+              }}
+              items={pageSizeItems}
             >
               <SelectTrigger size="sm" className="w-20" id="users-rows-per-page">
-                <SelectValue placeholder={rowsPerPage} />
+                <SelectValue placeholder={`${table.getState().pagination.pageSize}`} />
               </SelectTrigger>
               <SelectContent side="top">
                 <SelectGroup>
-                  {[10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={`${pageSize}`}>
-                      {pageSize}
+                  {pageSizeItems.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
                     </SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
           </div>
-          <span>
+          <div className="flex w-fit items-center justify-center font-medium text-sm">
             Page {currentPage} of {pageCount}
-          </span>
+          </div>
+          <div className="ml-auto flex items-center gap-2 lg:ml-0">
+            <Button
+              variant="outline"
+              className="hidden size-8 lg:flex"
+              size="icon"
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Go to first page</span>
+              <ChevronsLeft className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="size-8"
+              size="icon"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Go to previous page</span>
+              <ChevronLeft className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="size-8"
+              size="icon"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Go to next page</span>
+              <ChevronRight className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="hidden size-8 lg:flex"
+              size="icon"
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Go to last page</span>
+              <ChevronsRight className="size-4" />
+            </Button>
+          </div>
         </div>
-
-        <Pagination className="mx-0 w-auto justify-start md:justify-end">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                text=""
-                className={!table.getCanPreviousPage() ? "pointer-events-none opacity-50" : undefined}
-                onClick={(event) => {
-                  preventPaginationNavigation(event);
-                  table.previousPage();
-                }}
-              />
-            </PaginationItem>
-            {pageNumbers[0] > 1 ? (
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-            ) : null}
-            {pageNumbers.map((pageNumber) => (
-              <PaginationItem key={`page-${pageNumber}`}>
-                <PaginationLink
-                  href="#"
-                  isActive={table.getState().pagination.pageIndex === pageNumber - 1}
-                  onClick={(event) => {
-                    preventPaginationNavigation(event);
-                    table.setPageIndex(pageNumber - 1);
-                  }}
-                >
-                  {pageNumber}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            {pageNumbers[pageNumbers.length - 1] < pageCount ? (
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-            ) : null}
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                text=""
-                className={!table.getCanNextPage() ? "pointer-events-none opacity-50" : undefined}
-                onClick={(event) => {
-                  preventPaginationNavigation(event);
-                  table.nextPage();
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
       </div>
     </div>
   );

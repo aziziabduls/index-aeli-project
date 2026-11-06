@@ -1,4 +1,17 @@
-import { Briefcase, Compass, Grid3x3, ListTodo, Lock, type LucideIcon, MapPin, Settings, Tags, Users } from "lucide-react";
+import {
+  Briefcase,
+  Compass,
+  CreditCard,
+  Grid3x3,
+  ListTodo,
+  Lock,
+  type LucideIcon,
+  MapPin,
+  Settings,
+  Tags,
+  Users,
+  Wallet,
+} from "lucide-react";
 
 export type NavBadge = "new" | "soon";
 
@@ -96,6 +109,24 @@ export const sidebarItems: NavGroup[] = [
   },
   {
     id: 4,
+    label: "Finance",
+    items: [
+      {
+        id: "transactions",
+        title: "Transactions",
+        url: "/dashboard/transactions",
+        icon: CreditCard,
+      },
+      {
+        id: "payout",
+        title: "Payout",
+        url: "/dashboard/payout",
+        icon: Wallet,
+      },
+    ],
+  },
+  {
+    id: 5,
     label: "User Access",
     items: [
       {
@@ -113,7 +144,7 @@ export const sidebarItems: NavGroup[] = [
     ],
   },
   {
-    id: 5,
+    id: 6,
     label: "Configuration",
     items: [
       {

@@ -392,3 +392,94 @@ export async function getAppConfig(): Promise<AppConfig> {
   };
 }
 
+export interface CreateBookingPayload {
+  booking_code?: string;
+  program_name: string;
+  experience_name?: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone?: string;
+  pax: number;
+  gross_amount: number;
+  payment_method: string;
+}
+
+export async function createBooking(payload: CreateBookingPayload): Promise<{ success: boolean; data?: any; message?: string }> {
+  try {
+    const res = await fetch(`${getBaseApiUrl()}/bookings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      return { success: false, message: 'Failed to record booking' };
+    }
+    const json = await res.json();
+    return json;
+  } catch (err: any) {
+    return { success: false, message: err?.message || 'Network error' };
+  }
+}
+
+export interface CreatePaymentBookingPayload {
+  orderId?: string;
+  bookingCode?: string;
+  items?: Array<{ id: string; name: string; quantity: number; price: number }>;
+  amount: number;
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  paymentMethodId?: string;
+  programName?: string;
+  experienceName?: string;
+  locationName?: string;
+  pax?: number;
+}
+
+export interface CreatePaymentResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    orderId: string;
+    bookingCode: string;
+    token: string;
+    redirectUrl: string;
+    amount: number;
+  };
+  error?: string;
+}
+
+export async function createPaymentBooking(payload: CreatePaymentBookingPayload): Promise<CreatePaymentResponse> {
+  try {
+    const res = await fetch(`${getBaseApiUrl()}/payments/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    return json;
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Network error creating payment' };
+  }
+}
+
+export async function getPaymentStatus(orderId: string): Promise<any> {
+  try {
+    const res = await fetch(`${getBaseApiUrl()}/payments/status/${encodeURIComponent(orderId)}`, {
+      cache: 'no-store'
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data ?? json;
+  } catch (err) {
+    console.error('Error fetching payment status:', err);
+    return null;
+  }
+}
+
+
+

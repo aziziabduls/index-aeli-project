@@ -76,7 +76,12 @@ app.use((0, http_proxy_middleware_1.createProxyMiddleware)({
         path.startsWith('/api/v1/roles') ||
         path.startsWith('/api/v1/billing') ||
         path.startsWith('/api/v1/notifications') ||
-        path.startsWith('/api/v1/payout')
+        path.startsWith('/api/v1/payout') ||
+        path.startsWith('/api/v1/transactions') ||
+        path.startsWith('/api/v1/bookings') ||
+        path.startsWith('/api/v1/registrations') ||
+        path.startsWith('/api/v1/payments') ||
+        path.startsWith('/payments')
 }));
 // 2. Content Service Proxies
 app.use((0, http_proxy_middleware_1.createProxyMiddleware)({

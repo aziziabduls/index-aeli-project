@@ -10,6 +10,9 @@ router.patch('/payout/bank-accounts/:id/primary', (req, res, next) => payoutCont
 router.put('/payout/settings', (req, res, next) => payoutController.updateSettings(req, res, next));
 router.post('/payout/withdraw', (req, res, next) => payoutController.withdrawFunds(req, res, next));
 router.post('/payout/simulate-purchase', (req, res, next) => payoutController.recordPurchase(req, res, next));
+router.get('/transactions', (req, res, next) => payoutController.getTransactions(req, res, next));
+router.post('/transactions', (req, res, next) => payoutController.recordPurchase(req, res, next));
+router.post('/bookings', (req, res, next) => payoutController.recordPurchase(req, res, next));
 
 export default router;
 

@@ -7,6 +7,7 @@
   ],
   "scripts": {
     "install:all": "npm install",
+    "seed": "npm run seed -w identity-service",
     "dev": "concurrently \"npm run dev -w api-gateway\" \"npm run dev -w identity-service\" \"npm run dev -w content-service\" \"npm run dev -w program-service\" \"npm run dev -w media-service\"",
     "build": "npm run build --workspaces",
     "start": "npm run start --workspaces"

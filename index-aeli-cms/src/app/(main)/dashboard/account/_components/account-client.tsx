@@ -1,27 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import {
-  Shield,
-  Key,
-  User as UserIcon,
-  Phone,
-  Mail,
-  Calendar,
-  Sparkles,
-  MapPin,
-  Compass,
-  FileText,
   Activity,
+  Calendar,
   CheckCircle2,
-  Lock,
+  Compass,
   Eye,
   EyeOff,
-  Save,
+  FileText,
+  Key,
   Loader2,
+  Lock,
+  Mail,
+  MapPin,
+  Phone,
+  Save,
+  Shield,
+  Sparkles,
+  User as UserIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -210,10 +210,10 @@ export function AccountClient({ initialUser }: { readonly initialUser: UserProfi
   const userInitials = getInitials(displayName);
   const memberDate = user?.created_at
     ? new Date(user.created_at).toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    })
     : "Active Member";
 
   return (
@@ -305,24 +305,25 @@ export function AccountClient({ initialUser }: { readonly initialUser: UserProfi
 
       {/* Account Settings Tabs */}
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0">
+        <TabsList variant="line"
+          className="w-full justify-start gap-2 border-b ps-0 *:data-[slot=tabs-trigger]:flex-none">
           <TabsTrigger
             value="profile"
-            className="relative gap-2 rounded-none border-b-2 border-transparent px-4 py-2 font-medium text-muted-foreground data-active:border-primary data-active:text-foreground"
+
           >
             <UserIcon className="size-4" />
             Profile Details
           </TabsTrigger>
           <TabsTrigger
             value="security"
-            className="relative gap-2 rounded-none border-b-2 border-transparent px-4 py-2 font-medium text-muted-foreground data-active:border-primary data-active:text-foreground"
+
           >
             <Key className="size-4" />
             Security & Password
           </TabsTrigger>
           <TabsTrigger
             value="activity"
-            className="relative gap-2 rounded-none border-b-2 border-transparent px-4 py-2 font-medium text-muted-foreground data-active:border-primary data-active:text-foreground"
+
           >
             <Activity className="size-4" />
             Recent Activity

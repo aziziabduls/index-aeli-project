@@ -46,13 +46,19 @@ export class AuthService {
       throw new AppError('Invalid email or password', 401);
     }
 
+    const roleQuery = await pool.query(
+      'SELECT permission_sets FROM identity.roles WHERE key = $1;',
+      [user.role]
+    );
+    const permissions: string[] = roleQuery.rows[0]?.permission_sets || [];
+
     const accessToken = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, permissions },
       jwtSecret,
       { expiresIn: '8h' }
     );
     const refreshToken = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, permissions },
       jwtSecret,
       { expiresIn: '7d' }
     );
@@ -62,7 +68,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, role: user.role }
+      user: { id: user.id, email: user.email, role: user.role, permissions }
     };
   }
 

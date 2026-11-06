@@ -43,13 +43,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { recentCustomersColumns } from "./columns";
 import type { RecentCustomerRow } from "./schema";
 
-const statusOptions = [
-  { value: "all", label: "All" },
-  { value: "Subscribed", label: "Subscribed" },
-  { value: "Inactive", label: "Inactive" },
-  { value: "Unsubscribed", label: "Unsubscribed" },
-] as const;
-
 const billingOptions = [
   { value: "all", label: "All" },
   { value: "Paid", label: "Paid" },
@@ -119,7 +112,6 @@ export function RecentCustomersTable({ data }: { data: RecentCustomerRow[] }) {
   });
 
   const searchQuery = (table.getColumn("search")?.getFilterValue() as string) ?? "";
-  const statusFilter = (table.getColumn("status")?.getFilterValue() as string) ?? "all";
   const billingFilter = (table.getColumn("billing")?.getFilterValue() as string) ?? "all";
   const joinedDateFilter = (table.getColumn("joinedWindow")?.getFilterValue() as string) ?? "all";
   const sortValue = React.useMemo(() => {
@@ -150,27 +142,6 @@ export function RecentCustomersTable({ data }: { data: RecentCustomerRow[] }) {
               }}
             />
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
-              <UsersRound />
-              Status
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-35" align="start">
-              <DropdownMenuRadioGroup
-                value={statusFilter}
-                onValueChange={(value) => {
-                  table.getColumn("status")?.setFilterValue(value === "all" ? undefined : value);
-                  table.setPageIndex(0);
-                }}
-              >
-                {statusOptions.map((status) => (
-                  <DropdownMenuRadioItem key={status.value} value={status.value}>
-                    {status.label}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
               <CalendarDays />

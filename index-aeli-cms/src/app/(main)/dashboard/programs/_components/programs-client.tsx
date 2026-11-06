@@ -4,24 +4,41 @@ import { useMemo, useState } from "react";
 
 import Link from "next/link";
 
-import { Edit, Plus, Search } from "lucide-react";
+import {
+  Building2,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Clock,
+  Compass,
+  DollarSign,
+  Edit,
+  ExternalLink,
+  Eye,
+  MapPin,
+  Plus,
+  Search,
+  Users,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatIDR } from "@/lib/currency";
 
 export interface ProgramRow {
   id: string;
@@ -59,7 +76,16 @@ interface ProgramsClientProps {
   destinations: Destination[];
 }
 
+const pageSizeItems = [10, 20, 30, 40, 50].map((pageSize) => ({
+  value: `${pageSize}`,
+  label: `${pageSize}`,
+}));
+
 export function ProgramsClient({ initialPrograms, providers, destinations }: ProgramsClientProps) {
+  // Detail Drawer state
+  const [selectedProgram, setSelectedProgram] = useState<ProgramRow | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   // Search state
   const [search, setSearch] = useState("");
 
@@ -79,22 +105,15 @@ export function ProgramsClient({ initialPrograms, providers, destinations }: Pro
     archived: "border-rose-500/20 bg-rose-500/10 text-rose-500",
   };
 
-  const formatPrice = (min: number | null, max: number | null, note: string | null) => {
-    if (note && note.trim().length > 0) {
-      return note;
+  const formatPrice = (min: number | null, max: number | null) => {
+    if (min === null || min === 0 || isNaN(min)) {
+      if (max && max > 0 && !isNaN(max)) return formatIDR(max);
+      return "By Quotation";
     }
-    if (min === null || min === 0) {
-      return "By Quotation / Free";
+    if (max && max > min && !isNaN(max)) {
+      return `${formatIDR(min)} - ${formatIDR(max)}`;
     }
-    const formatter = new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    });
-    if (max && max > min) {
-      return `${formatter.format(min)} - ${formatter.format(max)}`;
-    }
-    return formatter.format(min);
+    return formatIDR(min);
   };
 
   // Filtered programs
@@ -130,22 +149,8 @@ export function ProgramsClient({ initialPrograms, providers, destinations }: Pro
     return filteredPrograms.slice(start, start + pageSize);
   }, [filteredPrograms, activePage, pageSize]);
 
-  const pageNumbers = useMemo(() => {
-    if (pageCount <= 3) {
-      return Array.from({ length: pageCount }, (_, index) => index + 1);
-    }
-    if (activePage <= 2) return [1, 2, 3];
-    if (activePage >= pageCount - 1) return [pageCount - 2, pageCount - 1, pageCount];
-    return [activePage - 1, activePage, activePage + 1];
-  }, [activePage, pageCount]);
-
-  const preventNavigation = (e: React.MouseEvent) => {
-    e.preventDefault();
-  };
-
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
-
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:justify-between">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl tracking-tight">Programs</h1>
@@ -162,225 +167,363 @@ export function ProgramsClient({ initialPrograms, providers, destinations }: Pro
         </Link>
       </div>
 
-      <div className="relative mb-2 flex max-w-sm items-center">
-        <Search className="absolute left-3 size-4 text-muted-foreground" />
-        <Input
-          placeholder="Search programs..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="pl-9"
-        />
-      </div>
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full sm:w-80">
+            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="h-8 rounded-[min(var(--radius-md),12px)] pl-8"
+              placeholder="Search programs..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Programs</CardTitle>
-          <CardDescription>A list of all tour programs in the catalog.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
+        <div className="overflow-hidden rounded-lg border bg-card">
+          <Table>
+            <TableHeader className="bg-muted/15">
+              <TableRow>
+                <TableHead className="h-11 p-3 font-medium">Name</TableHead>
+                <TableHead className="h-11 p-3 font-medium">Category</TableHead>
+                <TableHead className="h-11 p-3 font-medium">Provider</TableHead>
+                <TableHead className="h-11 p-3 font-medium">Destination</TableHead>
+                <TableHead className="h-11 p-3 font-medium">Price</TableHead>
+                <TableHead className="h-11 p-3 font-medium">Duration</TableHead>
+                <TableHead className="h-11 p-3 font-medium">Status</TableHead>
+                <TableHead className="h-11 p-3 font-medium text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedPrograms.length === 0 ? (
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Provider</TableHead>
-                  <TableHead>Destination</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                    No programs found.
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedPrograms.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="py-6 text-center text-muted-foreground">
-                      No programs found.
+              ) : (
+                paginatedPrograms.map((prog) => (
+                  <TableRow key={prog.id}>
+                    <TableCell className="p-3 align-middle font-semibold">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProgram(prog);
+                          setIsDrawerOpen(true);
+                        }}
+                        className="text-left font-semibold text-foreground hover:text-primary hover:underline cursor-pointer focus:outline-hidden"
+                        title="Click to view program details"
+                      >
+                        {prog.name}
+                      </button>
                     </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedPrograms.map((prog) => (
-                    <TableRow key={prog.id}>
-                      <TableCell className="font-medium">{prog.name}</TableCell>
-                      <TableCell className="text-xs">{prog.category}</TableCell>
-                      <TableCell className="max-w-[150px] truncate text-xs">
-                        {providerMap.get(prog.provider_id) || "Unknown Provider"}
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        {prog.destination_id ? destinationMap.get(prog.destination_id) || "Unknown" : "N/A"}
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        {formatPrice(
-                          prog.price_min ? Number(prog.price_min) : null,
-                          prog.price_max ? Number(prog.price_max) : null,
-                          prog.price_note,
-                        )}
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        <div className="font-medium">{prog.duration_label}</div>
-                        {/* {(prog.min_quota || prog.max_quota || prog.max_guest_min || prog.max_guest_max) ? (
-                          <div className="text-[11px] text-muted-foreground whitespace-nowrap">
-                            Quota: {prog.min_quota ?? prog.max_guest_min ?? 1} - {prog.max_quota ?? prog.max_guest_max ?? "∞"} pax
-                          </div>
-                        ) : null}
-                        {prog.date_availability && prog.date_availability !== "all_days" ? (
-                          <div className="text-[10px] font-semibold text-amber-600 mt-0.5">
-                            {prog.date_availability === "weekends"
-                              ? "Weekends only"
-                              : prog.date_availability === "weekdays"
-                                ? "Weekdays only"
-                                : `${prog.available_dates?.length || 0} specific dates`}
-                          </div>
-                        ) : (
-                          <div className="text-[10px] text-muted-foreground/70 mt-0.5">Everyday</div>
-                        )} */}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={statusColors[prog.status] || ""} variant="outline">
-                          {prog.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
+                    <TableCell className="p-3 align-middle text-xs">{prog.category}</TableCell>
+                    <TableCell className="p-3 align-middle max-w-[150px] truncate text-xs">
+                      {providerMap.get(prog.provider_id) || "Unknown Provider"}
+                    </TableCell>
+                    <TableCell className="p-3 align-middle text-xs">
+                      {prog.destination_id ? destinationMap.get(prog.destination_id) || "Unknown" : "N/A"}
+                    </TableCell>
+                    <TableCell className="p-3 align-middle text-xs font-medium tabular-nums">
+                      {formatPrice(
+                        prog.price_min ? Number(prog.price_min) : null,
+                        prog.price_max ? Number(prog.price_max) : null,
+                      )}
+                    </TableCell>
+                    <TableCell className="p-3 align-middle text-xs">
+                      <div className="font-medium">{prog.duration_label}</div>
+                    </TableCell>
+                    <TableCell className="p-3 align-middle">
+                      <Badge className={statusColors[prog.status] || ""} variant="outline">
+                        {prog.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="p-3 align-middle text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 text-muted-foreground hover:text-foreground"
+                          title="View Program Details"
+                          onClick={() => {
+                            setSelectedProgram(prog);
+                            setIsDrawerOpen(true);
+                          }}
+                        >
+                          <Eye className="size-4" />
+                        </Button>
                         <Link href={`/dashboard/programs/${prog.id}`} prefetch={false}>
-                          <Button variant="ghost" size="icon" title="Edit Program">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 text-muted-foreground hover:text-foreground"
+                            title="Edit Program"
+                          >
                             <Edit className="size-4" />
                           </Button>
                         </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
-          {filteredPrograms.length > 0 && (
-            <>
-              <Separator />
-              <div className="flex flex-col gap-4 px-2 pt-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
-                  <div className="flex items-center gap-2">
-                    <span>Rows per page</span>
-                    <Select
-                      value={`${pageSize}`}
-                      onValueChange={(value) => {
-                        setPageSize(Number(value));
-                        setCurrentPage(1);
-                      }}
+        <div className="flex items-center justify-between px-1">
+          <div className="hidden flex-1 text-muted-foreground text-sm lg:flex">
+            Showing {filteredPrograms.length === 0 ? 0 : (activePage - 1) * pageSize + 1} to{" "}
+            {Math.min(activePage * pageSize, filteredPrograms.length)} of {filteredPrograms.length} entries
+          </div>
+          <div className="flex w-full items-center gap-8 lg:w-fit">
+            <div className="hidden items-center gap-2 lg:flex">
+              <Label htmlFor="programs-rows-per-page" className="font-medium text-sm">
+                Rows per page
+              </Label>
+              <Select
+                value={`${pageSize}`}
+                onValueChange={(value) => {
+                  if (value) {
+                    setPageSize(Number(value));
+                    setCurrentPage(1);
+                  }
+                }}
+                items={pageSizeItems}
+              >
+                <SelectTrigger size="sm" className="w-20" id="programs-rows-per-page">
+                  <SelectValue placeholder={`${pageSize}`} />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  <SelectGroup>
+                    {pageSizeItems.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex w-fit items-center justify-center font-medium text-sm">
+              Page {activePage} of {pageCount}
+            </div>
+            <div className="ml-auto flex items-center gap-2 lg:ml-0">
+              <Button
+                variant="outline"
+                className="hidden size-8 lg:flex"
+                size="icon"
+                onClick={() => setCurrentPage(1)}
+                disabled={activePage <= 1}
+              >
+                <span className="sr-only">Go to first page</span>
+                <ChevronsLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={activePage <= 1}
+              >
+                <span className="sr-only">Go to previous page</span>
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, pageCount))}
+                disabled={activePage >= pageCount}
+              >
+                <span className="sr-only">Go to next page</span>
+                <ChevronRight className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="hidden size-8 lg:flex"
+                size="icon"
+                onClick={() => setCurrentPage(pageCount)}
+                disabled={activePage >= pageCount}
+              >
+                <span className="sr-only">Go to last page</span>
+                <ChevronsRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Program Detail Drawer */}
+      <Drawer direction="right" open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-lg h-full">
+          {selectedProgram && (() => {
+            const providerName = providerMap.get(selectedProgram.provider_id) || "Unknown Provider";
+            const destName = selectedProgram.destination_id
+              ? destinationMap.get(selectedProgram.destination_id) || "Unassigned"
+              : "N/A";
+
+            return (
+              <div className="flex h-full flex-col">
+                <DrawerHeader className="border-b border-border/40 px-6 py-5">
+                  <div className="flex items-center justify-between gap-3 mb-2.5">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium ${
+                        selectedProgram.status === "published"
+                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                          : "bg-slate-500/10 text-slate-700 dark:text-slate-400"
+                      }`}
                     >
-                      <SelectTrigger size="sm" className="w-20" id="programs-rows-per-page">
-                        <SelectValue placeholder={`${pageSize}`} />
-                      </SelectTrigger>
-                      <SelectContent side="top">
-                        <SelectGroup>
-                          {[10, 20, 30, 40, 50].map((size) => (
-                            <SelectItem key={size} value={`${size}`}>
-                              {size}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                      <span
+                        className={`size-1.5 rounded-full ${
+                          selectedProgram.status === "published" ? "bg-emerald-500" : "bg-slate-400"
+                        }`}
+                      />
+                      {selectedProgram.status}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{selectedProgram.category}</span>
                   </div>
-                  <span>
-                    Showing {Math.min((activePage - 1) * pageSize + 1, filteredPrograms.length)} to{" "}
-                    {Math.min(activePage * pageSize, filteredPrograms.length)} of {filteredPrograms.length} entries
-                  </span>
+
+                  <div className="flex items-start justify-between gap-4 text-left">
+                    <div className="min-w-0 flex-1">
+                      <DrawerTitle className="text-base font-semibold text-foreground tracking-tight">
+                        {selectedProgram.name}
+                      </DrawerTitle>
+                      <DrawerDescription className="text-xs text-muted-foreground mt-1">
+                        <span>ID {selectedProgram.id}</span>
+                      </DrawerDescription>
+                    </div>
+                  </div>
+                </DrawerHeader>
+
+                <div className="no-scrollbar flex-1 overflow-y-auto px-6 py-5 space-y-6">
+                  {/* Provider & Location */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">
+                      Provider & location
+                    </h4>
+                    <div className="rounded-lg border border-border/40 divide-y divide-border/40 text-sm">
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Certified provider</span>
+                        <span className="font-medium text-foreground text-xs">{providerName}</span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Destination</span>
+                        <span className="text-foreground text-xs">{destName}</span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Area</span>
+                        <span className="text-foreground text-xs">{selectedProgram.location_label}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pricing */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">
+                      Pricing
+                    </h4>
+                    <div className="rounded-lg border border-border/40 divide-y divide-border/40 text-sm">
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Published price</span>
+                        <span className="font-medium text-foreground tabular-nums text-xs">
+                          {formatPrice(
+                            selectedProgram.price_min ? Number(selectedProgram.price_min) : null,
+                            selectedProgram.price_max ? Number(selectedProgram.price_max) : null,
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Price range</span>
+                        <span className="text-muted-foreground tabular-nums text-xs">
+                          {selectedProgram.price_min ? formatIDR(Number(selectedProgram.price_min)) : "-"}
+                          {selectedProgram.price_max ? ` – ${formatIDR(Number(selectedProgram.price_max))}` : ""}
+                        </span>
+                      </div>
+                      {selectedProgram.price_note && (
+                        <div className="px-3.5 py-2.5 text-xs text-muted-foreground leading-relaxed">
+                          <span className="text-muted-foreground block text-[11px] mb-0.5">Note</span>
+                          {selectedProgram.price_note}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Duration & Availability */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">
+                      Schedule & capacity
+                    </h4>
+                    <div className="rounded-lg border border-border/40 divide-y divide-border/40 text-sm">
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Duration</span>
+                        <span className="font-medium text-foreground text-xs">{selectedProgram.duration_label}</span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Seasonality</span>
+                        <span className="text-foreground text-xs">
+                          {selectedProgram.date_availability || "All year"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Guest limits</span>
+                        <span className="text-xs text-foreground tabular-nums">
+                          {selectedProgram.max_guest_min || 1} – {selectedProgram.max_guest_max || 50} guests
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Quota</span>
+                        <span className="text-xs text-foreground tabular-nums">
+                          {selectedProgram.min_quota || 1} – {selectedProgram.max_quota || 100} slots
+                        </span>
+                      </div>
+                    </div>
+
+                    {selectedProgram.available_dates && selectedProgram.available_dates.length > 0 && (
+                      <div className="space-y-1.5 pt-1">
+                        <span className="text-muted-foreground text-[11px] block">Specific departure dates</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {selectedProgram.available_dates.map((dateStr) => (
+                            <span
+                              key={dateStr}
+                              className="rounded border border-border/40 bg-muted/20 px-2 py-0.5 font-mono text-[11px] text-muted-foreground"
+                            >
+                              {dateStr}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <Pagination className="mx-0 w-auto justify-start sm:justify-end">
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        href="#"
-                        text=""
-                        className={activePage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        onClick={(e) => {
-                          preventNavigation(e);
-                          if (activePage > 1) setCurrentPage(activePage - 1);
-                        }}
-                      />
-                    </PaginationItem>
-
-                    {pageNumbers[0] > 1 && (
-                      <>
-                        <PaginationItem>
-                          <PaginationLink
-                            href="#"
-                            onClick={(e) => {
-                              preventNavigation(e);
-                              setCurrentPage(1);
-                            }}
-                          >
-                            1
-                          </PaginationLink>
-                        </PaginationItem>
-                        {pageNumbers[0] > 2 && (
-                          <PaginationItem>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        )}
-                      </>
-                    )}
-
-                    {pageNumbers.map((pageNumber) => (
-                      <PaginationItem key={`page-${pageNumber}`}>
-                        <PaginationLink
-                          href="#"
-                          isActive={activePage === pageNumber}
-                          onClick={(e) => {
-                            preventNavigation(e);
-                            setCurrentPage(pageNumber);
-                          }}
-                        >
-                          {pageNumber}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-
-                    {pageNumbers[pageNumbers.length - 1] < pageCount && (
-                      <>
-                        {pageNumbers[pageNumbers.length - 1] < pageCount - 1 && (
-                          <PaginationItem>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        )}
-                        <PaginationItem>
-                          <PaginationLink
-                            href="#"
-                            onClick={(e) => {
-                              preventNavigation(e);
-                              setCurrentPage(pageCount);
-                            }}
-                          >
-                            {pageCount}
-                          </PaginationLink>
-                        </PaginationItem>
-                      </>
-                    )}
-
-                    <PaginationItem>
-                      <PaginationNext
-                        href="#"
-                        text=""
-                        className={activePage === pageCount ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        onClick={(e) => {
-                          preventNavigation(e);
-                          if (activePage < pageCount) setCurrentPage(activePage + 1);
-                        }}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
+                <DrawerFooter className="border-t border-border/40 px-6 py-4">
+                  <div className="flex items-center gap-2 w-full">
+                    <Link
+                      href={`/dashboard/programs/${selectedProgram.id}`}
+                      prefetch={false}
+                      className="flex-1"
+                    >
+                      <Button className="w-full h-9 text-xs gap-1.5">
+                        <Edit className="size-3.5" />
+                        Edit program
+                      </Button>
+                    </Link>
+                    <DrawerClose asChild>
+                      <Button variant="outline" className="h-9 text-xs px-4">
+                        Close
+                      </Button>
+                    </DrawerClose>
+                  </div>
+                </DrawerFooter>
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+            );
+          })()}
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

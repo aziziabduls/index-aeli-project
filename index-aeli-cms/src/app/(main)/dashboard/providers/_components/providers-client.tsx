@@ -4,25 +4,39 @@ import { useMemo, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { Edit, Plus, Search } from "lucide-react";
+import {
+  Building2,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Edit,
+  Eye,
+  Mail,
+  Phone,
+  Plus,
+  Search,
+  ShieldCheck,
+  UserCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getClientCookie } from "@/lib/cookie.client";
 
@@ -43,8 +57,17 @@ interface ProvidersClientProps {
   initialProviders: Provider[];
 }
 
+const pageSizeItems = [10, 20, 30, 40, 50].map((pageSize) => ({
+  value: `${pageSize}`,
+  label: `${pageSize}`,
+}));
+
 export function ProvidersClient({ initialProviders }: ProvidersClientProps) {
   const router = useRouter();
+
+  // Drawer detail state
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Dialog state
   const [isOpen, setIsOpen] = useState(false);
@@ -159,22 +182,8 @@ export function ProvidersClient({ initialProviders }: ProvidersClientProps) {
     return filteredProviders.slice(start, start + pageSize);
   }, [filteredProviders, activePage, pageSize]);
 
-  const pageNumbers = useMemo(() => {
-    if (pageCount <= 3) {
-      return Array.from({ length: pageCount }, (_, index) => index + 1);
-    }
-    if (activePage <= 2) return [1, 2, 3];
-    if (activePage >= pageCount - 1) return [pageCount - 2, pageCount - 1, pageCount];
-    return [activePage - 1, activePage, activePage + 1];
-  }, [activePage, pageCount]);
-
-  const preventNavigation = (e: React.MouseEvent) => {
-    e.preventDefault();
-  };
-
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
-
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:justify-between">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl tracking-tight">Providers</h1>
@@ -189,198 +198,186 @@ export function ProvidersClient({ initialProviders }: ProvidersClientProps) {
         </Button>
       </div>
 
-      <div className="relative mb-2 flex max-w-sm items-center">
-        <Search className="absolute left-3 size-4 text-muted-foreground" />
-        <Input
-          placeholder="Search providers..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="pl-9"
-        />
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>All Providers</CardTitle>
-          <CardDescription>A list of registered partner agencies and entities.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Legal Name</TableHead>
-                  <TableHead>Display Brand Name</TableHead>
-                  <TableHead>Contact Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedProviders.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
-                      No providers found.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedProviders.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-semibold">{p.legal_name}</TableCell>
-                      <TableCell className="text-sm">{p.display_name || "-"}</TableCell>
-                      <TableCell className="text-xs">{p.contact_info?.email || "N/A"}</TableCell>
-                      <TableCell className="text-xs">{p.contact_info?.phone || "N/A"}</TableCell>
-                      <TableCell>
-                        <Badge
-                          className={
-                            p.status === "active"
-                              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-500"
-                              : "border-slate-500/20 bg-slate-500/10 text-slate-400"
-                          }
-                          variant="outline"
-                        >
-                          {p.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" title="Edit Provider" onClick={() => handleOpenEdit(p)}>
-                          <Edit className="size-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full sm:w-80">
+            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="h-8 rounded-[min(var(--radius-md),12px)] pl-8"
+              placeholder="Search providers..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
           </div>
+        </div>
 
-          {filteredProviders.length > 0 && (
-            <>
-              <Separator />
-              <div className="flex flex-col gap-4 px-2 pt-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
-                  <div className="flex items-center gap-2">
-                    <span>Rows per page</span>
-                    <Select
-                      value={`${pageSize}`}
-                      onValueChange={(value) => {
-                        setPageSize(Number(value));
-                        setCurrentPage(1);
-                      }}
-                    >
-                      <SelectTrigger size="sm" className="w-20" id="providers-rows-per-page">
-                        <SelectValue placeholder={`${pageSize}`} />
-                      </SelectTrigger>
-                      <SelectContent side="top">
-                        <SelectGroup>
-                          {[10, 20, 30, 40, 50].map((size) => (
-                            <SelectItem key={size} value={`${size}`}>
-                              {size}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <span>
-                    Showing {Math.min((activePage - 1) * pageSize + 1, filteredProviders.length)} to{" "}
-                    {Math.min(activePage * pageSize, filteredProviders.length)} of {filteredProviders.length} entries
-                  </span>
-                </div>
-
-                <Pagination className="mx-0 w-auto justify-start sm:justify-end">
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        href="#"
-                        text=""
-                        className={activePage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        onClick={(e) => {
-                          preventNavigation(e);
-                          if (activePage > 1) setCurrentPage(activePage - 1);
+        <div className="overflow-hidden rounded-lg border bg-card">
+          <Table>
+            <TableHeader className="bg-muted/15">
+              <TableRow>
+                <TableHead className="h-11 p-3 font-medium">Legal Name</TableHead>
+                <TableHead className="h-11 p-3 font-medium">Display Brand Name</TableHead>
+                <TableHead className="h-11 p-3 font-medium">Contact Email</TableHead>
+                <TableHead className="h-11 p-3 font-medium">Phone</TableHead>
+                <TableHead className="h-11 p-3 font-medium">Status</TableHead>
+                <TableHead className="h-11 p-3 font-medium text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedProviders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                    No providers found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedProviders.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell className="p-3 align-middle font-semibold">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProvider(p);
+                          setIsDrawerOpen(true);
                         }}
-                      />
-                    </PaginationItem>
-
-                    {pageNumbers[0] > 1 && (
-                      <>
-                        <PaginationItem>
-                          <PaginationLink
-                            href="#"
-                            onClick={(e) => {
-                              preventNavigation(e);
-                              setCurrentPage(1);
-                            }}
-                          >
-                            1
-                          </PaginationLink>
-                        </PaginationItem>
-                        {pageNumbers[0] > 2 && (
-                          <PaginationItem>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        )}
-                      </>
-                    )}
-
-                    {pageNumbers.map((pageNumber) => (
-                      <PaginationItem key={`page-${pageNumber}`}>
-                        <PaginationLink
-                          href="#"
-                          isActive={activePage === pageNumber}
-                          onClick={(e) => {
-                            preventNavigation(e);
-                            setCurrentPage(pageNumber);
+                        className="text-left font-semibold text-foreground hover:text-primary hover:underline cursor-pointer focus:outline-hidden"
+                        title="Click to view provider details"
+                      >
+                        {p.legal_name}
+                      </button>
+                    </TableCell>
+                    <TableCell className="p-3 align-middle text-sm">{p.display_name || "-"}</TableCell>
+                    <TableCell className="p-3 align-middle text-xs">{p.contact_info?.email || "N/A"}</TableCell>
+                    <TableCell className="p-3 align-middle text-xs">{p.contact_info?.phone || "N/A"}</TableCell>
+                    <TableCell className="p-3 align-middle">
+                      <Badge
+                        className={
+                          p.status === "active"
+                            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-500"
+                            : "border-slate-500/20 bg-slate-500/10 text-slate-400"
+                        }
+                        variant="outline"
+                      >
+                        {p.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="p-3 align-middle text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 text-muted-foreground hover:text-foreground"
+                          title="View Provider Details"
+                          onClick={() => {
+                            setSelectedProvider(p);
+                            setIsDrawerOpen(true);
                           }}
                         >
-                          {pageNumber}
-                        </PaginationLink>
-                      </PaginationItem>
+                          <Eye className="size-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 text-muted-foreground hover:text-foreground"
+                          title="Edit Provider"
+                          onClick={() => handleOpenEdit(p)}
+                        >
+                          <Edit className="size-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-between px-1">
+          <div className="hidden flex-1 text-muted-foreground text-sm lg:flex">
+            Showing {filteredProviders.length === 0 ? 0 : (activePage - 1) * pageSize + 1} to{" "}
+            {Math.min(activePage * pageSize, filteredProviders.length)} of {filteredProviders.length} entries
+          </div>
+          <div className="flex w-full items-center gap-8 lg:w-fit">
+            <div className="hidden items-center gap-2 lg:flex">
+              <Label htmlFor="providers-rows-per-page" className="font-medium text-sm">
+                Rows per page
+              </Label>
+              <Select
+                value={`${pageSize}`}
+                onValueChange={(value) => {
+                  if (value) {
+                    setPageSize(Number(value));
+                    setCurrentPage(1);
+                  }
+                }}
+                items={pageSizeItems}
+              >
+                <SelectTrigger size="sm" className="w-20" id="providers-rows-per-page">
+                  <SelectValue placeholder={`${pageSize}`} />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  <SelectGroup>
+                    {pageSizeItems.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
                     ))}
-
-                    {pageNumbers[pageNumbers.length - 1] < pageCount && (
-                      <>
-                        {pageNumbers[pageNumbers.length - 1] < pageCount - 1 && (
-                          <PaginationItem>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        )}
-                        <PaginationItem>
-                          <PaginationLink
-                            href="#"
-                            onClick={(e) => {
-                              preventNavigation(e);
-                              setCurrentPage(pageCount);
-                            }}
-                          >
-                            {pageCount}
-                          </PaginationLink>
-                        </PaginationItem>
-                      </>
-                    )}
-
-                    <PaginationItem>
-                      <PaginationNext
-                        href="#"
-                        text=""
-                        className={activePage === pageCount ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        onClick={(e) => {
-                          preventNavigation(e);
-                          if (activePage < pageCount) setCurrentPage(activePage + 1);
-                        }}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex w-fit items-center justify-center font-medium text-sm">
+              Page {activePage} of {pageCount}
+            </div>
+            <div className="ml-auto flex items-center gap-2 lg:ml-0">
+              <Button
+                variant="outline"
+                className="hidden size-8 lg:flex"
+                size="icon"
+                onClick={() => setCurrentPage(1)}
+                disabled={activePage <= 1}
+              >
+                <span className="sr-only">Go to first page</span>
+                <ChevronsLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={activePage <= 1}
+              >
+                <span className="sr-only">Go to previous page</span>
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, pageCount))}
+                disabled={activePage >= pageCount}
+              >
+                <span className="sr-only">Go to next page</span>
+                <ChevronRight className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="hidden size-8 lg:flex"
+                size="icon"
+                onClick={() => setCurrentPage(pageCount)}
+                disabled={activePage >= pageCount}
+              >
+                <span className="sr-only">Go to last page</span>
+                <ChevronsRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[425px]">
@@ -443,6 +440,128 @@ export function ProvidersClient({ initialProviders }: ProvidersClientProps) {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Provider Detail Drawer */}
+      <Drawer direction="right" open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-lg h-full">
+          {selectedProvider && (() => {
+            const isActive = selectedProvider.status === "active";
+
+            return (
+              <div className="flex h-full flex-col">
+                <DrawerHeader className="border-b border-border/40 px-6 py-5">
+                  <div className="flex items-center justify-between gap-3 mb-2.5">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium ${
+                        isActive
+                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                          : "bg-slate-500/10 text-slate-700 dark:text-slate-400"
+                      }`}
+                    >
+                      <span
+                        className={`size-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-slate-400"}`}
+                      />
+                      {selectedProvider.status}
+                    </span>
+                    <span className="text-xs text-muted-foreground">AELI Verified Operator</span>
+                  </div>
+
+                  <div className="flex items-start justify-between gap-4 text-left">
+                    <div className="min-w-0 flex-1">
+                      <DrawerTitle className="text-base font-semibold text-foreground tracking-tight">
+                        {selectedProvider.legal_name}
+                      </DrawerTitle>
+                      {selectedProvider.display_name && (
+                        <DrawerDescription className="text-xs text-muted-foreground mt-1">
+                          <span>Trade brand: {selectedProvider.display_name}</span>
+                        </DrawerDescription>
+                      )}
+                    </div>
+                  </div>
+                </DrawerHeader>
+
+                <div className="no-scrollbar flex-1 overflow-y-auto px-6 py-5 space-y-6">
+                  {/* Entity Information */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">
+                      Entity details
+                    </h4>
+                    <div className="rounded-lg border border-border/40 divide-y divide-border/40 text-sm">
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Legal name</span>
+                        <span className="font-medium text-foreground text-xs">{selectedProvider.legal_name}</span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Display name</span>
+                        <span className="text-foreground text-xs">{selectedProvider.display_name || "-"}</span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Provider ID</span>
+                        <span className="font-mono text-muted-foreground text-[11px]">{selectedProvider.id}</span>
+                      </div>
+                      {selectedProvider.created_at && (
+                        <div className="flex items-center justify-between px-3.5 py-2.5">
+                          <span className="text-muted-foreground text-xs">Registered</span>
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            {new Date(selectedProvider.created_at).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Contact Information */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">
+                      Contact & representative
+                    </h4>
+                    <div className="rounded-lg border border-border/40 divide-y divide-border/40 text-sm">
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Email</span>
+                        <span className="font-mono text-xs text-foreground">{selectedProvider.contact_info?.email || "N/A"}</span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Phone</span>
+                        <span className="font-mono text-xs text-foreground">{selectedProvider.contact_info?.phone || "N/A"}</span>
+                      </div>
+                      {selectedProvider.contact_info?.pic && (
+                        <div className="flex items-center justify-between px-3.5 py-2.5">
+                          <span className="text-muted-foreground text-xs">PIC</span>
+                          <span className="text-foreground text-xs">{selectedProvider.contact_info.pic}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <DrawerFooter className="border-t border-border/40 px-6 py-4">
+                  <div className="flex items-center gap-2 w-full">
+                    <Button
+                      className="flex-1 h-9 text-xs gap-1.5"
+                      onClick={() => {
+                        setIsDrawerOpen(false);
+                        handleOpenEdit(selectedProvider);
+                      }}
+                    >
+                      <Edit className="size-3.5" />
+                      Edit provider
+                    </Button>
+                    <DrawerClose asChild>
+                      <Button variant="outline" className="h-9 text-xs px-4">
+                        Close
+                      </Button>
+                    </DrawerClose>
+                  </div>
+                </DrawerFooter>
+              </div>
+            );
+          })()}
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

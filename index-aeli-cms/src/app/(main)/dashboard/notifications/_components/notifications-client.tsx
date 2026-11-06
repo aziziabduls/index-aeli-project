@@ -1,28 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { toast } from "sonner";
 import {
+  AlertTriangle,
+  ArrowRightIcon,
   Bell,
   CheckCheck,
   CheckCircle2,
-  Info,
-  ShieldAlert,
-  AlertTriangle,
-  Settings,
-  Trash2,
   ExternalLink,
-  SlidersHorizontal,
+  Info,
+  Loader2,
   Mail,
   Shield,
-  Loader2,
-  Sparkles,
+  ShieldAlert,
+  SlidersHorizontal,
+  Trash2
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -31,7 +30,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getClientCookie } from "@/lib/cookie.client";
@@ -60,9 +67,14 @@ interface NotificationsData {
 }
 
 export function NotificationsClient({ initialData }: { readonly initialData: NotificationsData }) {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<NotificationItem[]>(initialData.notifications || []);
   const [unreadCount, setUnreadCount] = useState<number>(initialData.unread_count || 0);
   const [filterTab, setFilterTab] = useState<string>("all");
+
+  // Drawer state
+  const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Preferences Dialog
   const [isPrefOpen, setIsPrefOpen] = useState(false);
@@ -75,6 +87,98 @@ export function NotificationsClient({ initialData }: { readonly initialData: Not
     }
   );
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
+
+  const handleOpenDrawer = (item: NotificationItem) => {
+    setSelectedNotification(item);
+    setIsDrawerOpen(true);
+  };
+
+  const getCategoryInfo = (item: NotificationItem) => {
+    const link = item.link || "";
+    const combined = `${item.title} ${item.message} ${link}`.toLowerCase();
+
+    // If explicit link provided
+    if (link.startsWith("/dashboard/")) {
+      if (link.includes("/dashboard/programs")) {
+        return { category: "Tour Programs", route: link, label: "View Programs" };
+      }
+      if (link.includes("/dashboard/destinations")) {
+        return { category: "Destinations", route: link, label: "View Destinations" };
+      }
+      if (link.includes("/dashboard/attractions")) {
+        return { category: "Attractions", route: link, label: "View Attractions" };
+      }
+      if (link.includes("/dashboard/categories")) {
+        return { category: "Categories", route: link, label: "View Categories" };
+      }
+      if (link.includes("/dashboard/providers")) {
+        return { category: "Providers", route: link, label: "View Providers" };
+      }
+      if (link.includes("/dashboard/transactions")) {
+        return { category: "Finance & Transactions", route: link, label: "View Transactions" };
+      }
+      if (link.includes("/dashboard/payout")) {
+        return { category: "Payout & Finance", route: link, label: "View Payout" };
+      }
+      if (link.includes("/dashboard/account")) {
+        return { category: "Account & Security", route: link, label: "View Account" };
+      }
+      if (link.includes("/dashboard/users")) {
+        return { category: "Users & Access", route: link, label: "View Users" };
+      }
+      if (link.includes("/dashboard/registrations")) {
+        return { category: "Web Registrations", route: link, label: "View Registrations" };
+      }
+      if (link.includes("/dashboard/roles")) {
+        return { category: "Roles & Permissions", route: link, label: "View Roles" };
+      }
+      if (link.includes("/dashboard/app-config")) {
+        return { category: "App Configuration", route: link, label: "View Config" };
+      }
+      return { category: "Dashboard", route: link, label: "View Section" };
+    }
+
+    // Keyword & type inferences
+    if (
+      item.type === "security" ||
+      combined.includes("security") ||
+      combined.includes("permission") ||
+      combined.includes("auth") ||
+      combined.includes("password")
+    ) {
+      return { category: "Security & RBAC", route: "/dashboard/account", label: "Open Security Settings" };
+    }
+    if (
+      combined.includes("payout") ||
+      combined.includes("dana") ||
+      combined.includes("transfer") ||
+      combined.includes("bank") ||
+      combined.includes("invoice") ||
+      combined.includes("billing")
+    ) {
+      return { category: "Payout & Finance", route: "/dashboard/payout", label: "Open Payout Dashboard" };
+    }
+    if (combined.includes("program") || combined.includes("tour") || combined.includes("itinerary")) {
+      return { category: "Tour Programs", route: "/dashboard/programs", label: "Open Tour Programs" };
+    }
+    if (combined.includes("destination") || combined.includes("location") || combined.includes("kota")) {
+      return { category: "Destinations", route: "/dashboard/destinations", label: "Open Destinations" };
+    }
+    if (combined.includes("attraction") || combined.includes("spot")) {
+      return { category: "Attractions", route: "/dashboard/attractions", label: "Open Attractions" };
+    }
+    if (combined.includes("provider") || combined.includes("vendor")) {
+      return { category: "Providers", route: "/dashboard/providers", label: "Open Providers" };
+    }
+    if (combined.includes("user") || combined.includes("member")) {
+      return { category: "User Access", route: "/dashboard/users", label: "Manage Users" };
+    }
+    if (combined.includes("config") || combined.includes("tax") || combined.includes("banner")) {
+      return { category: "App Config", route: "/dashboard/app-config", label: "Open Configuration" };
+    }
+
+    return { category: "General Notice", route: "/dashboard/default", label: "Go to Dashboard" };
+  };
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7009";
 
@@ -264,7 +368,7 @@ export function NotificationsClient({ initialData }: { readonly initialData: Not
 
       {/* Filter Tabs */}
       <Tabs value={filterTab} onValueChange={(val) => val && setFilterTab(val)} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 sm:w-auto">
+        <TabsList>
           <TabsTrigger value="all">
             All ({notifications.length})
           </TabsTrigger>
@@ -288,9 +392,9 @@ export function NotificationsClient({ initialData }: { readonly initialData: Not
               {filteredNotifications.map((item) => (
                 <div
                   key={item.id}
-                  className={`flex flex-col gap-3 p-4 transition-colors sm:flex-row sm:items-start sm:justify-between sm:gap-4 hover:bg-muted/40 ${
-                    !item.is_read ? "bg-primary/[0.03]" : ""
-                  }`}
+                  onClick={() => handleOpenDrawer(item)}
+                  className={`flex flex-col gap-3 p-4 transition-colors sm:flex-row sm:items-start sm:justify-between sm:gap-4 hover:bg-muted/40 cursor-pointer ${!item.is_read ? "bg-primary/[0.03]" : ""
+                    }`}
                 >
                   <div className="flex items-start gap-3.5">
                     {getNotificationIcon(item.type)}
@@ -309,17 +413,19 @@ export function NotificationsClient({ initialData }: { readonly initialData: Not
                       <p className="text-muted-foreground text-xs leading-relaxed max-w-2xl">
                         {item.message}
                       </p>
-                      {item.link && (
-                        <div className="pt-1">
-                          <Link
-                            href={item.link}
-                            className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-medium"
-                          >
-                            View details
-                            <ExternalLink className="size-3" />
-                          </Link>
-                        </div>
-                      )}
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenDrawer(item);
+                          }}
+                          className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-medium cursor-pointer"
+                        >
+                          View details
+                          <ExternalLink className="size-3" />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -329,7 +435,10 @@ export function NotificationsClient({ initialData }: { readonly initialData: Not
                         variant="ghost"
                         size="sm"
                         className="h-8 text-xs text-muted-foreground hover:text-foreground"
-                        onClick={() => handleMarkAsRead(item.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMarkAsRead(item.id);
+                        }}
                       >
                         Mark as read
                       </Button>
@@ -338,7 +447,10 @@ export function NotificationsClient({ initialData }: { readonly initialData: Not
                       variant="ghost"
                       size="icon"
                       className="size-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => handleDeleteNotification(item.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteNotification(item.id);
+                      }}
                     >
                       <Trash2 className="size-3.5" />
                     </Button>
@@ -355,6 +467,92 @@ export function NotificationsClient({ initialData }: { readonly initialData: Not
           )}
         </CardContent>
       </Card>
+
+      {/* Notification Detail Drawer */}
+      <Drawer direction="right" open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-md h-full">
+          {selectedNotification && (() => {
+            const cat = getCategoryInfo(selectedNotification);
+            return (
+              <div className="flex h-full flex-col">
+                <DrawerHeader className="border-b pb-4">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <Badge
+                      variant={selectedNotification.type === "security" ? "destructive" : "secondary"}
+                      className="text-xs font-medium"
+                    >
+                      {cat.category}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {formatRelativeTime(selectedNotification.created_at)}
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-3 text-left">
+                    <div className="mt-0.5">{getNotificationIcon(selectedNotification.type)}</div>
+                    <div className="min-w-0 flex-1">
+                      <DrawerTitle className="text-base font-semibold leading-snug">
+                        {selectedNotification.title}
+                      </DrawerTitle>
+                      <DrawerDescription className="text-xs text-muted-foreground mt-1">
+                        <span>Status: {selectedNotification.is_read ? "Read" : "Unread"}</span>
+                      </DrawerDescription>
+                    </div>
+                  </div>
+                </DrawerHeader>
+
+                <div className="no-scrollbar flex-1 overflow-y-auto px-6 py-5 space-y-5">
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">
+                      Message
+                    </h4>
+                    <div className="rounded-lg border border-border/40 p-3.5 text-xs text-foreground/90 leading-relaxed">
+                      {selectedNotification.message}
+                    </div>
+                  </div>
+
+                  {!selectedNotification.is_read && (
+                    <div className="rounded-lg border border-border/40 p-3.5 flex items-center justify-between gap-3 text-xs">
+                      <div>
+                        <span className="font-medium text-foreground block">Mark as read</span>
+                        <span className="text-muted-foreground text-[11px]">Update your notifications list</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 text-xs"
+                        onClick={async () => {
+                          await handleMarkAsRead(selectedNotification.id);
+                          setSelectedNotification((prev) => prev ? { ...prev, is_read: true } : null);
+                        }}
+                      >
+                        Mark as read
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                <DrawerFooter className="border-t border-border/40 px-6 py-4">
+                  <Button
+                    className="w-full h-9 text-xs flex items-center justify-center gap-2"
+                    onClick={() => {
+                      setIsDrawerOpen(false);
+                      router.push(cat.route);
+                    }}
+                  >
+                    <span>{cat.label}</span>
+                    <ArrowRightIcon className="size-3.5" />
+                  </Button>
+                  <DrawerClose asChild>
+                    <Button variant="outline" className="w-full h-9 text-xs">
+                      Close
+                    </Button>
+                  </DrawerClose>
+                </DrawerFooter>
+              </div>
+            );
+          })()}
+        </DrawerContent>
+      </Drawer>
 
       {/* Preferences Dialog */}
       <Dialog open={isPrefOpen} onOpenChange={setIsPrefOpen}>

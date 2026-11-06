@@ -66,6 +66,80 @@ export async function initDb(): Promise<void> {
         created_at TIMESTAMP NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS identity.roles (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name VARCHAR(100) UNIQUE NOT NULL,
+        key VARCHAR(100) UNIQUE NOT NULL,
+        group_name VARCHAR(100) NOT NULL DEFAULT 'Custom roles',
+        access_level VARCHAR(50) NOT NULL DEFAULT 'Scoped',
+        permission_sets TEXT[] NOT NULL DEFAULT '{}',
+        description TEXT,
+        owner VARCHAR(100) NOT NULL DEFAULT 'System',
+        status VARCHAR(50) NOT NULL DEFAULT 'Active',
+        is_system BOOLEAN NOT NULL DEFAULT false,
+        last_review TIMESTAMP NOT NULL DEFAULT NOW(),
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS identity.web_registrations (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        booking_code VARCHAR(100) UNIQUE NOT NULL,
+        order_id VARCHAR(100),
+        customer_name VARCHAR(255) NOT NULL,
+        customer_email VARCHAR(255) NOT NULL,
+        customer_phone VARCHAR(50),
+        program_name VARCHAR(255) NOT NULL,
+        experience_name VARCHAR(255) NOT NULL,
+        location_name VARCHAR(255) DEFAULT 'Indonesia',
+        pax INT NOT NULL DEFAULT 1,
+        gross_amount NUMERIC(15, 2) NOT NULL DEFAULT 0,
+        payment_method VARCHAR(100) NOT NULL DEFAULT 'other_qris',
+        issuer VARCHAR(100),
+        payment_token VARCHAR(255),
+        payment_url TEXT,
+        billing_status VARCHAR(50) NOT NULL DEFAULT 'Pending',
+        joined TIMESTAMP NOT NULL DEFAULT NOW(),
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      ALTER TABLE identity.web_registrations ADD COLUMN IF NOT EXISTS order_id VARCHAR(100);
+      ALTER TABLE identity.web_registrations ADD COLUMN IF NOT EXISTS location_name VARCHAR(255) DEFAULT 'Indonesia';
+      ALTER TABLE identity.web_registrations ADD COLUMN IF NOT EXISTS payment_token VARCHAR(255);
+      ALTER TABLE identity.web_registrations ADD COLUMN IF NOT EXISTS payment_url TEXT;
+      ALTER TABLE identity.web_registrations ADD COLUMN IF NOT EXISTS issuer VARCHAR(100);
+
+      CREATE TABLE IF NOT EXISTS identity.transactions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        order_id VARCHAR(100) UNIQUE NOT NULL,
+        booking_code VARCHAR(100) UNIQUE NOT NULL,
+        customer_name VARCHAR(255) NOT NULL,
+        customer_email VARCHAR(255) NOT NULL,
+        customer_phone VARCHAR(50),
+        program_name VARCHAR(255) NOT NULL,
+        experience_name VARCHAR(255) NOT NULL,
+        location_name VARCHAR(255) DEFAULT 'Indonesia',
+        pax INT NOT NULL DEFAULT 1,
+        gross_amount NUMERIC(15, 2) NOT NULL DEFAULT 0,
+        platform_fee NUMERIC(15, 2) NOT NULL DEFAULT 0,
+        net_payout NUMERIC(15, 2) NOT NULL DEFAULT 0,
+        payment_method VARCHAR(100) NOT NULL DEFAULT 'other_qris',
+        issuer VARCHAR(100),
+        payment_token VARCHAR(255),
+        payment_url TEXT,
+        status VARCHAR(50) NOT NULL DEFAULT 'pending',
+        raw_response JSONB DEFAULT '{}'::jsonb,
+        raw_webhook JSONB DEFAULT '{}'::jsonb,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_transactions_order_id ON identity.transactions (order_id);
+      CREATE INDEX IF NOT EXISTS idx_transactions_booking_code ON identity.transactions (booking_code);
+      CREATE INDEX IF NOT EXISTS idx_transactions_status ON identity.transactions (status);
+
     `);
 
     // Seed initial superadmin if table is empty
@@ -153,104 +227,6 @@ export async function initDb(): Promise<void> {
         }
       ]);
 
-      const defaultRecentPurchases = JSON.stringify([
-        {
-          id: 'TRX-BK-9021',
-          booking_code: 'BK-2026-9021',
-          program_name: 'Komodo Dragons Expeditions & Padar Sunrise',
-          customer_name: 'Michael Tan',
-          customer_email: 'm.tan@gmail.com',
-          pax: 4,
-          gross_amount: 14000000,
-          platform_fee: 700000,
-          net_payout: 13300000,
-          payment_method: 'BCA Virtual Account',
-          date: '2026-11-03T09:15:00Z',
-          status: 'cleared'
-        },
-        {
-          id: 'TRX-BK-9018',
-          booking_code: 'BK-2026-9018',
-          program_name: 'Raja Ampat Coral Triangle Liveaboard',
-          customer_name: 'Sarah Jenkins',
-          customer_email: 'sarah.j@traveler.com',
-          pax: 2,
-          gross_amount: 25000000,
-          platform_fee: 1250000,
-          net_payout: 23750000,
-          payment_method: 'Credit Card (Visa)',
-          date: '2026-11-02T16:40:00Z',
-          status: 'cleared'
-        },
-        {
-          id: 'TRX-BK-9014',
-          booking_code: 'BK-2026-9014',
-          program_name: 'Bromo Midnight Milky Way & Jeep Safari',
-          customer_name: 'Budi Santoso',
-          customer_email: 'budi.s@outlook.com',
-          pax: 5,
-          gross_amount: 7500000,
-          platform_fee: 375000,
-          net_payout: 7125000,
-          payment_method: 'Mandiri VA',
-          date: '2026-11-02T11:20:00Z',
-          status: 'pending_clearance'
-        },
-        {
-          id: 'TRX-BK-9009',
-          booking_code: 'BK-2026-9009',
-          program_name: 'Ubud Rainforest Culinary & Yoga Retreat',
-          customer_name: 'Chloe Dupont',
-          customer_email: 'chloe.dupont@voyage.fr',
-          pax: 2,
-          gross_amount: 5400000,
-          platform_fee: 270000,
-          net_payout: 5130000,
-          payment_method: 'Mastercard',
-          date: '2026-11-01T14:05:00Z',
-          status: 'pending_clearance'
-        }
-      ]);
-
-      const defaultPayoutHistory = JSON.stringify([
-        {
-          id: 'PO-2026-1102',
-          bank_name: 'Bank Central Asia (BCA)',
-          account_number: '8830192841',
-          account_holder: 'PT INDEX AELI INDONESIA',
-          amount: 35000000,
-          transfer_fee: 0,
-          reference_code: 'BCA-WD-83921948',
-          status: 'completed',
-          type: 'automatic',
-          processed_at: '2026-11-02T23:59:59Z'
-        },
-        {
-          id: 'PO-2026-1025',
-          bank_name: 'Bank Central Asia (BCA)',
-          account_number: '8830192841',
-          account_holder: 'PT INDEX AELI INDONESIA',
-          amount: 50000000,
-          transfer_fee: 0,
-          reference_code: 'BCA-WD-74829103',
-          status: 'completed',
-          type: 'automatic',
-          processed_at: '2026-10-25T23:59:59Z'
-        },
-        {
-          id: 'PO-2026-1018',
-          bank_name: 'Bank Central Asia (BCA)',
-          account_number: '8830192841',
-          account_holder: 'PT INDEX AELI INDONESIA',
-          amount: 50000000,
-          transfer_fee: 0,
-          reference_code: 'BCA-WD-63910284',
-          status: 'completed',
-          type: 'automatic',
-          processed_at: '2026-10-18T23:59:59Z'
-        }
-      ]);
-
       await pool.query(
         `INSERT INTO identity.payout_profiles (
            available_balance, pending_balance, total_paid_out,
@@ -258,16 +234,42 @@ export async function initDb(): Promise<void> {
            bank_accounts, recent_purchases, payout_history
          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`,
         [
-          48500000.00,
-          12200000.00,
-          135000000.00,
+          0.00,
+          0.00,
+          0.00,
           true,
           'daily',
           defaultBankAccounts,
-          defaultRecentPurchases,
-          defaultPayoutHistory
+          '[]',
+          '[]'
         ]
       );
+    }
+
+    // Seed default roles if empty
+    const roleCount = await pool.query('SELECT COUNT(*) FROM identity.roles;');
+    if (parseInt(roleCount.rows[0].count, 10) === 0) {
+      console.log('Seeding default roles in identity service...');
+      await pool.query(`
+        INSERT INTO identity.roles (name, key, group_name, access_level, permission_sets, description, owner, status, is_system, last_review) VALUES
+        ('Super Admin', 'super_admin', 'System roles', 'Full', ARRAY['Users', 'Roles', 'Settings', 'Billing', 'Reports', 'Integrations', 'Audit Logs'], 'Complete administrative ownership with unrestricted system access.', 'System', 'Active', true, NOW()),
+        ('Admin', 'admin', 'System roles', 'Full', ARRAY['Users', 'Settings', 'Reports', 'Billing', 'Integrations'], 'Administrative management for operational workflows, users, and billing.', 'System', 'Active', true, NOW()),
+        ('Finance Manager', 'finance', 'System roles', 'Scoped', ARRAY['Finance', 'Transactions', 'Payout', 'Billing', 'Reports'], 'Financial oversight: bookings, payout disbursements, banking accounts, and revenue audit.', 'System', 'Active', true, NOW()),
+        ('Content Editor', 'content_editor', 'System roles', 'Scoped', ARRAY['Destinations', 'Attractions', 'Programs', 'Media', 'Categories', 'Providers'], 'Publish and manage travel destinations, attractions, and tour catalog contents.', 'System', 'Active', true, NOW()),
+        ('Viewer', 'viewer', 'System roles', 'Read only', ARRAY['Reports', 'Dashboards', 'Destinations', 'Programs'], 'Read-only access for auditing and reviewing analytics and public catalog items.', 'System', 'Active', true, NOW()),
+        ('Manager', 'manager', 'Needs review', 'Scoped', ARRAY['Users', 'Reports', 'Programs', 'Destinations'], 'Operations team leader overseeing tour schedules and assigned editors.', 'Jane Doe', 'Needs review', false, NOW() - INTERVAL '15 days'),
+        ('Support Specialist', 'support', 'Custom roles', 'Scoped', ARRAY['Users', 'Reports', 'Dashboards'], 'Customer assistance personnel monitoring inquiries and traveler reservations.', 'System', 'Active', false, NOW() - INTERVAL '10 days'),
+        ('Marketing Lead', 'marketing', 'Custom roles', 'Scoped', ARRAY['Reports', 'Analytics', 'Dashboards', 'CTA Banners'], 'Growth & outreach coordinator managing promo banners and visitor analytics.', 'Alex Kim', 'Active', false, NOW() - INTERVAL '5 days'),
+        ('Developer', 'developer', 'Custom roles', 'Scoped', ARRAY['Integrations', 'API Keys', 'Webhooks', 'Audit Logs'], 'Technical team member managing integrations and API webhooks.', 'Chris Lee', 'Active', false, NOW() - INTERVAL '3 days');
+      `);
+      console.log('Default roles seeded successfully.');
+    } else {
+      // Ensure Finance role exists in identity.roles
+      await pool.query(`
+        INSERT INTO identity.roles (name, key, group_name, access_level, permission_sets, description, owner, status, is_system, last_review)
+        VALUES ('Finance Manager', 'finance', 'System roles', 'Scoped', ARRAY['Finance', 'Transactions', 'Payout', 'Billing', 'Reports'], 'Financial oversight: bookings, payout disbursements, banking accounts, and revenue audit.', 'System', 'Active', true, NOW())
+        ON CONFLICT (key) DO NOTHING;
+      `);
     }
   } catch (err) {
     console.error('Error initializing identity-service database:', err);

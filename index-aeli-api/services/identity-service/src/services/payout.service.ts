@@ -195,11 +195,93 @@ export class PayoutService {
     };
   }
 
+  async getTransactions() {
+    try {
+      const { rows } = await pool.query(
+        `SELECT id, order_id, booking_code, customer_name, customer_email, customer_phone,
+                program_name, experience_name, location_name, pax, gross_amount, platform_fee, net_payout,
+                payment_method, issuer, payment_token, payment_url, status, created_at, updated_at
+         FROM identity.transactions
+         ORDER BY created_at DESC;`
+      );
+
+      if (rows.length > 0) {
+        return rows.map((r: any) => ({
+          id: r.id,
+          order_id: r.order_id,
+          booking_code: r.booking_code,
+          program_name: r.program_name,
+          experience_name: r.experience_name || 'Scenic Tour Experience',
+          location_name: r.location_name || 'Indonesia',
+          customer_name: r.customer_name,
+          customer_email: r.customer_email,
+          customer_phone: r.customer_phone || '-',
+          pax: parseInt(r.pax || '1', 10),
+          gross_amount: parseFloat(r.gross_amount || '0'),
+          platform_fee: parseFloat(r.platform_fee || '0'),
+          net_payout: parseFloat(r.net_payout || '0'),
+          payment_method: r.payment_method || 'Online Transfer',
+          issuer: r.issuer || null,
+          payment_token: r.payment_token || null,
+          payment_url: r.payment_url || null,
+          date: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString(),
+          status: r.status === 'cleared' || r.status === 'paid' ? 'cleared' : (r.status === 'pending' ? 'pending_clearance' : r.status)
+        }));
+      }
+    } catch (e) {
+      console.error('Error fetching transactions from identity.transactions:', e);
+    }
+
+    try {
+      const { rows } = await pool.query(
+        `SELECT id, booking_code, customer_name, customer_email, customer_phone,
+                program_name, experience_name, location_name, pax, gross_amount, payment_method,
+                billing_status, joined, created_at
+         FROM identity.web_registrations
+         ORDER BY created_at DESC;`
+      );
+
+      if (rows.length > 0) {
+        return rows.map((r: any) => {
+          const gross = parseFloat(r.gross_amount || '0');
+          const fee = Math.round(gross * 0.05);
+          const net = gross - fee;
+          return {
+            id: r.id,
+            booking_code: r.booking_code,
+            program_name: r.program_name,
+            experience_name: r.experience_name || 'Scenic Tour Experience',
+            location_name: r.location_name || 'Indonesia',
+            customer_name: r.customer_name,
+            customer_email: r.customer_email,
+            customer_phone: r.customer_phone || '-',
+            pax: parseInt(r.pax || '1', 10),
+            gross_amount: gross,
+            platform_fee: fee,
+            net_payout: net,
+            payment_method: r.payment_method || 'Online Transfer',
+            date: r.joined ? new Date(r.joined).toISOString() : new Date().toISOString(),
+            status: r.billing_status === 'Paid' ? 'cleared' : (r.billing_status === 'Pending' ? 'pending_clearance' : r.billing_status.toLowerCase())
+          };
+        });
+      }
+    } catch (e) {
+      console.error('Error fetching transactions from web_registrations:', e);
+    }
+
+    const overview = await this.getPayoutOverview();
+    return overview.recent_purchases || [];
+  }
+
   async recordProgramPurchase(data: {
     booking_code: string;
     program_name: string;
+    experience_name?: string;
+    provider_name?: string;
+    location_name?: string;
     customer_name: string;
     customer_email: string;
+    customer_phone?: string;
     pax: number;
     gross_amount: number;
     payment_method: string;
@@ -213,8 +295,12 @@ export class PayoutService {
       id: `TRX-${Date.now()}`,
       booking_code: data.booking_code || `BK-${Date.now()}`,
       program_name: data.program_name,
+      experience_name: data.experience_name || 'Scenic Tour Experience',
+      provider_name: data.provider_name || 'PT Bali Samudra Experiential',
+      location_name: data.location_name || 'Indonesia',
       customer_name: data.customer_name,
       customer_email: data.customer_email,
+      customer_phone: data.customer_phone || '-',
       pax: data.pax || 1,
       gross_amount: data.gross_amount,
       platform_fee: platformFee,

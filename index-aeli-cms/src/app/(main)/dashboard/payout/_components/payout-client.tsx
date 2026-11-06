@@ -1,31 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import {
-  Landmark,
-  Wallet,
-  ArrowUpRight,
   ArrowDownLeft,
+  ArrowUpRight,
+  Banknote,
+  Building2,
   CheckCircle2,
   Clock,
-  Building2,
-  Plus,
-  Trash2,
-  Star,
-  RefreshCw,
-  SlidersHorizontal,
+  Compass,
+  Copy,
   Download,
-  AlertCircle,
-  HelpCircle,
-  Sparkles,
+  Eye,
+  Landmark,
   Loader2,
+  Mail,
+  MapPin,
+  Plus,
   Receipt,
-  Layers,
-  Banknote,
+  RefreshCw,
   Send,
+  Sparkles,
+  Star,
+  Trash2,
+  User,
+  Users,
+  Wallet
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,6 +41,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -51,6 +63,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getClientCookie } from "@/lib/cookie.client";
+import { formatIDR } from "@/lib/currency";
 
 interface BankAccount {
   id: string;
@@ -67,6 +80,9 @@ interface PurchaseItem {
   id: string;
   booking_code: string;
   program_name: string;
+  provider_name?: string;
+  location_name?: string;
+  experience_name?: string;
   customer_name: string;
   customer_email: string;
   pax: number;
@@ -127,6 +143,8 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
 
   // Simulate Program Purchase Modal State
   const [isSimulateOpen, setIsSimulateOpen] = useState(false);
+  const [selectedPurchase, setSelectedPurchase] = useState<PurchaseItem | null>(null);
+  const [isPurchaseDrawerOpen, setIsPurchaseDrawerOpen] = useState(false);
   const [simProgramName, setSimProgramName] = useState("Komodo Dragons Expeditions & Padar Sunrise");
   const [simCustomerName, setSimCustomerName] = useState("Michael Tan");
   const [simGrossAmount, setSimGrossAmount] = useState("12000000");
@@ -134,17 +152,25 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
   const [simPaymentMethod, setSimPaymentMethod] = useState("BCA Virtual Account");
   const [isSimulating, setIsSimulating] = useState(false);
 
+  // Provider Filter State
+  const [selectedProvider, setSelectedProvider] = useState<string>("all");
+
+  const uniqueProviders = Array.from(
+    new Set(
+      data.recent_purchases
+        .map((p) => p.provider_name)
+        .filter((name): name is string => Boolean(name))
+    )
+  );
+
+  const filteredPurchases =
+    selectedProvider === "all"
+      ? data.recent_purchases
+      : data.recent_purchases.filter((p) => p.provider_name === selectedProvider);
+
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7009";
 
   const primaryBank = data.bank_accounts.find((b) => b.is_primary) || data.bank_accounts[0];
-
-  const formatIDR = (val: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(val);
-  };
 
   const handleToggleAutoPayout = async (checked: boolean) => {
     setAutoPayoutEnabled(checked);
@@ -198,8 +224,7 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
         }),
       });
       toast.success(
-        `Auto-payout schedule updated to: ${
-          schedule === "daily" ? "Daily" : schedule === "weekly" ? "Weekly" : "Monthly"
+        `Auto-payout schedule updated to: ${schedule === "daily" ? "Daily" : schedule === "weekly" ? "Weekly" : "Monthly"
         }`
       );
       setData((prev) => ({ ...prev, auto_payout_schedule: schedule }));
@@ -454,13 +479,13 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-semibold text-2xl tracking-tight md:text-3xl">Payout & Revenue</h1>
-            <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
+            <h1 className="text-3xl tracking-tight">Payout & Revenue</h1>
+            {/* <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
               Auto-Disbursement
-            </Badge>
+            </Badge> */}
           </div>
           <p className="text-muted-foreground text-sm">
             Revenues from tour program bookings flow into this balance and are automatically transferred to your registered bank account.
@@ -468,7 +493,7 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button
+          {/* <Button
             variant="outline"
             size="sm"
             onClick={() => setIsSimulateOpen(true)}
@@ -476,7 +501,7 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
           >
             <Sparkles className="mr-1.5 size-4 text-amber-500" />
             Simulate Tour Purchase
-          </Button>
+          </Button> */}
 
           <Button
             variant="outline"
@@ -635,11 +660,10 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
             {data.bank_accounts.map((bank) => (
               <div
                 key={bank.id}
-                className={`relative flex flex-col justify-between rounded-xl border p-4.5 transition-all ${
-                  bank.is_primary
-                    ? "border-primary bg-primary/[0.02] shadow-xs ring-1 ring-primary/40"
-                    : "hover:border-primary/40 bg-card"
-                }`}
+                className={`relative flex flex-col justify-between rounded-xl border p-4.5 transition-all ${bank.is_primary
+                  ? "border-primary bg-primary/[0.02] shadow-xs ring-1 ring-primary/40"
+                  : "hover:border-primary/40 bg-card"
+                  }`}
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between">
@@ -710,17 +734,17 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
 
       {/* Tabs: Program Purchases Revenue vs Payout Disbursements */}
       <Tabs defaultValue="purchases" className="w-full">
-        <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0">
+        <TabsList>
           <TabsTrigger
             value="purchases"
-            className="relative gap-2 rounded-none border-b-2 border-transparent px-4 py-2 font-medium text-muted-foreground data-active:border-primary data-active:text-foreground"
+
           >
             <ArrowDownLeft className="size-4 text-emerald-500" />
             Tour Program Purchases ({data.recent_purchases.length})
           </TabsTrigger>
           <TabsTrigger
             value="disbursements"
-            className="relative gap-2 rounded-none border-b-2 border-transparent px-4 py-2 font-medium text-muted-foreground data-active:border-primary data-active:text-foreground"
+
           >
             <ArrowUpRight className="size-4 text-primary" />
             Disbursement History ({data.payout_history.length})
@@ -730,75 +754,105 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
         {/* Tab 1: Program Purchases Revenue */}
         <TabsContent value="purchases" className="pt-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <CardTitle className="text-base flex items-center gap-2">
                   <Banknote className="size-4 text-emerald-500" />
                   Program Booking Revenue
                 </CardTitle>
                 <CardDescription>
-                  List of traveler booking transactions and net revenue distribution into your payout balance.
+                  List of traveler booking transactions and net revenue distribution into provider payout balance.
                 </CardDescription>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsSimulateOpen(true)}
-                className="gap-1.5 text-xs border-dashed"
-              >
-                <Sparkles className="size-3.5 text-amber-500" />
-                Simulate Booking
-              </Button>
+
+              {uniqueProviders.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">Filter Provider:</span>
+                  <select
+                    value={selectedProvider}
+                    onChange={(e) => setSelectedProvider(e.target.value)}
+                    className="h-8 rounded-md border border-input bg-background px-2.5 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  >
+                    <option value="all">All Providers ({data.recent_purchases.length})</option>
+                    {uniqueProviders.map((prov) => (
+                      <option key={prov} value={prov}>
+                        {prov}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border">
+              <div className="overflow-hidden rounded-lg border bg-card">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="bg-muted/15">
                     <TableRow>
-                      <TableHead>Booking Code</TableHead>
-                      <TableHead>Tour Program</TableHead>
-                      <TableHead>Traveler</TableHead>
-                      <TableHead>Payment Method</TableHead>
-                      <TableHead>Gross Revenue</TableHead>
-                      <TableHead>Fee (5%)</TableHead>
-                      <TableHead>Net Payout</TableHead>
-                      <TableHead>Date & Time</TableHead>
-                      <TableHead className="text-right">Status</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Provider</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Tour Program</TableHead>
+                      {/* <TableHead className="h-11 p-3 font-medium">Location & Experience</TableHead> */}
+                      <TableHead className="h-11 p-3 font-medium">Booking Ref</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Gross Revenue</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Fee (5%)</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Net Payout (95%)</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Settlement Date</TableHead>
+                      <TableHead className="h-11 p-3 font-medium text-center">Payout Status</TableHead>
+                      <TableHead className="h-11 p-3 font-medium text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {data.recent_purchases.length > 0 ? (
-                      data.recent_purchases.map((pur) => (
+                    {filteredPurchases.length > 0 ? (
+                      filteredPurchases.map((pur) => (
                         <TableRow key={pur.id}>
-                          <TableCell className="font-mono text-xs font-semibold text-primary">
+                          <TableCell className="p-3 align-middle max-w-[200px]">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedPurchase(pur);
+                                setIsPurchaseDrawerOpen(true);
+                              }}
+                              className="font-semibold text-xs text-foreground flex items-center gap-1.5 truncate text-left group hover:text-primary cursor-pointer focus:outline-hidden"
+                              title="Click to view payout revenue detail"
+                            >
+                              <Building2 className="size-3.5 text-primary shrink-0" />
+                              <span className="truncate group-hover:underline">{pur.provider_name || "AELI Certified Provider"}</span>
+                            </button>
+                          </TableCell>
+                          <TableCell className="p-3 align-middle max-w-[220px]">
+                            <div className="font-medium text-xs text-foreground truncate">{pur.program_name}</div>
+                          </TableCell>
+                          {/* <TableCell className="p-3 align-middle max-w-[180px]">
+                            <div className="text-xs font-medium text-foreground flex items-center gap-1 truncate">
+                              <MapPin className="size-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                              <span>{pur.location_name || "Indonesia"}</span>
+                            </div>
+                            <div className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5 truncate">
+                              <Compass className="size-3 text-muted-foreground shrink-0" />
+                              <span className="truncate">{pur.experience_name || "Scenic Experience"}</span>
+                            </div>
+                          </TableCell> */}
+                          <TableCell className="p-3 align-middle font-mono text-xs font-semibold text-muted-foreground">
                             {pur.booking_code}
                           </TableCell>
-                          <TableCell className="font-medium text-xs max-w-[200px] truncate">
-                            {pur.program_name}
-                          </TableCell>
-                          <TableCell className="text-xs">
-                            <div className="font-medium">{pur.customer_name}</div>
-                            <div className="text-[11px] text-muted-foreground">{pur.pax} Pax</div>
-                          </TableCell>
-                          <TableCell className="text-xs">{pur.payment_method}</TableCell>
-                          <TableCell className="text-xs text-muted-foreground">
+                          <TableCell className="p-3 align-middle text-xs font-medium text-foreground">
                             {formatIDR(pur.gross_amount)}
                           </TableCell>
-                          <TableCell className="text-xs text-muted-foreground">
+                          <TableCell className="p-3 align-middle text-xs text-rose-600 dark:text-rose-400">
                             -{formatIDR(pur.platform_fee)}
                           </TableCell>
-                          <TableCell className="font-semibold text-xs text-emerald-600 dark:text-emerald-400">
+                          <TableCell className="p-3 align-middle font-bold text-xs text-emerald-600 dark:text-emerald-400">
                             +{formatIDR(pur.net_payout)}
                           </TableCell>
-                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                            {new Date(pur.date).toLocaleDateString("en-US", {
+                          <TableCell className="p-3 align-middle text-xs text-muted-foreground whitespace-nowrap">
+                            {new Date(pur.date).toLocaleDateString("id-ID", {
                               day: "numeric",
                               month: "short",
+                              year: "numeric",
                               hour: "2-digit",
                               minute: "2-digit",
                             })}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="p-3 align-middle text-center">
                             <Badge
                               variant="outline"
                               className={
@@ -810,12 +864,26 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
                               {pur.status === "cleared" ? "Available" : "Pending"}
                             </Badge>
                           </TableCell>
+                          <TableCell className="p-3 align-middle text-right">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-muted-foreground hover:text-foreground"
+                              title="View Revenue Detail"
+                              onClick={() => {
+                                setSelectedPurchase(pur);
+                                setIsPurchaseDrawerOpen(true);
+                              }}
+                            >
+                              <Eye className="size-4" />
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={9} className="h-24 text-center text-muted-foreground text-xs">
-                          No tour program booking transactions recorded yet.
+                        <TableCell colSpan={9} className="h-24 text-center text-muted-foreground text-sm">
+                          No tour program booking transactions recorded for this provider.
                         </TableCell>
                       </TableRow>
                     )}
@@ -839,45 +907,45 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border">
+              <div className="overflow-hidden rounded-lg border bg-card">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="bg-muted/15">
                     <TableRow>
-                      <TableHead>Reference Code</TableHead>
-                      <TableHead>Destination Bank Account</TableHead>
-                      <TableHead>Payout Type</TableHead>
-                      <TableHead>Disbursed Amount</TableHead>
-                      <TableHead>Transfer Fee</TableHead>
-                      <TableHead>Settlement Time</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Reference Code</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Destination Bank Account</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Payout Type</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Disbursed Amount</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Transfer Fee</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Settlement Time</TableHead>
+                      <TableHead className="h-11 p-3 font-medium">Status</TableHead>
+                      <TableHead className="h-11 p-3 font-medium text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {data.payout_history.length > 0 ? (
                       data.payout_history.map((po) => (
                         <TableRow key={po.id}>
-                          <TableCell className="font-mono font-medium text-xs">
+                          <TableCell className="p-3 align-middle font-mono font-medium text-xs">
                             {po.reference_code}
                           </TableCell>
-                          <TableCell className="text-xs">
+                          <TableCell className="p-3 align-middle text-xs">
                             <div className="font-medium">{po.bank_name}</div>
                             <div className="font-mono text-muted-foreground text-[11px]">
                               {po.account_number} (a.n {po.account_holder})
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="p-3 align-middle">
                             <Badge variant="secondary" className="text-[10px] capitalize">
                               {po.type === "automatic" ? "Automatic" : "Instant"}
                             </Badge>
                           </TableCell>
-                          <TableCell className="font-bold text-xs text-foreground">
+                          <TableCell className="p-3 align-middle font-bold text-xs text-foreground">
                             {formatIDR(po.amount)}
                           </TableCell>
-                          <TableCell className="text-xs text-emerald-600 dark:text-emerald-400">
+                          <TableCell className="p-3 align-middle text-xs text-emerald-600 dark:text-emerald-400">
                             Rp 0 (Free)
                           </TableCell>
-                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                          <TableCell className="p-3 align-middle text-xs text-muted-foreground whitespace-nowrap">
                             {new Date(po.processed_at).toLocaleString("en-US", {
                               day: "numeric",
                               month: "short",
@@ -886,7 +954,7 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
                               minute: "2-digit",
                             })}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="p-3 align-middle">
                             <Badge
                               variant="outline"
                               className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] capitalize"
@@ -894,7 +962,7 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
                               Completed
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="p-3 align-middle text-right">
                             <Button
                               variant="ghost"
                               size="sm"
@@ -909,7 +977,7 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={8} className="h-24 text-center text-muted-foreground text-xs">
+                        <TableCell colSpan={8} className="h-24 text-center text-muted-foreground text-sm">
                           No payout disbursement records found.
                         </TableCell>
                       </TableRow>
@@ -1181,6 +1249,164 @@ export function PayoutClient({ initialData }: { readonly initialData: PayoutData
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Program Booking Revenue Detail Drawer */}
+      <Drawer direction="right" open={isPurchaseDrawerOpen} onOpenChange={setIsPurchaseDrawerOpen}>
+        <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-lg h-full">
+          {selectedPurchase && (() => {
+            const isCleared = selectedPurchase.status === "cleared";
+            const copyBooking = () => {
+              navigator.clipboard.writeText(selectedPurchase.booking_code);
+              toast.success("Booking reference copied");
+            };
+
+            return (
+              <div className="flex h-full flex-col">
+                <DrawerHeader className="border-b border-border/40 px-6 py-5">
+                  <div className="flex items-center justify-between gap-3 mb-2.5">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium ${
+                        isCleared
+                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                          : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                      }`}
+                    >
+                      <span className={`size-1.5 rounded-full ${isCleared ? "bg-emerald-500" : "bg-amber-500"}`} />
+                      {isCleared ? "Payout available" : "In clearance"}
+                    </span>
+                    <span className="text-xs text-muted-foreground tabular-nums">
+                      {new Date(selectedPurchase.date).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+
+                  <div className="flex items-start justify-between gap-4 text-left">
+                    <div className="min-w-0 flex-1">
+                      <DrawerTitle className="text-base font-semibold text-foreground tracking-tight">
+                        {selectedPurchase.provider_name || "AELI Certified Provider"}
+                      </DrawerTitle>
+                      <DrawerDescription className="text-xs text-muted-foreground mt-1">
+                        <span>Booking reference {selectedPurchase.booking_code}</span>
+                      </DrawerDescription>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                      onClick={copyBooking}
+                    >
+                      <Copy className="size-3.5" />
+                      Copy
+                    </Button>
+                  </div>
+                </DrawerHeader>
+
+                <div className="no-scrollbar flex-1 overflow-y-auto px-6 py-5 space-y-6">
+                  {/* Program Details */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">
+                      Program
+                    </h4>
+                    <div className="rounded-lg border border-border/40 divide-y divide-border/40 text-sm">
+                      <div className="flex items-start justify-between gap-4 px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs shrink-0">Name</span>
+                        <span className="font-medium text-foreground text-right text-xs">{selectedPurchase.program_name}</span>
+                      </div>
+                      {selectedPurchase.experience_name && (
+                        <div className="flex items-center justify-between px-3.5 py-2.5">
+                          <span className="text-muted-foreground text-xs">Experience</span>
+                          <span className="text-foreground text-xs">{selectedPurchase.experience_name}</span>
+                        </div>
+                      )}
+                      {selectedPurchase.location_name && (
+                        <div className="flex items-center justify-between px-3.5 py-2.5">
+                          <span className="text-muted-foreground text-xs">Location</span>
+                          <span className="text-foreground text-xs">{selectedPurchase.location_name}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Customer Information */}
+                  {(selectedPurchase.customer_name || selectedPurchase.customer_email) && (
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-medium text-muted-foreground">
+                        Customer
+                      </h4>
+                      <div className="rounded-lg border border-border/40 divide-y divide-border/40 text-sm">
+                        {selectedPurchase.customer_name && (
+                          <div className="flex items-center justify-between px-3.5 py-2.5">
+                            <span className="text-muted-foreground text-xs">Name</span>
+                            <span className="font-medium text-foreground text-xs">{selectedPurchase.customer_name}</span>
+                          </div>
+                        )}
+                        {selectedPurchase.customer_email && (
+                          <div className="flex items-center justify-between px-3.5 py-2.5">
+                            <span className="text-muted-foreground text-xs">Email</span>
+                            <span className="font-mono text-xs text-foreground">{selectedPurchase.customer_email}</span>
+                          </div>
+                        )}
+                        {selectedPurchase.pax && (
+                          <div className="flex items-center justify-between px-3.5 py-2.5">
+                            <span className="text-muted-foreground text-xs">Party size</span>
+                            <span className="text-xs font-medium text-foreground tabular-nums">
+                              {selectedPurchase.pax} traveler{selectedPurchase.pax > 1 ? "s" : ""}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Revenue Breakdown */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">
+                      Settlement
+                    </h4>
+                    <div className="rounded-lg border border-border/40 divide-y divide-border/40 text-sm">
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Payment method</span>
+                        <span className="text-foreground text-xs">{selectedPurchase.payment_method || "Online Payment"}</span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Gross revenue</span>
+                        <span className="font-medium text-foreground tabular-nums text-xs">
+                          {formatIDR(selectedPurchase.gross_amount)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5">
+                        <span className="text-muted-foreground text-xs">Platform fee (5%)</span>
+                        <span className="text-muted-foreground tabular-nums text-xs">
+                          -{formatIDR(selectedPurchase.platform_fee)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between px-3.5 py-2.5 bg-muted/20">
+                        <span className="font-medium text-foreground text-xs">Net provider payout</span>
+                        <span className="font-semibold text-foreground tabular-nums text-xs">
+                          +{formatIDR(selectedPurchase.net_payout)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <DrawerFooter className="border-t border-border/40 px-6 py-4">
+                  <DrawerClose asChild>
+                    <Button variant="outline" className="w-full h-9 text-xs">
+                      Close
+                    </Button>
+                  </DrawerClose>
+                </DrawerFooter>
+              </div>
+            );
+          })()}
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

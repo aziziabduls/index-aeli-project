@@ -294,9 +294,9 @@ export function AppConfigClient({ initialConfig }: { initialConfig: AppConfigDat
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-3xl tracking-tight">App Config</h1>
-            <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+            {/* <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
               Superadmin Only
-            </Badge>
+            </Badge> */}
           </div>
           <p className="text-muted-foreground text-sm">
             Manage global website settings, booking taxes, credentials, About page, Contact page, and Footer content on{" "}
@@ -346,8 +346,8 @@ export function AppConfigClient({ initialConfig }: { initialConfig: AppConfigDat
             <CardHeader>
               <CardTitle>Booking Tax & Fees Configuration</CardTitle>
               <CardDescription>
-                Overrides <code>NEXT_PUBLIC_TAX_PERCENT</code> on the booking checkout page (
-                <code>/booking</code>).
+                {/* Overrides <code>NEXT_PUBLIC_TAX_PERCENT</code> on the booking checkout page (
+                <code>/booking</code>). */}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

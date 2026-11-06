@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   Compass,
   Map,
@@ -12,7 +13,6 @@ import {
   Heart,
   type LucideIcon,
 } from 'lucide-react';
-import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { DEFAULT_APP_CONFIG, getAppConfig } from '@/lib/api';
 import type { AppConfig } from '@/types';
 
@@ -45,37 +45,50 @@ export default function WhyChooseUsSection() {
   }, []);
 
   return (
-    <section id="about" className="py-24 bg-primary-dark text-white relative overflow-hidden">
-      {/* Abstract tropical decorations */}
-      <div className="absolute right-0 top-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute left-0 bottom-0 w-96 h-96 bg-secondary/15 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs uppercase tracking-[0.2em] font-extrabold text-secondary mb-2 block">
-            {credentials.subtitle}
-          </span>
-          <h2 className="font-display font-extrabold text-3xl md:text-5xl text-white">
+    <section id="about" className="py-20 sm:py-24 bg-primary-dark text-white border-y border-white/10 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          className="text-center max-w-2xl mx-auto mb-14 sm:mb-16 space-y-3"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/90 text-xs font-medium">
+            <span className="size-1.5 rounded-full bg-emerald-400" />
+            <span>{credentials.subtitle || 'Verified standards'}</span>
+          </div>
+          <h2 className="font-display font-medium text-3xl sm:text-4xl text-white tracking-tight">
             {credentials.title}
           </h2>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Feature Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
           {credentials.items.map((feature, idx) => {
             const Icon = ICON_MAP[feature.icon] || Compass;
             return (
-              <AnimatedContainer
+              <motion.div
                 key={`${feature.title}-${idx}`}
-                animation="fadeInUp"
-                delay={idx * 0.1}
-                className="bg-white/5 border border-white/10 p-8 rounded-[24px] backdrop-blur-md flex flex-col items-start"
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: idx * 0.05, ease: 'easeOut' }}
+                className="bg-white/5 border border-white/10 p-6 sm:p-7 rounded-2xl flex flex-col justify-between hover:bg-white/[0.08] hover:border-white/20 transition-all duration-200"
               >
-                <div className="w-12 h-12 rounded-2xl bg-secondary/20 text-secondary flex items-center justify-center mb-6">
-                  <Icon className="w-6 h-6" />
+                <div>
+                  <div className="size-10 rounded-xl bg-white/10 text-white flex items-center justify-center mb-5 shrink-0">
+                    <Icon className="size-5" />
+                  </div>
+                  <h3 className="font-display font-medium text-base text-white mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-white/70 text-xs sm:text-sm leading-relaxed">
+                    {feature.desc}
+                  </p>
                 </div>
-                <h3 className="font-display font-bold text-lg text-white mb-3">{feature.title}</h3>
-                <p className="text-zinc-300 text-sm leading-relaxed">{feature.desc}</p>
-              </AnimatedContainer>
+              </motion.div>
             );
           })}
         </div>

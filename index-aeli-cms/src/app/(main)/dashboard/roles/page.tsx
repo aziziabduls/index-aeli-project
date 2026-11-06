@@ -39,5 +39,5 @@ export default async function Page() {
     console.error("Failed to fetch roles from API:", e);
   }
 
-  return <Roles roles={apiRoles} />;
+  return <Roles roles={apiRoles} currentUser={user} />;
 }

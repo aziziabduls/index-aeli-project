@@ -4,13 +4,35 @@ import { useMemo, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { Edit, MoreHorizontal, Plus, Search, Trash2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Compass,
+  Edit,
+  Eye,
+  FolderTree,
+  Layers,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,17 +42,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { getClientCookie } from "@/lib/cookie.client";
@@ -55,8 +68,21 @@ interface CategoriesClientProps {
   programs: Program[];
 }
 
+const pageSizeItems = [10, 20, 30, 40, 50].map((pageSize) => ({
+  value: `${pageSize}`,
+  label: `${pageSize}`,
+}));
+
 export function CategoriesClient({ initialCategories, programs }: CategoriesClientProps) {
   const router = useRouter();
+
+  // Drawer detail state
+  const [selectedCategory, setSelectedCategory] = useState<(Category & {
+    totalCount: number;
+    publishedCount: number;
+    draftCount: number;
+  }) | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Dialog & Form State
   const [isOpen, setIsOpen] = useState(false);
@@ -158,19 +184,6 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
     const start = (activePage - 1) * pageSize;
     return filteredCategories.slice(start, start + pageSize);
   }, [filteredCategories, activePage, pageSize]);
-
-  const pageNumbers = useMemo(() => {
-    if (pageCount <= 3) {
-      return Array.from({ length: pageCount }, (_, index) => index + 1);
-    }
-    if (activePage <= 2) return [1, 2, 3];
-    if (activePage >= pageCount - 1) return [pageCount - 2, pageCount - 1, pageCount];
-    return [activePage - 1, activePage, activePage + 1];
-  }, [activePage, pageCount]);
-
-  const preventNavigation = (e: React.MouseEvent) => {
-    e.preventDefault();
-  };
 
   const handleOpenCreate = () => {
     setEditingCategory(null);
@@ -281,233 +294,203 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
         </Button>
       </div>
 
-      <div className="relative mb-2 flex max-w-sm items-center">
-        <Search className="absolute left-3 size-4 text-muted-foreground" />
-        <Input
-          placeholder="Search categories..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="pl-9"
-        />
-      </div>
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full sm:w-80">
+            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="h-8 rounded-[min(var(--radius-md),12px)] pl-8"
+              placeholder="Search categories..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Categories</CardTitle>
-          <CardDescription>A list of categories dynamically calculated from tour programs.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
+        <div className="overflow-hidden rounded-lg border bg-card">
+          <Table>
+            <TableHeader className="bg-muted/15">
+              <TableRow>
+                <TableHead className="h-11 w-[240px] p-3 font-medium">Category</TableHead>
+                <TableHead className="h-11 p-3 font-medium">Description</TableHead>
+                <TableHead className="h-11 w-[120px] p-3 text-center font-medium">Total Programs</TableHead>
+                <TableHead className="h-11 w-[120px] p-3 text-center font-medium text-emerald-600">Active</TableHead>
+                <TableHead className="h-11 w-[120px] p-3 text-center font-medium text-slate-500">Draft</TableHead>
+                <TableHead className="h-11 w-[80px] p-3 text-right font-medium">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedCategories.length === 0 ? (
                 <TableRow>
-                  <TableHead className="w-[240px]">Category</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="w-[120px] text-center">Total Programs</TableHead>
-                  <TableHead className="w-[120px] text-center text-emerald-600">Active</TableHead>
-                  <TableHead className="w-[120px] text-center text-slate-500">Draft</TableHead>
-                  <TableHead className="w-[80px] text-right">Actions</TableHead>
+                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                    No categories found.
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedCategories.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
-                      No categories found.
+              ) : (
+                paginatedCategories.map((cat) => (
+                  <TableRow key={cat.name}>
+                    <TableCell className="p-3 align-middle font-medium">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategory(cat);
+                          setIsDrawerOpen(true);
+                        }}
+                        className="flex items-center gap-2 font-semibold text-foreground text-left hover:text-primary hover:underline cursor-pointer focus:outline-hidden"
+                        title="Click to view category details"
+                      >
+                        {cat.name}
+                      </button>
+                    </TableCell>
+                    <TableCell className="max-w-md whitespace-normal p-3 align-middle text-muted-foreground text-sm">
+                      {cat.description}
+                    </TableCell>
+                    <TableCell className="p-3 text-center align-middle font-semibold">{cat.totalCount}</TableCell>
+                    <TableCell className="p-3 text-center align-middle font-semibold text-emerald-600">
+                      {cat.publishedCount}
+                    </TableCell>
+                    <TableCell className="p-3 text-center align-middle font-semibold text-slate-500">
+                      {cat.draftCount}
+                    </TableCell>
+                    <TableCell className="p-3 align-middle text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          render={
+                            <Button
+                              aria-label={`Open actions for ${cat.name}`}
+                              className="size-8 rounded-md text-muted-foreground hover:bg-muted/50"
+                              size="icon-sm"
+                              variant="ghost"
+                            />
+                          }
+                        >
+                          <MoreHorizontal className="size-4" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-44">
+                          <DropdownMenuGroup>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedCategory(cat);
+                                setIsDrawerOpen(true);
+                              }}
+                            >
+                              <Eye className="mr-2 size-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleOpenEdit(cat)}>
+                              <Edit className="mr-2 size-4" />
+                              Edit Category
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
+                          {cat.id && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem
+                                  variant="destructive"
+                                  onClick={() => handleDelete(cat)}
+                                >
+                                  <Trash2 className="mr-2 size-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  paginatedCategories.map((cat) => (
-                    <TableRow key={cat.name}>
-                      <TableCell className="align-middle font-medium">
-                        <div className="flex items-center gap-2">
-                          <div className={`h-2.5 w-2.5 rounded-full bg-gradient-to-r ${cat.gradient}`} />
-                          <Badge variant="outline" className={`w-fit py-0.5 ${cat.color}`}>
-                            {cat.name}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell className="max-w-md whitespace-normal align-middle text-muted-foreground text-sm">
-                        {cat.description}
-                      </TableCell>
-                      <TableCell className="text-center align-middle font-semibold">{cat.totalCount}</TableCell>
-                      <TableCell className="text-center align-middle font-semibold text-emerald-600">
-                        {cat.publishedCount}
-                      </TableCell>
-                      <TableCell className="text-center align-middle font-semibold text-slate-500">
-                        {cat.draftCount}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            render={
-                              <Button
-                                aria-label={`Open actions for ${cat.name}`}
-                                className="size-8 rounded-md text-muted-foreground hover:bg-muted/50"
-                                size="icon-sm"
-                                variant="ghost"
-                              />
-                            }
-                          >
-                            <MoreHorizontal className="size-4" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-44">
-                            <DropdownMenuGroup>
-                              <DropdownMenuItem onClick={() => handleOpenEdit(cat)}>
-                                <Edit className="mr-2 size-4" />
-                                Edit Category
-                              </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                            {cat.id && (
-                              <>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuGroup>
-                                  <DropdownMenuItem
-                                    variant="destructive"
-                                    onClick={() => handleDelete(cat)}
-                                  >
-                                    <Trash2 className="mr-2 size-4" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuGroup>
-                              </>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-between px-1">
+          <div className="hidden flex-1 text-muted-foreground text-sm lg:flex">
+            Showing {filteredCategories.length === 0 ? 0 : (activePage - 1) * pageSize + 1} to{" "}
+            {Math.min(activePage * pageSize, filteredCategories.length)} of {filteredCategories.length} entries
           </div>
-
-          {filteredCategories.length > 0 && (
-            <>
-              <Separator />
-              <div className="flex flex-col gap-4 px-2 pt-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
-                  <div className="flex items-center gap-2">
-                    <span>Rows per page</span>
-                    <Select
-                      value={`${pageSize}`}
-                      onValueChange={(value) => {
-                        setPageSize(Number(value));
-                        setCurrentPage(1);
-                      }}
-                    >
-                      <SelectTrigger size="sm" className="w-20" id="categories-rows-per-page">
-                        <SelectValue placeholder={`${pageSize}`} />
-                      </SelectTrigger>
-                      <SelectContent side="top">
-                        <SelectGroup>
-                          {[10, 20, 30, 40, 50].map((size) => (
-                            <SelectItem key={size} value={`${size}`}>
-                              {size}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <span>
-                    Showing {Math.min((activePage - 1) * pageSize + 1, filteredCategories.length)} to{" "}
-                    {Math.min(activePage * pageSize, filteredCategories.length)} of {filteredCategories.length} entries
-                  </span>
-                </div>
-
-                <Pagination className="mx-0 w-auto justify-start sm:justify-end">
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        href="#"
-                        text=""
-                        className={activePage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        onClick={(e) => {
-                          preventNavigation(e);
-                          if (activePage > 1) setCurrentPage(activePage - 1);
-                        }}
-                      />
-                    </PaginationItem>
-
-                    {pageNumbers[0] > 1 && (
-                      <>
-                        <PaginationItem>
-                          <PaginationLink
-                            href="#"
-                            onClick={(e) => {
-                              preventNavigation(e);
-                              setCurrentPage(1);
-                            }}
-                          >
-                            1
-                          </PaginationLink>
-                        </PaginationItem>
-                        {pageNumbers[0] > 2 && (
-                          <PaginationItem>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        )}
-                      </>
-                    )}
-
-                    {pageNumbers.map((pageNumber) => (
-                      <PaginationItem key={`page-${pageNumber}`}>
-                        <PaginationLink
-                          href="#"
-                          isActive={activePage === pageNumber}
-                          onClick={(e) => {
-                            preventNavigation(e);
-                            setCurrentPage(pageNumber);
-                          }}
-                        >
-                          {pageNumber}
-                        </PaginationLink>
-                      </PaginationItem>
+          <div className="flex w-full items-center gap-8 lg:w-fit">
+            <div className="hidden items-center gap-2 lg:flex">
+              <Label htmlFor="categories-rows-per-page" className="font-medium text-sm">
+                Rows per page
+              </Label>
+              <Select
+                value={`${pageSize}`}
+                onValueChange={(value) => {
+                  if (value) {
+                    setPageSize(Number(value));
+                    setCurrentPage(1);
+                  }
+                }}
+                items={pageSizeItems}
+              >
+                <SelectTrigger size="sm" className="w-20" id="categories-rows-per-page">
+                  <SelectValue placeholder={`${pageSize}`} />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  <SelectGroup>
+                    {pageSizeItems.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
                     ))}
-
-                    {pageNumbers[pageNumbers.length - 1] < pageCount && (
-                      <>
-                        {pageNumbers[pageNumbers.length - 1] < pageCount - 1 && (
-                          <PaginationItem>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        )}
-                        <PaginationItem>
-                          <PaginationLink
-                            href="#"
-                            onClick={(e) => {
-                              preventNavigation(e);
-                              setCurrentPage(pageCount);
-                            }}
-                          >
-                            {pageCount}
-                          </PaginationLink>
-                        </PaginationItem>
-                      </>
-                    )}
-
-                    <PaginationItem>
-                      <PaginationNext
-                        href="#"
-                        text=""
-                        className={activePage === pageCount ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        onClick={(e) => {
-                          preventNavigation(e);
-                          if (activePage < pageCount) setCurrentPage(activePage + 1);
-                        }}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex w-fit items-center justify-center font-medium text-sm">
+              Page {activePage} of {pageCount}
+            </div>
+            <div className="ml-auto flex items-center gap-2 lg:ml-0">
+              <Button
+                variant="outline"
+                className="hidden size-8 lg:flex"
+                size="icon"
+                onClick={() => setCurrentPage(1)}
+                disabled={activePage <= 1}
+              >
+                <span className="sr-only">Go to first page</span>
+                <ChevronsLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={activePage <= 1}
+              >
+                <span className="sr-only">Go to previous page</span>
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, pageCount))}
+                disabled={activePage >= pageCount}
+              >
+                <span className="sr-only">Go to next page</span>
+                <ChevronRight className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="hidden size-8 lg:flex"
+                size="icon"
+                onClick={() => setCurrentPage(pageCount)}
+                disabled={activePage >= pageCount}
+              >
+                <span className="sr-only">Go to last page</span>
+                <ChevronsRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[450px]">
@@ -552,6 +535,119 @@ export function CategoriesClient({ initialCategories, programs }: CategoriesClie
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Category Detail Drawer */}
+      <Drawer direction="right" open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-lg h-full">
+          {selectedCategory && (() => {
+            const matchingPrograms = programs.filter(
+              (p) => p.category?.toLowerCase() === selectedCategory.name.toLowerCase()
+            );
+
+            return (
+              <div className="flex h-full flex-col">
+                <DrawerHeader className="border-b border-border/40 px-6 py-5">
+                  <div className="flex items-center justify-between gap-3 mb-2.5">
+                    <span className="rounded-md bg-muted/40 px-2 py-0.5 text-xs text-muted-foreground">
+                      Category
+                    </span>
+                    <div className="flex items-center gap-2 text-xs tabular-nums text-muted-foreground">
+                      <span>{selectedCategory.totalCount} programs</span>
+                      <span>•</span>
+                      <span className="text-emerald-700 dark:text-emerald-400 font-medium">{selectedCategory.publishedCount} active</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start justify-between gap-4 text-left">
+                    <div className="min-w-0 flex-1">
+                      <DrawerTitle className="text-base font-semibold text-foreground tracking-tight">
+                        {selectedCategory.name}
+                      </DrawerTitle>
+                      <DrawerDescription className="text-xs text-muted-foreground mt-1">
+                        <span>Classification ID {selectedCategory.id || "system"}</span>
+                      </DrawerDescription>
+                    </div>
+                  </div>
+                </DrawerHeader>
+
+                <div className="no-scrollbar flex-1 overflow-y-auto px-6 py-5 space-y-6">
+                  {/* Category Description */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">
+                      Description
+                    </h4>
+                    <div className="rounded-lg border border-border/40 p-3.5 text-xs text-foreground/90 leading-relaxed">
+                      {selectedCategory.description || "No description provided for this category."}
+                    </div>
+                  </div>
+
+                  {/* Associated Programs */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">
+                      Associated programs ({matchingPrograms.length})
+                    </h4>
+
+                    {matchingPrograms.length === 0 ? (
+                      <div className="rounded-lg border border-border/40 p-4 text-center text-xs text-muted-foreground">
+                        No tour programs currently assigned
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-border/40 divide-y divide-border/40">
+                        {matchingPrograms.map((prog) => {
+                          const isPublished = prog.status === "published";
+                          return (
+                            <div
+                              key={prog.id}
+                              className="flex items-center justify-between px-3.5 py-2.5 text-xs"
+                            >
+                              <div className="min-w-0 flex-1 pr-3">
+                                <span className="font-medium text-foreground block truncate">{prog.name}</span>
+                                <span className="text-[11px] text-muted-foreground">ID {prog.id}</span>
+                              </div>
+                              <span
+                                className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-[11px] font-medium shrink-0 ${
+                                  isPublished
+                                    ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                                    : "bg-slate-500/10 text-slate-700 dark:text-slate-400"
+                                }`}
+                              >
+                                <span
+                                  className={`size-1.5 rounded-full ${isPublished ? "bg-emerald-500" : "bg-slate-400"}`}
+                                />
+                                {prog.status}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <DrawerFooter className="border-t border-border/40 px-6 py-4">
+                  <div className="flex items-center gap-2 w-full">
+                    <Button
+                      className="flex-1 h-9 text-xs gap-1.5"
+                      onClick={() => {
+                        setIsDrawerOpen(false);
+                        handleOpenEdit(selectedCategory);
+                      }}
+                    >
+                      <Edit className="size-3.5" />
+                      Edit category
+                    </Button>
+                    <DrawerClose asChild>
+                      <Button variant="outline" className="h-9 text-xs px-4">
+                        Close
+                      </Button>
+                    </DrawerClose>
+                  </div>
+                </DrawerFooter>
+              </div>
+            );
+          })()}
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

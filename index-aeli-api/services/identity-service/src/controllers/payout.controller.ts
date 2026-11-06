@@ -4,6 +4,12 @@ import { payoutService } from '../services/payout.service.js';
 export class PayoutController {
   async getOverview(req: Request, res: Response, next: NextFunction) {
     try {
+      try {
+        const { hooplePaymentService } = await import('../services/hoople-payment.service.js');
+        await hooplePaymentService.syncAllPendingTransactions();
+      } catch (e) {
+        // Non-blocking sync error
+      }
       const data = await payoutService.getPayoutOverview();
       return res.json({ success: true, data });
     } catch (err) {
@@ -75,14 +81,45 @@ export class PayoutController {
     }
   }
 
+  async getTransactions(req: Request, res: Response, next: NextFunction) {
+    try {
+      try {
+        const { hooplePaymentService } = await import('../services/hoople-payment.service.js');
+        await hooplePaymentService.syncAllPendingTransactions();
+      } catch (e) {
+        // Non-blocking sync error
+      }
+
+      const data = await payoutService.getTransactions();
+      return res.json({
+        success: true,
+        data
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async recordPurchase(req: Request, res: Response, next: NextFunction) {
     try {
-      const { booking_code, program_name, customer_name, customer_email, pax, gross_amount, payment_method } = req.body;
+      const {
+        booking_code,
+        program_name,
+        experience_name,
+        customer_name,
+        customer_email,
+        customer_phone,
+        pax,
+        gross_amount,
+        payment_method
+      } = req.body;
       const data = await payoutService.recordProgramPurchase({
         booking_code,
         program_name,
+        experience_name,
         customer_name,
         customer_email,
+        customer_phone,
         pax: parseInt(pax, 10) || 1,
         gross_amount: parseFloat(gross_amount),
         payment_method

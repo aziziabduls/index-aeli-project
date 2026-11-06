@@ -38,13 +38,25 @@ export const authMiddleware = (req: CustomRequest, res: express.Response, next: 
 };
 
 export const protectAdminRoutes = (req: CustomRequest, res: express.Response, next: express.NextFunction) => {
+  // Allow public bookings, payments & webhook callbacks from traveler portal & payment gateway
+  if (
+    req.path.startsWith('/api/v1/payments') ||
+    req.path.startsWith('/payments') ||
+    (req.method === 'POST' && (req.path === '/api/v1/bookings' || req.path === '/api/v1/transactions' || req.path === '/api/v1/registrations'))
+  ) {
+    return next();
+  }
+
+
   const isProtectedPath =
     req.path.startsWith('/api/v1/admin/') ||
     req.path.startsWith('/api/v1/users') ||
     req.path.startsWith('/api/v1/roles') ||
     req.path.startsWith('/api/v1/billing') ||
     req.path.startsWith('/api/v1/notifications') ||
-    req.path.startsWith('/api/v1/payout');
+    req.path.startsWith('/api/v1/payout') ||
+    req.path.startsWith('/api/v1/transactions') ||
+    req.path.startsWith('/api/v1/registrations');
 
   if (isProtectedPath && !req.user) {
     return res.status(401).json({ success: false, error: 'Unauthorized', code: 'UNAUTHORIZED' });

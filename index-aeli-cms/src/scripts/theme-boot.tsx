@@ -1,12 +1,29 @@
+"use client";
+
 /**
  * Boot script that reads user preference values (theme mode, theme preset,
  * content layout, navbar style) from cookies or localStorage based on the
  * configured persistence mode.
  *
- * Runs early in <head> to apply the correct data attributes before hydration,
- * preventing layout or theme flicker and keeping RootLayout fully static.
+ * Runs early in <head> via useServerInsertedHTML to apply the correct data attributes
+ * before hydration, preventing layout or theme flicker and keeping RootLayout fully static.
  */
+import { useServerInsertedHTML } from "next/navigation";
 import { PREFERENCE_DEFAULTS, PREFERENCE_PERSISTENCE } from "@/lib/preferences/preferences-config";
+
+// Silence React 19 false-positive dev warning for script tags
+if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+  const originalError = console.error;
+  console.error = (...args: unknown[]) => {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes("Encountered a script tag while rendering React component")
+    ) {
+      return;
+    }
+    originalError.apply(console, args);
+  };
+}
 
 export function ThemeBootScript() {
   const persistence = JSON.stringify({
@@ -108,6 +125,14 @@ export function ThemeBootScript() {
     })();
   `;
 
-  /* biome-ignore lint/security/noDangerouslySetInnerHtml: required for pre-hydration boot script */
-  return <script dangerouslySetInnerHTML={{ __html: code }} />;
+  useServerInsertedHTML(() => {
+    return (
+      <script
+        id="theme-boot-script"
+        dangerouslySetInnerHTML={{ __html: code }}
+      />
+    );
+  });
+
+  return null;
 }
